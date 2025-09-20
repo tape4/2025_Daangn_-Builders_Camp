@@ -11,6 +11,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 
 import java.time.LocalDate;
 
@@ -23,22 +24,28 @@ public class DataInitializer {
     private final SpaceRepository spaceRepository;
 
     @Bean
-    @Profile({"test", "local", "dev"})
+    @Profile({"local", "dev"})
+    @Order(1) // TestTokenGenerator 보다 먼저 실행
     public ApplicationRunner initializeTestData() {
         return args -> {
             log.info("Initializing test data...");
             
-            // 테스트 사용자 생성
+            // 테스트 토큰용 사용자 생성
             if (!userRepository.existsByPhoneNumber("010-1234-5678")) {
                 User testUser1 = User.builder()
                         .phoneNumber("010-1234-5678")
-                        .nickname("일반사용자 테스트유저")
+                        .nickname("테스트 토큰 사용자")
                         .birthDate(LocalDate.of(1990, 1, 1))
                         .gender(Gender.MALE)
                         .profileImageUrl("https://example.com/profile1.jpg")
                         .build();
-                userRepository.save(testUser1);
-                log.info("Created test user 1: {}", testUser1.getId());
+                testUser1 = userRepository.save(testUser1);
+                log.info("Created test token user with ID: {} (Phone: 010-1234-5678)", testUser1.getId());
+            } else {
+                User existingUser = userRepository.findByPhoneNumber("010-1234-5678").orElse(null);
+                if (existingUser != null) {
+                    log.info("Test token user already exists with ID: {} (Phone: 010-1234-5678)", existingUser.getId());
+                }
             }
 
             if (!userRepository.existsByPhoneNumber("010-9876-5432")) {

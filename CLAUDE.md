@@ -127,3 +127,66 @@ How to Contribute (for Claude Code)
 
 Non-Goals (for now)
 •	Reactive stack (WebFlux), multi-module split, or cloud-specific IaC are out of scope unless explicitly needed.
+
+## Critical Development Rules
+
+### 코드 변경 시 필수 체크리스트
+모든 코드 변경 후 반드시 다음 3가지를 확인해야 합니다:
+
+1. **컴파일 성공**: 코드가 정상적으로 컴파일되는지 확인
+   ```bash
+   cd be && ./gradlew build
+   ```
+
+2. **모든 테스트 통과**: 전체 테스트 스위트가 성공하는지 확인
+   ```bash
+   cd be && ./gradlew test
+   ```
+
+3. **애플리케이션 실행**: 애플리케이션이 정상적으로 실행되는지 확인
+   ```bash
+   cd be && ./gradlew bootRun
+   ```
+
+### 테스트 리팩토링 원칙
+
+테스트 실패 시 다음 순서로 문제를 해결합니다:
+
+1. **테스트 목적 검증**: 해당 테스트가 올바른 것을 검증하고 있는지 확인
+   - 테스트 이름과 실제 테스트 내용이 일치하는지
+   - 테스트가 비즈니스 요구사항을 정확히 반영하는지
+
+2. **구현 로직 분석**: 테스트가 올바르다면 실제 구현 코드를 분석
+   - 컨트롤러, 서비스, 리포지토리 계층별 로직 검토
+   - 예외 처리 및 validation 로직 확인
+   - 의존성 주입 및 설정 문제 확인
+
+3. **근본 원인 해결**: 문제의 근본 원인을 찾아 수정
+   - 단순히 @Disabled로 처리하지 말 것
+   - 테스트 환경 설정 문제인 경우 설정 수정
+   - 실제 버그인 경우 구현 코드 수정
+
+### 테스트 작성 시 고려사항
+
+- **Spring Boot 3.x 변경사항**: @MockBean → @MockitoBean 사용
+- **통합 테스트**: @SpringBootTest 사용 시 실제 애플리케이션 컨텍스트 로드
+- **단위 테스트**: @WebMvcTest, @DataJpaTest 등 슬라이스 테스트 활용
+- **테스트 격리**: 각 테스트는 독립적으로 실행 가능해야 함
+
+### 일반적인 문제 해결 방법
+
+1. **Validation 오류**: 
+   - @AutoConfigureMockMvc(addFilters = false)로 필터 비활성화 가능
+   - 테스트용 validation 설정 별도 구성
+
+2. **LoginArgumentResolver 문제**:
+   - @MockitoBean으로 resolver mock 생성
+   - resolveArgument 메서드 적절히 stubbing
+
+3. **Multipart 테스트**:
+   - MockMultipartFile 사용
+   - Content-Type을 MediaType.MULTIPART_FORM_DATA로 설정
+
+4. **트랜잭션 롤백**:
+   - @Transactional 어노테이션으로 테스트 후 자동 롤백
+   - 필요시 @Rollback(false)로 커밋 가능

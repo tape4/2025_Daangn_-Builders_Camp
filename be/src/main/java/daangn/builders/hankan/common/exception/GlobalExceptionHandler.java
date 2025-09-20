@@ -69,6 +69,42 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
+    @ExceptionHandler(InvalidPhoneNumberFormatException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidPhoneNumberFormat(InvalidPhoneNumberFormatException ex) {
+        log.warn("Invalid phone number format: {}", ex.getMessage());
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message(ex.getMessage())
+                .build();
+        return ResponseEntity.badRequest().body(error);
+    }
+
+    @ExceptionHandler(InvalidPageableParameterException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidPageableParameter(InvalidPageableParameterException ex) {
+        log.warn("Invalid pageable parameter: {}", ex.getMessage());
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message(ex.getMessage())
+                .build();
+        return ResponseEntity.badRequest().body(error);
+    }
+
+    @ExceptionHandler(InvalidSearchParameterException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidSearchParameter(InvalidSearchParameterException ex) {
+        log.warn("Invalid search parameter: {}", ex.getMessage());
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message(ex.getMessage())
+                .build();
+        return ResponseEntity.badRequest().body(error);
+    }
+
     @ExceptionHandler(ReservationNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleReservationNotFound(ReservationNotFoundException ex) {
         log.warn("Reservation not found: {}", ex.getMessage());
@@ -268,6 +304,30 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(error);
     }
 
+    @ExceptionHandler({NullPointerException.class})
+    public ResponseEntity<ErrorResponse> handleNullPointer(NullPointerException ex) {
+        log.error("Null pointer error: ", ex);
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .error("Internal Server Error")
+                .message("데이터 처리 중 오류가 발생했습니다.")
+                .build();
+        return ResponseEntity.internalServerError().body(error);
+    }
+
+    @ExceptionHandler({org.springframework.dao.DataIntegrityViolationException.class})
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(org.springframework.dao.DataIntegrityViolationException ex) {
+        log.error("Data integrity violation: ", ex);
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.CONFLICT.value())
+                .error("Conflict")
+                .message("데이터 무결성 제약 조건을 위반했습니다.")
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         log.error("Unexpected error occurred: ", ex);
@@ -275,7 +335,7 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error("Internal Server Error")
-                .message("서버 오류가 발생했습니다.")
+                .message("예상치 못한 오류가 발생했습니다. 관리자에게 문의해주세요.")
                 .build();
         return ResponseEntity.internalServerError().body(error);
     }
