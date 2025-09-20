@@ -30,4 +30,8 @@ class UserProvider extends Notifier<User> {
       },
     );
   }
+
+  void updateUser(User user) {
+    state = user;
+  }
 }

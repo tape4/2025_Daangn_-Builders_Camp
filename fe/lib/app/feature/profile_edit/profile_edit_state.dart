@@ -8,6 +8,7 @@ class ProfileEditState with _$ProfileEditState {
   const factory ProfileEditState({
     @Default('') String nickname,
     @Default('') String profileUrl,
+    @Default('') String originalProfileUrl,
     @Default(false) bool isLoading,
     @Default(false) bool isSaving,
     String? errorMessage,

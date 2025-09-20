@@ -18,6 +18,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$ProfileEditState {
   String get nickname => throw _privateConstructorUsedError;
   String get profileUrl => throw _privateConstructorUsedError;
+  String get originalProfileUrl => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
   bool get isSaving => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
@@ -39,6 +40,7 @@ abstract class $ProfileEditStateCopyWith<$Res> {
   $Res call(
       {String nickname,
       String profileUrl,
+      String originalProfileUrl,
       bool isLoading,
       bool isSaving,
       String? errorMessage,
@@ -64,6 +66,7 @@ class _$ProfileEditStateCopyWithImpl<$Res, $Val extends ProfileEditState>
   $Res call({
     Object? nickname = null,
     Object? profileUrl = null,
+    Object? originalProfileUrl = null,
     Object? isLoading = null,
     Object? isSaving = null,
     Object? errorMessage = freezed,
@@ -77,6 +80,10 @@ class _$ProfileEditStateCopyWithImpl<$Res, $Val extends ProfileEditState>
       profileUrl: null == profileUrl
           ? _value.profileUrl
           : profileUrl // ignore: cast_nullable_to_non_nullable
+              as String,
+      originalProfileUrl: null == originalProfileUrl
+          ? _value.originalProfileUrl
+          : originalProfileUrl // ignore: cast_nullable_to_non_nullable
               as String,
       isLoading: null == isLoading
           ? _value.isLoading
@@ -123,6 +130,7 @@ abstract class _$$ProfileEditStateImplCopyWith<$Res>
   $Res call(
       {String nickname,
       String profileUrl,
+      String originalProfileUrl,
       bool isLoading,
       bool isSaving,
       String? errorMessage,
@@ -147,6 +155,7 @@ class __$$ProfileEditStateImplCopyWithImpl<$Res>
   $Res call({
     Object? nickname = null,
     Object? profileUrl = null,
+    Object? originalProfileUrl = null,
     Object? isLoading = null,
     Object? isSaving = null,
     Object? errorMessage = freezed,
@@ -160,6 +169,10 @@ class __$$ProfileEditStateImplCopyWithImpl<$Res>
       profileUrl: null == profileUrl
           ? _value.profileUrl
           : profileUrl // ignore: cast_nullable_to_non_nullable
+              as String,
+      originalProfileUrl: null == originalProfileUrl
+          ? _value.originalProfileUrl
+          : originalProfileUrl // ignore: cast_nullable_to_non_nullable
               as String,
       isLoading: null == isLoading
           ? _value.isLoading
@@ -187,6 +200,7 @@ class _$ProfileEditStateImpl implements _ProfileEditState {
   const _$ProfileEditStateImpl(
       {this.nickname = '',
       this.profileUrl = '',
+      this.originalProfileUrl = '',
       this.isLoading = false,
       this.isSaving = false,
       this.errorMessage,
@@ -200,6 +214,9 @@ class _$ProfileEditStateImpl implements _ProfileEditState {
   final String profileUrl;
   @override
   @JsonKey()
+  final String originalProfileUrl;
+  @override
+  @JsonKey()
   final bool isLoading;
   @override
   @JsonKey()
@@ -211,7 +228,7 @@ class _$ProfileEditStateImpl implements _ProfileEditState {
 
   @override
   String toString() {
-    return 'ProfileEditState(nickname: $nickname, profileUrl: $profileUrl, isLoading: $isLoading, isSaving: $isSaving, errorMessage: $errorMessage, currentUser: $currentUser)';
+    return 'ProfileEditState(nickname: $nickname, profileUrl: $profileUrl, originalProfileUrl: $originalProfileUrl, isLoading: $isLoading, isSaving: $isSaving, errorMessage: $errorMessage, currentUser: $currentUser)';
   }
 
   @override
@@ -223,6 +240,8 @@ class _$ProfileEditStateImpl implements _ProfileEditState {
                 other.nickname == nickname) &&
             (identical(other.profileUrl, profileUrl) ||
                 other.profileUrl == profileUrl) &&
+            (identical(other.originalProfileUrl, originalProfileUrl) ||
+                other.originalProfileUrl == originalProfileUrl) &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading) &&
             (identical(other.isSaving, isSaving) ||
@@ -234,8 +253,8 @@ class _$ProfileEditStateImpl implements _ProfileEditState {
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, nickname, profileUrl, isLoading,
-      isSaving, errorMessage, currentUser);
+  int get hashCode => Object.hash(runtimeType, nickname, profileUrl,
+      originalProfileUrl, isLoading, isSaving, errorMessage, currentUser);
 
   /// Create a copy of ProfileEditState
   /// with the given fields replaced by the non-null parameter values.
@@ -251,6 +270,7 @@ abstract class _ProfileEditState implements ProfileEditState {
   const factory _ProfileEditState(
       {final String nickname,
       final String profileUrl,
+      final String originalProfileUrl,
       final bool isLoading,
       final bool isSaving,
       final String? errorMessage,
@@ -260,6 +280,8 @@ abstract class _ProfileEditState implements ProfileEditState {
   String get nickname;
   @override
   String get profileUrl;
+  @override
+  String get originalProfileUrl;
   @override
   bool get isLoading;
   @override

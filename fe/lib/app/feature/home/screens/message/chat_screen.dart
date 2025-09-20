@@ -29,6 +29,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToBottom();
     });
+    ref.read(chatProvider(widget.channelUrl).notifier).initializeChat();
   }
 
   @override
@@ -100,15 +101,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon:
-                Icon(Icons.info_outline, color: context.colorScheme.foreground),
-            onPressed: () {
-              _showChannelInfo();
-            },
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -241,65 +233,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         ],
       ),
     );
-  }
-
-  void _showChannelInfo() {
-    final chatState = ref.read(chatProvider(widget.channelUrl));
-
-    showShadDialog(
-      context: context,
-      builder: (context) => ShadDialog(
-        title: const Text('채널 정보'),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (chatState.channel != null) ...[
-              _buildInfoRow('이름', chatState.channel!.name ?? '이름 없음'),
-              _buildInfoRow('멤버', '${chatState.channel!.memberCount}명'),
-              _buildInfoRow(
-                  '생성일', _formatDate(chatState.channel!.createdAt)),
-              _buildInfoRow('채널 URL', chatState.channel!.channelUrl),
-            ],
-          ],
-        ),
-        actions: [
-          ShadButton.outline(
-            child: const Text('닫기'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '$label: ',
-            style: ShadTheme.of(context).textTheme.small.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: ShadTheme.of(context).textTheme.small,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _formatDate(int? timestamp) {
-    if (timestamp == null) return '알 수 없음';
-    final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
-    return '${date.day}/${date.month}/${date.year}';
   }
 
   void _showMessageOptions(String messageId) {

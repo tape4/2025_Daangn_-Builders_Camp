@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hankan/app/feature/home/screens/message/logic/chat_provider_handler.dart';
@@ -35,13 +36,11 @@ class ChatNotifier extends FamilyNotifier<ChatState, String> {
   @override
   ChatState build(String arg) {
     _sendbirdService = SendbirdService.I;
-    _initializeChat();
-    return ChatState(channelUrl: arg);
+
+    return ChatState(channelUrl: arg, isLoading: true);
   }
 
-  Future<void> _initializeChat() async {
-    state = state.copyWith(isLoading: true);
-
+  Future<void> initializeChat() async {
     try {
       _channel = await _sendbirdService.getChannel(arg);
       state = state.copyWith(channel: _channel);
@@ -100,7 +99,8 @@ class ChatNotifier extends FamilyNotifier<ChatState, String> {
         state = state.copyWith(messages: updatedMessages);
       },
       onMessagesDeletedCallback: (context, channel, messages) {
-        final deletedMessageIds = messages.map((m) => m.messageId.toString()).toSet();
+        final deletedMessageIds =
+            messages.map((m) => m.messageId.toString()).toSet();
         final remainingMessages = state.messages
             .where((message) => !deletedMessageIds.contains(message.message_id))
             .toList();
@@ -126,9 +126,8 @@ class ChatNotifier extends FamilyNotifier<ChatState, String> {
       MyGroupChannelHandler(
         onTypingStatusUpdatedCallback: (channel) {
           if (channel.channelUrl == arg) {
-            final typingUserIds = channel.getTypingUsers()
-                .map((user) => user.userId)
-                .toList();
+            final typingUserIds =
+                channel.getTypingUsers().map((user) => user.userId).toList();
             state = state.copyWith(typingUserIds: typingUserIds);
           }
         },
@@ -156,7 +155,9 @@ class ChatNotifier extends FamilyNotifier<ChatState, String> {
       created_at: message.createdAt,
       is_mine: message.sender?.userId == currentUserId,
       custom_type: message.customType ?? '',
-      data: message.data is Map<String, dynamic> ? message.data as Map<String, dynamic> : {},
+      data: message.data is Map<String, dynamic>
+          ? message.data as Map<String, dynamic>
+          : {},
       updated_at: message.updatedAt,
       file_url: message is FileMessage ? message.url : null,
       file_name: message is FileMessage ? message.name : null,

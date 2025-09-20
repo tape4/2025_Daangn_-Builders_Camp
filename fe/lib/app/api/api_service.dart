@@ -122,4 +122,28 @@ class ApiService {
       );
     }
   }
+
+  Future<Result<User>> updateUserProfile({
+    String? nickname,
+    String? profileImagePath,
+  }) async {
+    final formData = FormData();
+
+    if (profileImagePath != null && profileImagePath.isNotEmpty) {
+      formData.files.add(MapEntry(
+        'profileImage',
+        await MultipartFile.fromFile(
+          profileImagePath,
+          filename: profileImagePath.split('/').last,
+        ),
+      ));
+    }
+
+    return _dio.patch(
+      '/api/users/me',
+      data: formData,
+      queryParameters: nickname != null ? {'nickname': nickname} : null,
+      fromJson: User.fromJson,
+    );
+  }
 }

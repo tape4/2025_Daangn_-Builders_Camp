@@ -1,6 +1,7 @@
-import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hankan/app/api/api_service.dart';
 import 'package:hankan/app/feature/profile_edit/profile_edit_state.dart';
+import 'package:hankan/app/provider/user_provider.dart';
 import 'package:hankan/app/service/sendbird_service.dart';
 
 final profileEditProvider = NotifierProvider<ProfileEditNotifier, ProfileEditState>(
@@ -14,19 +15,12 @@ class ProfileEditNotifier extends Notifier<ProfileEditState> {
   ProfileEditState build() {
     _sendbirdService = SendbirdService.I;
 
-    // Load current user data if available
-    final currentUser = _sendbirdService.currentUser;
-    if (currentUser != null) {
-      return ProfileEditState(
-        nickname: currentUser.nickname ?? '',
-        profileUrl: currentUser.profileUrl ?? '',
-      );
-    }
-
-    // Return default state if no user is connected
-    return const ProfileEditState(
-      nickname: '',
-      profileUrl: '',
+    // Load current user data from UserProvider
+    final currentUser = ref.read(userProvider);
+    return ProfileEditState(
+      nickname: currentUser.nickname,
+      profileUrl: currentUser.profile_image,
+      originalProfileUrl: currentUser.profile_image,
     );
   }
 
@@ -39,14 +33,6 @@ class ProfileEditNotifier extends Notifier<ProfileEditState> {
   }
 
   Future<bool> saveProfile() async {
-    // Check if Sendbird is connected
-    if (!_sendbirdService.isConnected) {
-      state = state.copyWith(
-        errorMessage: '서버에 연결되지 않았습니다. 잠시 후 다시 시도해주세요.',
-      );
-      return false;
-    }
-
     if (state.nickname.trim().isEmpty) {
       state = state.copyWith(
         errorMessage: '닉네임을 입력해주세요.',
@@ -64,31 +50,48 @@ class ProfileEditNotifier extends Notifier<ProfileEditState> {
     state = state.copyWith(isSaving: true, errorMessage: null);
 
     try {
-      String? profileUrlToSave = state.profileUrl;
+      String? profileImagePath;
+      bool hasImageChanged = state.profileUrl != state.originalProfileUrl;
 
-      // If the profile URL is a local file path, upload it to server first
-      if (profileUrlToSave.isNotEmpty && !profileUrlToSave.startsWith('http')) {
-        // TODO: Implement image upload to server
-        // This is where you would upload the image file to your server
-        // and get back a URL that can be saved to Sendbird
-        //
-        // Example implementation:
-        // final file = File(profileUrlToSave);
-        // final uploadedUrl = await uploadImageToServer(file);
-        // profileUrlToSave = uploadedUrl;
-        //
-        // For now, we'll skip saving the local file path
-        // In production, you must implement the upload functionality
-        profileUrlToSave = null;
+      // Only send image if it has changed and is a local file
+      if (hasImageChanged && state.profileUrl.isNotEmpty && !state.profileUrl.startsWith('http')) {
+        profileImagePath = state.profileUrl;
       }
 
-      await _sendbirdService.updateCurrentUserInfo(
+      // Call API to update user profile
+      final result = await ApiService.I.updateUserProfile(
         nickname: state.nickname.trim(),
-        profileUrl: profileUrlToSave,
+        profileImagePath: profileImagePath,
       );
 
-      state = state.copyWith(isSaving: false);
-      return true;
+      return await result.fold(
+        onSuccess: (updatedUser) async {
+          // Update UserProvider with new user data
+          ref.read(userProvider.notifier).updateUser(updatedUser);
+
+          // Update Sendbird profile if connected
+          if (_sendbirdService.isConnected) {
+            try {
+              await _sendbirdService.updateCurrentUserInfo(
+                nickname: updatedUser.nickname,
+                profileUrl: updatedUser.profile_image,
+              );
+            } catch (e) {
+              // Sendbird update failed, but API succeeded, so we continue
+            }
+          }
+
+          state = state.copyWith(isSaving: false);
+          return true;
+        },
+        onFailure: (error) {
+          state = state.copyWith(
+            isSaving: false,
+            errorMessage: '프로필 업데이트에 실패했습니다. 다시 시도해주세요.',
+          );
+          return false;
+        },
+      );
     } catch (e) {
       state = state.copyWith(
         isSaving: false,
