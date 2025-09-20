@@ -1,5 +1,7 @@
 package daangn.builders.hankan.domain.user;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -35,4 +37,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     @Query("SELECT AVG(r.rating), COUNT(r) FROM Review r WHERE r.reviewedUser.id = :userId")
     Object[] calculateUserRating(@Param("userId") Long userId);
+    
+    /**
+     * 닉네임 포함 검색
+     */
+    Page<User> findByNicknameContainingIgnoreCase(String nickname, Pageable pageable);
+    
+    /**
+     * 평점 높은 순으로 사용자 조회
+     */
+    Page<User> findAllByOrderByRatingDesc(Pageable pageable);
 }
