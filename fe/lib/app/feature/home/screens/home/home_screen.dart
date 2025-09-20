@@ -2,10 +2,12 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hankan/app/extension/context_x.dart';
 import 'package:hankan/app/feature/home/logic/home_provider.dart';
 import 'package:hankan/app/feature/home/screens/home/widgets/expandable_fab.dart';
 import 'package:hankan/app/feature/home/screens/home/widgets/home_appbar.dart';
 import 'package:hankan/app/feature/home/screens/home/widgets/space_carousel_card.dart';
+import 'package:hankan/app/provider/location_provider.dart';
 import 'package:latlong2/latlong.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -17,7 +19,8 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   late MapController _mapController;
-  final CarouselSliderController _carouselController = CarouselSliderController();
+  final CarouselSliderController _carouselController =
+      CarouselSliderController();
 
   @override
   void initState() {
@@ -44,11 +47,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _carouselController.animateToPage(index);
     ref.read(homeProvider.notifier).updateCarouselIndex(index);
   }
+
   @override
   Widget build(BuildContext context) {
     final homeState = ref.watch(homeProvider);
     final spaces = homeState.availableSpaces;
     final currentIndex = homeState.currentCarouselIndex;
+    final currentLocation = ref.watch(currentLocationProvider);
 
     // Default center (Seoul) if no spaces
     final mapCenter = spaces.isNotEmpty
@@ -74,46 +79,173 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               // Markers layer
               MarkerLayer(
-                markers: spaces.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final space = entry.value;
-                  final isSelected = index == currentIndex;
+                markers: [
+                  // Space markers
+                  ...spaces.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final space = entry.value;
+                    final isSelected = index == currentIndex;
 
-                  return Marker(
-                    point: LatLng(space.latitude, space.longitude),
-                    width: isSelected ? 50 : 40,
-                    height: isSelected ? 50 : 40,
-                    child: GestureDetector(
-                      onTap: () => _onMarkerTapped(index),
+                    return Marker(
+                      point: LatLng(space.latitude, space.longitude),
+                      width: isSelected ? 50 : 40,
+                      height: isSelected ? 50 : 40,
+                      child: GestureDetector(
+                        onTap: () => _onMarkerTapped(index),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? Theme.of(context).primaryColor
+                                : Colors.grey.shade600,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.3),
+                                blurRadius: 5,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.location_on,
+                            color: Colors.white,
+                            size: isSelected ? 26 : 20,
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  // Current location marker (blue dot)
+                  if (currentLocation.hasValue && currentLocation.value != null)
+                    Marker(
+                      point: LatLng(
+                        currentLocation.value!.latitude,
+                        currentLocation.value!.longitude,
+                      ),
+                      width: 30,
+                      height: 30,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: isSelected
-                              ? Theme.of(context).primaryColor
-                              : Colors.grey.shade600,
+                          color: Colors.blue.withOpacity(0.3),
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: Colors.white,
-                            width: 2,
+                            color: Colors.blue,
+                            width: 3,
                           ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.3),
-                              blurRadius: 5,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
                         ),
-                        child: Icon(
-                          Icons.location_on,
-                          color: Colors.white,
-                          size: isSelected ? 26 : 20,
+                        child: Center(
+                          child: Container(
+                            width: 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: Colors.blue,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  );
-                }).toList(),
+                ],
               ),
             ],
+          ),
+
+          Positioned(
+            top: 16,
+            right: 0,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: context.colorScheme.border,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    InkWell(
+                      onTap: homeState.isBorrowMode
+                          ? null
+                          : () => ref
+                              .read(homeProvider.notifier)
+                              .toggleBorrowMode(),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(7),
+                        bottomLeft: Radius.circular(7),
+                      ),
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: homeState.isBorrowMode
+                              ? context.colorScheme.primary
+                              : Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(7),
+                            bottomLeft: Radius.circular(7),
+                          ),
+                        ),
+                        child: Text(
+                          '빌릴레요',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: homeState.isBorrowMode
+                                ? context.colorScheme.primaryForeground
+                                : context.colorScheme.foreground,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: 1,
+                      height: 24,
+                      color: context.colorScheme.border,
+                    ),
+                    InkWell(
+                      onTap: !homeState.isBorrowMode
+                          ? null
+                          : () => ref
+                              .read(homeProvider.notifier)
+                              .toggleBorrowMode(),
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(7),
+                        bottomRight: Radius.circular(7),
+                      ),
+                      child: Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: !homeState.isBorrowMode
+                              ? context.colorScheme.primary
+                              : Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(7),
+                            bottomRight: Radius.circular(7),
+                          ),
+                        ),
+                        child: Text(
+                          '빌려줄레요',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: !homeState.isBorrowMode
+                                ? context.colorScheme.primaryForeground
+                                : context.colorScheme.foreground,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
 
           // Carousel at bottom

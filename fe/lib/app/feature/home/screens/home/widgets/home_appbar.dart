@@ -73,9 +73,6 @@ class _HomeAppbarState extends ConsumerState<HomeAppbar> {
 
   @override
   Widget build(BuildContext context) {
-    final homeState = ref.watch(homeProvider);
-    final homeNotifier = ref.read(homeProvider.notifier);
-
     return AppBar(
       elevation: 1,
       title: GestureDetector(
@@ -96,95 +93,6 @@ class _HomeAppbarState extends ConsumerState<HomeAppbar> {
           ],
         ),
       ),
-      actions: [
-        Padding(
-          padding: const EdgeInsets.only(right: 16.0),
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: ShadTheme.of(context).colorScheme.border,
-              ),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                InkWell(
-                  onTap: homeState.isBorrowMode
-                      ? null
-                      : () => homeNotifier.toggleBorrowMode(),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(7),
-                    bottomLeft: Radius.circular(7),
-                  ),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: homeState.isBorrowMode
-                          ? ShadTheme.of(context).colorScheme.primary
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(7),
-                        bottomLeft: Radius.circular(7),
-                      ),
-                    ),
-                    child: Text(
-                      '빌릴레요',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: homeState.isBorrowMode
-                            ? ShadTheme.of(context)
-                                .colorScheme
-                                .primaryForeground
-                            : ShadTheme.of(context).colorScheme.foreground,
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  width: 1,
-                  height: 24,
-                  color: ShadTheme.of(context).colorScheme.border,
-                ),
-                InkWell(
-                  onTap: !homeState.isBorrowMode
-                      ? null
-                      : () => homeNotifier.toggleBorrowMode(),
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(7),
-                    bottomRight: Radius.circular(7),
-                  ),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: !homeState.isBorrowMode
-                          ? ShadTheme.of(context).colorScheme.primary
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(7),
-                        bottomRight: Radius.circular(7),
-                      ),
-                    ),
-                    child: Text(
-                      '빌려줄레요',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: !homeState.isBorrowMode
-                            ? ShadTheme.of(context)
-                                .colorScheme
-                                .primaryForeground
-                            : ShadTheme.of(context).colorScheme.foreground,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

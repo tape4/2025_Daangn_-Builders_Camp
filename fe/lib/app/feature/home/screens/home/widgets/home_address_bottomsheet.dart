@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hankan/app/routing/router_service.dart';
+import 'package:hankan/app/service/gps_service.dart';
 import 'package:hankan/app/service/secure_storage_service.dart';
 import 'package:kpostal/kpostal.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
-class HomeAddressBottomsheet extends StatefulWidget {
+class HomeAddressBottomsheet extends ConsumerStatefulWidget {
   const HomeAddressBottomsheet({Key? key}) : super(key: key);
 
   @override
-  State<HomeAddressBottomsheet> createState() => _HomeAddressBottomsheetState();
+  ConsumerState<HomeAddressBottomsheet> createState() => _HomeAddressBottomsheetState();
 }
 
-class _HomeAddressBottomsheetState extends State<HomeAddressBottomsheet> {
+class _HomeAddressBottomsheetState extends ConsumerState<HomeAddressBottomsheet> {
   String? selectedAddress;
   final SecureStorageService _storageService = SecureStorageService.I;
 
@@ -36,6 +38,50 @@ class _HomeAddressBottomsheetState extends State<HomeAddressBottomsheet> {
       MaterialPageRoute(
         builder: (_) => KpostalView(
           callback: (Kpostal result) async {
+            // 선택한 주소의 좌표를 가져오기
+            final locations = await GpsService.I.getCoordinatesFromAddress(result.address);
+            if (locations == null || locations.isEmpty) {
+              RouterService.I.showNotification(
+                title: '주소 확인 실패',
+                message: '선택한 주소의 위치를 확인할 수 없습니다',
+                isError: true,
+              );
+              return;
+            }
+
+            // 현재 위치 가져오기
+            final currentPosition = await GpsService.I.getCurrentLocation();
+            if (currentPosition == null) {
+              // 현재 위치를 가져올 수 없는 경우에도 주소 설정 허용
+              setState(() {
+                selectedAddress = result.address;
+              });
+              await _storageService.write('selected_address', result.address);
+              if (mounted) {
+                Navigator.pop(context, result.address);
+              }
+              return;
+            }
+
+            // 거리 계산 (미터 단위)
+            final distance = await GpsService.I.calculateDistance(
+              currentPosition.latitude,
+              currentPosition.longitude,
+              locations.first.latitude,
+              locations.first.longitude,
+            );
+
+            // 10km 이내인지 확인
+            if (distance > 10000) {
+              RouterService.I.showNotification(
+                title: '위치 확인 필요',
+                message: '선택한 주소가 현재 위치에서 너무 멀리 떨어져 있습니다 (10km 이상)',
+                isError: true,
+              );
+              return;
+            }
+
+            // 거리 확인 완료 - 주소 저장
             setState(() {
               selectedAddress = result.address;
             });

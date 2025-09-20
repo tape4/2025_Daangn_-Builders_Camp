@@ -92,12 +92,129 @@ class _MySpacesTab extends StatelessWidget {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: state.mySpaces.length,
-      itemBuilder: (context, index) {
-        return MySpaceCard(space: state.mySpaces[index]);
-      },
+    // Calculate total statistics
+    double totalMonthlyRevenue = 0;
+    int totalPeopleHelped = 0;
+
+    for (final space in state.mySpaces) {
+      // Calculate monthly revenue from all storage prices
+      space.storagePrices.forEach((option, price) {
+        final quantity = space.storageOptions[option] ?? 0;
+        if (quantity > 0) {
+          totalMonthlyRevenue += price * quantity;
+        }
+      });
+
+      // Add current rented count as people helped
+      totalPeopleHelped += space.currentRentedCount;
+    }
+
+    return Column(
+      children: [
+        // Revenue statistics card
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  ShadTheme.of(context).colorScheme.primary.withOpacity(0.1),
+                  ShadTheme.of(context).colorScheme.primary.withOpacity(0.05),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: ShadTheme.of(context).colorScheme.border.withOpacity(0.5),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: ShadTheme.of(context).colorScheme.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.trending_up,
+                        color: ShadTheme.of(context).colorScheme.primary,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      '월간 예상 수익',
+                      style: ShadTheme.of(context).textTheme.muted.copyWith(
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '₩${totalMonthlyRevenue.toStringAsFixed(0)}',
+                      style: ShadTheme.of(context).textTheme.h4.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: ShadTheme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ],
+                ),
+                Container(
+                  width: 1,
+                  height: 80,
+                  color: ShadTheme.of(context).colorScheme.border.withOpacity(0.3),
+                ),
+                Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: ShadTheme.of(context).colorScheme.primary.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.people_alt,
+                        color: ShadTheme.of(context).colorScheme.primary,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      '도움 제공',
+                      style: ShadTheme.of(context).textTheme.muted.copyWith(
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '$totalPeopleHelped명',
+                      style: ShadTheme.of(context).textTheme.h4.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: ShadTheme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        // Space list
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: state.mySpaces.length,
+            itemBuilder: (context, index) {
+              return MySpaceCard(space: state.mySpaces[index]);
+            },
+          ),
+        ),
+      ],
     );
   }
 }
