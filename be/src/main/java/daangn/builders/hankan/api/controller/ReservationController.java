@@ -32,7 +32,7 @@ public class ReservationController {
     @PostMapping
     @Operation(summary = "예약 생성", description = "새로운 예약을 생성합니다.")
     public ResponseEntity<Reservation> createReservation(
-            @Login Long userId,
+            @Parameter(hidden = true) @Login Long userId,
             @Valid @RequestBody ReservationRequest request) {
         
         ReservationRequest updatedRequest = ReservationRequest.builder()
@@ -55,7 +55,7 @@ public class ReservationController {
     @GetMapping("/{reservationId}")
     @Operation(summary = "예약 상세 조회", description = "예약 ID로 상세 정보를 조회합니다.")
     public ResponseEntity<Reservation> getReservation(
-            @Login Long userId,
+            @Parameter(hidden = true) @Login Long userId,
             @PathVariable Long reservationId) {
         Reservation reservation = reservationService.findById(reservationId);
         return ResponseEntity.ok(reservation);
@@ -64,7 +64,7 @@ public class ReservationController {
     @GetMapping("/my")
     @Operation(summary = "내 예약 목록 조회", description = "현재 사용자의 예약 목록을 조회합니다.")
     public ResponseEntity<Page<Reservation>> getMyReservations(
-            @Login Long userId,
+            @Parameter(hidden = true) @Login Long userId,
             @ParameterObject @PageableDefault(size = 20) Pageable pageable) {
         Page<Reservation> reservations = reservationService.findByUser(userId, pageable);
         return ResponseEntity.ok(reservations);
@@ -73,7 +73,7 @@ public class ReservationController {
     @GetMapping("/my/status/{status}")
     @Operation(summary = "상태별 내 예약 조회", description = "특정 상태의 내 예약을 조회합니다.")
     public ResponseEntity<Page<Reservation>> getMyReservationsByStatus(
-            @Login Long userId,
+            @Parameter(hidden = true) @Login Long userId,
             @PathVariable Reservation.ReservationStatus status,
             @ParameterObject @PageableDefault(size = 20) Pageable pageable) {
         Page<Reservation> reservations = reservationService.findByUserAndStatus(userId, status, pageable);
@@ -93,7 +93,7 @@ public class ReservationController {
     @GetMapping("/my-spaces")
     @Operation(summary = "내 공간 예약 조회", description = "내가 소유한 공간들의 예약을 조회합니다.")
     public ResponseEntity<Page<Reservation>> getMySpaceReservations(
-            @Login Long userId,
+            @Parameter(hidden = true) @Login Long userId,
             @ParameterObject @PageableDefault(size = 20) Pageable pageable) {
         Page<Reservation> reservations = reservationService.findBySpaceOwner(userId, pageable);
         return ResponseEntity.ok(reservations);
@@ -102,7 +102,7 @@ public class ReservationController {
     @PatchMapping("/{reservationId}/confirm")
     @Operation(summary = "예약 확정", description = "대기 중인 예약을 확정합니다.")
     public ResponseEntity<Reservation> confirmReservation(
-            @Login Long userId,
+            @Parameter(hidden = true) @Login Long userId,
             @PathVariable Long reservationId) {
         Reservation reservation = reservationService.confirmReservation(reservationId);
         return ResponseEntity.ok(reservation);
@@ -111,7 +111,7 @@ public class ReservationController {
     @PatchMapping("/{reservationId}/cancel")
     @Operation(summary = "예약 취소", description = "예약을 취소합니다.")
     public ResponseEntity<Reservation> cancelReservation(
-            @Login Long userId,
+            @Parameter(hidden = true) @Login Long userId,
             @PathVariable Long reservationId) {
         Reservation reservation = reservationService.cancelReservation(reservationId);
         return ResponseEntity.ok(reservation);
@@ -120,7 +120,7 @@ public class ReservationController {
     @PatchMapping("/{reservationId}/check-in")
     @Operation(summary = "체크인", description = "예약에 대해 체크인을 진행합니다.")
     public ResponseEntity<Reservation> checkIn(
-            @Login Long userId,
+            @Parameter(hidden = true) @Login Long userId,
             @PathVariable Long reservationId,
             @Parameter(description = "보관할 물건 설명") @RequestParam String itemDescription,
             @Parameter(description = "물건 이미지 URL") @RequestParam(required = false) String itemImageUrl) {
@@ -132,7 +132,7 @@ public class ReservationController {
     @PatchMapping("/{reservationId}/check-out")
     @Operation(summary = "체크아웃", description = "예약에 대해 체크아웃을 진행합니다.")
     public ResponseEntity<Reservation> checkOut(
-            @Login Long userId,
+            @Parameter(hidden = true) @Login Long userId,
             @PathVariable Long reservationId,
             @Parameter(description = "물건 상태") @RequestParam Reservation.ItemCondition itemCondition) {
         
@@ -142,21 +142,21 @@ public class ReservationController {
 
     @GetMapping("/check-ins/today")
     @Operation(summary = "오늘 체크인 대상 조회", description = "오늘 체크인 예정인 예약들을 조회합니다.")
-    public ResponseEntity<List<Reservation>> getTodayCheckIns(@Login Long userId) {
+    public ResponseEntity<List<Reservation>> getTodayCheckIns(@Parameter(hidden = true) @Login Long userId) {
         List<Reservation> reservations = reservationService.findTodayCheckIns();
         return ResponseEntity.ok(reservations);
     }
 
     @GetMapping("/check-outs/today")
     @Operation(summary = "오늘 체크아웃 대상 조회", description = "오늘 체크아웃 예정인 예약들을 조회합니다.")
-    public ResponseEntity<List<Reservation>> getTodayCheckOuts(@Login Long userId) {
+    public ResponseEntity<List<Reservation>> getTodayCheckOuts(@Parameter(hidden = true) @Login Long userId) {
         List<Reservation> reservations = reservationService.findTodayCheckOuts();
         return ResponseEntity.ok(reservations);
     }
 
     @GetMapping("/overdue")
     @Operation(summary = "연체된 예약 조회", description = "체크아웃 기한이 지난 예약들을 조회합니다.")
-    public ResponseEntity<List<Reservation>> getOverdueReservations(@Login Long userId) {
+    public ResponseEntity<List<Reservation>> getOverdueReservations(@Parameter(hidden = true) @Login Long userId) {
         List<Reservation> reservations = reservationService.findOverdueReservations();
         return ResponseEntity.ok(reservations);
     }
@@ -164,7 +164,7 @@ public class ReservationController {
     @GetMapping("/check-review-eligibility")
     @Operation(summary = "리뷰 작성 권한 확인", description = "특정 공간에 대한 리뷰 작성 권한이 있는지 확인합니다.")
     public ResponseEntity<Boolean> checkReviewEligibility(
-            @Login Long userId,
+            @Parameter(hidden = true) @Login Long userId,
             @Parameter(description = "공간 ID") @RequestParam Long spaceId) {
         boolean eligible = reservationService.hasUserCompletedReservationAtSpace(userId, spaceId);
         return ResponseEntity.ok(eligible);

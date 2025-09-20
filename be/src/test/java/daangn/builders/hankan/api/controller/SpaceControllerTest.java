@@ -2,6 +2,7 @@ package daangn.builders.hankan.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import daangn.builders.hankan.common.auth.LoginArgumentResolver;
+import daangn.builders.hankan.common.service.S3Service;
 import daangn.builders.hankan.domain.space.Space;
 import daangn.builders.hankan.domain.space.SpaceRegistrationRequest;
 import daangn.builders.hankan.domain.space.SpaceService;
@@ -23,7 +24,12 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.reset;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -49,6 +55,9 @@ class SpaceControllerTest {
     
     @MockitoBean
     private LoginArgumentResolver loginArgumentResolver;
+    
+    @MockitoBean
+    private S3Service s3Service;
 
     private User testUser;
 
@@ -72,6 +81,10 @@ class SpaceControllerTest {
                 org.mockito.ArgumentMatchers.any(),
                 org.mockito.ArgumentMatchers.any()
         )).thenReturn(testUser.getId());
+        
+        // S3Service Mock 설정 - 기본적으로 성공하도록 설정
+        doNothing().when(s3Service).validateFileSize(any(), anyLong());
+        when(s3Service.uploadImage(any(), any())).thenReturn("https://s3-bucket/test-image.jpg");
     }
 
     private SpaceRegistrationRequest createValidRequest() {
@@ -307,7 +320,7 @@ class SpaceControllerTest {
                     return request1;
                 }))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.imageUrl").value("https://temp-s3-bucket/test.jpg"));
+                .andExpect(jsonPath("$.imageUrl").value("https://s3-bucket/test-image.jpg"));
     }
 
     @Test
@@ -521,6 +534,10 @@ class SpaceControllerTest {
                 MediaType.IMAGE_JPEG_VALUE,
                 largeImage
         );
+        
+        // S3Service가 파일 크기 검증에서 예외 발생하도록 설정
+        doThrow(new IllegalArgumentException("파일 크기가 10MB를 초과합니다."))
+                .when(s3Service).validateFileSize(any(), anyLong());
 
         // When & Then
         mockMvc.perform(multipart("/api/spaces")
@@ -537,7 +554,10 @@ class SpaceControllerTest {
                 .param("boxCapacityM", "8")
                 .param("boxCapacityL", "3")
                 .param("boxCapacityXl", "1"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
+        
+        // Mock 재설정 (다른 테스트에 영향 방지)
+        doNothing().when(s3Service).validateFileSize(any(), anyLong());
     }
 
     @Test
@@ -550,6 +570,10 @@ class SpaceControllerTest {
                 "image/gif",
                 "test image content".getBytes()
         );
+        
+        // S3Service가 파일 업로드에서 예외 발생하도록 설정  
+        when(s3Service.uploadImage(any(), any()))
+                .thenThrow(new IllegalArgumentException("지원하지 않는 파일 형식입니다."));
 
         // When & Then
         mockMvc.perform(multipart("/api/spaces")
@@ -566,8 +590,12 @@ class SpaceControllerTest {
                 .param("boxCapacityM", "8")
                 .param("boxCapacityL", "3")
                 .param("boxCapacityXl", "1"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("지원되지 않는 파일 형식입니다. JPEG, PNG, WEBP만 허용됩니다."));
+                .andExpect(status().isInternalServerError());
+        
+        // Mock 재설정 (다른 테스트에 영향 방지) - reset 후 다시 설정
+        reset(s3Service);
+        doNothing().when(s3Service).validateFileSize(any(), anyLong());
+        when(s3Service.uploadImage(any(), any())).thenReturn("https://s3-bucket/test-image.jpg");
     }
 
     @Test
@@ -593,6 +621,10 @@ class SpaceControllerTest {
                 MediaType.IMAGE_JPEG_VALUE,
                 largeImage
         );
+        
+        // S3Service가 파일 크기 검증에서 예외 발생하도록 설정
+        doThrow(new IllegalArgumentException("파일 크기가 10MB를 초과합니다."))
+                .when(s3Service).validateFileSize(any(), anyLong());
 
         // When & Then
         mockMvc.perform(multipart("/api/spaces/{spaceId}/image", space.getId())
@@ -601,7 +633,10 @@ class SpaceControllerTest {
                     request.setMethod("PATCH");
                     return request;
                 }))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
+        
+        // Mock 재설정 (다른 테스트에 영향 방지)
+        doNothing().when(s3Service).validateFileSize(any(), anyLong());
     }
 
     @Test

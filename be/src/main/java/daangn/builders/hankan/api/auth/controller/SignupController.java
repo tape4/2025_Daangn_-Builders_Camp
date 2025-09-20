@@ -3,6 +3,7 @@ package daangn.builders.hankan.api.auth.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import daangn.builders.hankan.api.auth.dto.SignupRequest;
 import daangn.builders.hankan.api.auth.dto.TokenResponse;
+import daangn.builders.hankan.common.service.S3Service;
 import daangn.builders.hankan.domain.auth.AuthService;
 import daangn.builders.hankan.domain.user.Gender;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,6 +37,7 @@ import java.util.UUID;
 public class SignupController {
 
     private final AuthService authService;
+    private final S3Service s3Service;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "회원가입", description = "회원가입을 진행합니다. 성공 시 자동으로 로그인되며 토큰을 발급합니다.")
@@ -61,14 +63,19 @@ public class SignupController {
             @RequestParam(value = "profileImage", required = false) MultipartFile profileImage) {
         
         try {
-            // 프로필 이미지 처리 (임시로 S3 업로드 대신 로컬 처리)
+            // 프로필 이미지 S3 업로드
             String profileImageUrl = null;
             if (profileImage != null && !profileImage.isEmpty()) {
-                // TODO: S3 업로드 구현
-                // 임시로 파일명을 사용한 URL 생성
-                String filename = UUID.randomUUID().toString() + "_" + profileImage.getOriginalFilename();
-                profileImageUrl = "https://hankan-s3-bucket.s3.ap-northeast-2.amazonaws.com/profiles/" + filename;
-                log.info("프로필 이미지 업로드 예정: {}", profileImageUrl);
+                try {
+                    // 파일 크기 검증 (10MB)
+                    s3Service.validateFileSize(profileImage, 10);
+                    // S3에 업로드
+                    profileImageUrl = s3Service.uploadImage(profileImage, S3Service.ImageType.PROFILE);
+                    log.info("프로필 이미지 업로드 성공: {}", profileImageUrl);
+                } catch (Exception e) {
+                    log.error("프로필 이미지 업로드 실패: {}", e.getMessage());
+                    // 프로필 이미지는 선택사항이므로 업로드 실패 시에도 회원가입 진행
+                }
             }
             
             // SignupRequest 객체 생성

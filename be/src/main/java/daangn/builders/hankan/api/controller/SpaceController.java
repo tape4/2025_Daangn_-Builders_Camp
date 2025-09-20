@@ -3,6 +3,7 @@ package daangn.builders.hankan.api.controller;
 import daangn.builders.hankan.api.dto.BoxCapacityResponse;
 import daangn.builders.hankan.common.auth.Login;
 import daangn.builders.hankan.common.auth.LoginContext;
+import daangn.builders.hankan.common.service.S3Service;
 import daangn.builders.hankan.domain.space.Space;
 import daangn.builders.hankan.domain.space.SpaceRegistrationRequest;
 import daangn.builders.hankan.domain.space.SpaceService;
@@ -32,11 +33,13 @@ import java.util.List;
 public class SpaceController {
 
     private final SpaceService spaceService;
+    private final S3Service s3Service;
 
     @PostMapping(consumes = "multipart/form-data")
     @Login
     @Operation(summary = "공간 등록", description = "새로운 보관 공간을 등록합니다. 이미지 파일을 포함하여 등록합니다.")
     public ResponseEntity<Space> registerSpace(
+            @Parameter(hidden = true) Long userId,
             @Parameter(description = "공간 이름") @RequestParam String name,
             @Parameter(description = "공간 설명") @RequestParam(required = false) String description,
             @Parameter(description = "위도") @RequestParam Double latitude,
@@ -58,36 +61,26 @@ public class SpaceController {
             @Parameter(description = "M 박스 개수") @RequestParam(required = false) Integer boxCapacityM,
             @Parameter(description = "L 박스 개수") @RequestParam(required = false) Integer boxCapacityL,
             @Parameter(description = "XL 박스 개수") @RequestParam(required = false) Integer boxCapacityXl) {
-        // 현재 로그인된 사용자를 소유자로 설정 (임시)
-        Long currentUserId = LoginContext.getCurrentUserId();
+        // 현재 로그인된 사용자를 소유자로 설정
+        Long currentUserId = userId;
         if (currentUserId == null) {
             // 개발용: 첫 번째 사용자를 기본값으로 사용
             currentUserId = 1L;
         }
         
-        // 이미지 파일 처리 - 나중에 S3 업로드 로직 추가 예정
+        // 이미지 파일 S3 업로드 처리
         String imageUrl = null;
         if (imageFile != null && !imageFile.isEmpty()) {
-            // 파일 크기 검증 (10MB 제한)
-            long maxFileSize = 10 * 1024 * 1024; // 10MB in bytes
-            if (imageFile.getSize() > maxFileSize) {
-                throw new IllegalArgumentException("파일 크기는 10MB를 초과할 수 없습니다. 현재 크기: " + 
-                    String.format("%.2f MB", imageFile.getSize() / (1024.0 * 1024.0)));
+            try {
+                // 파일 크기 검증 (10MB)
+                s3Service.validateFileSize(imageFile, 10);
+                // S3에 업로드
+                imageUrl = s3Service.uploadImage(imageFile, S3Service.ImageType.SPACE);
+                log.info("공간 이미지 업로드 성공: {}", imageUrl);
+            } catch (Exception e) {
+                log.error("공간 이미지 업로드 실패: {}", e.getMessage());
+                throw new RuntimeException("이미지 업로드에 실패했습니다.", e);
             }
-            
-            // 파일 타입 검증
-            String contentType = imageFile.getContentType();
-            if (contentType == null || (!contentType.equals("image/jpeg") && 
-                                         !contentType.equals("image/png") && 
-                                         !contentType.equals("image/webp"))) {
-                throw new IllegalArgumentException("지원되지 않는 파일 형식입니다. JPEG, PNG, WEBP만 허용됩니다.");
-            }
-            
-            // TODO: S3 업로드 로직 구현 예정
-            // 현재는 임시로 파일명을 저장
-            imageUrl = imageFile.getOriginalFilename();
-            log.info("이미지 파일 업로드됨: {} (크기: {} bytes, 타입: {})", 
-                     imageFile.getOriginalFilename(), imageFile.getSize(), contentType);
         }
         
         SpaceRegistrationRequest request = SpaceRegistrationRequest.builder()
@@ -178,8 +171,9 @@ public class SpaceController {
     @Login
     @Operation(summary = "내 공간 목록 조회", description = "현재 사용자가 소유한 공간 목록을 조회합니다.")
     public ResponseEntity<Page<Space>> getMySpaces(
+            @Parameter(hidden = true) Long userId,
             @ParameterObject @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        Long currentUserId = LoginContext.getCurrentUserId();
+        Long currentUserId = userId;
         if (currentUserId == null) {
             // 개발용: 공간 소유자 ID 사용
             currentUserId = 3L;
@@ -193,6 +187,7 @@ public class SpaceController {
     @Login
     @Operation(summary = "공간 이미지 업데이트", description = "공간의 이미지 파일을 업로드하여 업데이트합니다.")
     public ResponseEntity<Space> updateSpaceImage(
+            @Parameter(hidden = true) Long userId,
             @PathVariable Long spaceId,
             @Parameter(description = "업로드할 이미지 파일", 
                       content = @io.swagger.v3.oas.annotations.media.Content(
@@ -200,26 +195,20 @@ public class SpaceController {
                       )) 
             @RequestParam("image") MultipartFile imageFile) {
         
-        // 파일 크기 검증 (10MB 제한)
-        long maxFileSize = 10 * 1024 * 1024; // 10MB in bytes
-        if (imageFile.getSize() > maxFileSize) {
-            throw new IllegalArgumentException("파일 크기는 10MB를 초과할 수 없습니다. 현재 크기: " + 
-                String.format("%.2f MB", imageFile.getSize() / (1024.0 * 1024.0)));
+        // 이미지 파일 S3 업로드 처리
+        String imageUrl;
+        try {
+            // 파일 크기 검증 (10MB)
+            s3Service.validateFileSize(imageFile, 10);
+            // S3에 업로드
+            imageUrl = s3Service.uploadImage(imageFile, S3Service.ImageType.SPACE);
+            log.info("공간 이미지 업데이트 성공: {}", imageUrl);
+        } catch (Exception e) {
+            log.error("공간 이미지 업로드 실패: {}", e.getMessage());
+            throw new RuntimeException("이미지 업로드에 실패했습니다.", e);
         }
         
-        // 파일 타입 검증
-        String contentType = imageFile.getContentType();
-        if (contentType == null || (!contentType.equals("image/jpeg") && 
-                                     !contentType.equals("image/png") && 
-                                     !contentType.equals("image/webp"))) {
-            throw new IllegalArgumentException("지원되지 않는 파일 형식입니다. JPEG, PNG, WEBP만 허용됩니다.");
-        }
-        
-        // TODO: S3 업로드 로직 구현 예정
-        // 현재는 임시로 파일명을 URL로 사용
-        String tempImageUrl = "https://temp-s3-bucket/" + imageFile.getOriginalFilename();
-        
-        Space space = spaceService.updateSpaceImage(spaceId, tempImageUrl);
+        Space space = spaceService.updateSpaceImage(spaceId, imageUrl);
         return ResponseEntity.ok(space);
     }
 
@@ -227,6 +216,7 @@ public class SpaceController {
     @Login
     @Operation(summary = "공간 이용 가능 기간 업데이트", description = "공간의 이용 가능 기간을 업데이트합니다.")
     public ResponseEntity<Space> updateAvailabilityPeriod(
+            @Parameter(hidden = true) Long userId,
             @PathVariable Long spaceId,
             @Parameter(description = "시작 날짜 (YYYY-MM-DD 형식, 예: 2025-09-24)", 
                       example = "2025-09-24",
@@ -245,6 +235,7 @@ public class SpaceController {
     @Login
     @Operation(summary = "공간 박스 용량 업데이트", description = "공간의 박스 용량을 업데이트합니다.")
     public ResponseEntity<Space> updateBoxCapacities(
+            @Parameter(hidden = true) Long userId,
             @PathVariable Long spaceId,
             @Parameter(description = "XS 박스 개수") @RequestParam(required = false) Integer xs,
             @Parameter(description = "S 박스 개수") @RequestParam(required = false) Integer s,

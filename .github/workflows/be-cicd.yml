@@ -82,6 +82,15 @@ jobs:
                   echo "jwt.refresh-secret-key=${{ secrets.JWT_REFRESH_SECRET_KEY }}" >> ./src/main/resources/application-infrastructure.properties
                   echo "jwt.access-token-expiration=3600000" >> ./src/main/resources/application-infrastructure.properties
                   echo "jwt.refresh-token-expiration=604800000" >> ./src/main/resources/application-infrastructure.properties
+                  
+                  # AWS S3 Configuration
+                  echo "aws.access-key-id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> ./src/main/resources/application-infrastructure.properties
+                  echo "aws.secret-access-key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> ./src/main/resources/application-infrastructure.properties
+                  echo "aws.s3.region=${{ secrets.AWS_S3_REGION }}" >> ./src/main/resources/application-infrastructure.properties
+                  echo "aws.s3.bucket-name=${{ secrets.AWS_S3_BUCKET_NAME }}" >> ./src/main/resources/application-infrastructure.properties
+                  echo "aws.s3.profile-image-path=${{ secrets.AWS_S3_PROFILE_IMAGE_PATH }}" >> ./src/main/resources/application-infrastructure.properties
+                  echo "aws.s3.space-image-path=${{ secrets.AWS_S3_SPACE_IMAGE_PATH }}" >> ./src/main/resources/application-infrastructure.properties
+                  echo "aws.s3.item-image-path=${{ secrets.AWS_S3_ITEM_IMAGE_PATH }}" >> ./src/main/resources/application-infrastructure.properties
 
             - name: Build with Gradle Wrapper
               run: ./gradlew build

@@ -6,6 +6,7 @@ import daangn.builders.hankan.common.exception.InvalidSearchParameterException;
 import daangn.builders.hankan.api.dto.UserResponse;
 import daangn.builders.hankan.api.dto.UserStatsResponse;
 import daangn.builders.hankan.common.auth.Login;
+import daangn.builders.hankan.common.service.S3Service;
 import daangn.builders.hankan.domain.user.User;
 import daangn.builders.hankan.domain.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,6 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
 
     private final UserService userService;
+    private final S3Service s3Service;
 
 
     @GetMapping("/me")
@@ -226,9 +228,16 @@ public class UserController {
         
         String profileImageUrl = null;
         if (profileImage != null && !profileImage.isEmpty()) {
-            // TODO: S3 업로드 로직 추가 예정
-            // profileImageUrl = s3Service.uploadFile(profileImage);
-            log.debug("Profile image upload requested, file size: {} bytes", profileImage.getSize());
+            try {
+                // 파일 크기 검증 (10MB)
+                s3Service.validateFileSize(profileImage, 10);
+                // S3에 업로드
+                profileImageUrl = s3Service.uploadImage(profileImage, S3Service.ImageType.PROFILE);
+                log.info("Profile image uploaded successfully: {}", profileImageUrl);
+            } catch (Exception e) {
+                log.error("Failed to upload profile image: {}", e.getMessage());
+                throw new RuntimeException("프로필 이미지 업로드에 실패했습니다.", e);
+            }
         }
         
         User updatedUser = userService.updateProfile(userId, nickname, profileImageUrl);
