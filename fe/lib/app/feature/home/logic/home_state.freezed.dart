@@ -21,6 +21,12 @@ HomeState _$HomeStateFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$HomeState {
   List<String> get filters => throw _privateConstructorUsedError;
+  bool get isBorrowMode => throw _privateConstructorUsedError;
+  List<SpaceDetail> get availableSpaces => throw _privateConstructorUsedError;
+  int get currentCarouselIndex => throw _privateConstructorUsedError;
+  bool get isLoading => throw _privateConstructorUsedError;
+  bool get hasError => throw _privateConstructorUsedError;
+  String? get errorMessage => throw _privateConstructorUsedError;
 
   /// Serializes this HomeState to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -37,7 +43,14 @@ abstract class $HomeStateCopyWith<$Res> {
   factory $HomeStateCopyWith(HomeState value, $Res Function(HomeState) then) =
       _$HomeStateCopyWithImpl<$Res, HomeState>;
   @useResult
-  $Res call({List<String> filters});
+  $Res call(
+      {List<String> filters,
+      bool isBorrowMode,
+      List<SpaceDetail> availableSpaces,
+      int currentCarouselIndex,
+      bool isLoading,
+      bool hasError,
+      String? errorMessage});
 }
 
 /// @nodoc
@@ -56,12 +69,42 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
   @override
   $Res call({
     Object? filters = null,
+    Object? isBorrowMode = null,
+    Object? availableSpaces = null,
+    Object? currentCarouselIndex = null,
+    Object? isLoading = null,
+    Object? hasError = null,
+    Object? errorMessage = freezed,
   }) {
     return _then(_value.copyWith(
       filters: null == filters
           ? _value.filters
           : filters // ignore: cast_nullable_to_non_nullable
               as List<String>,
+      isBorrowMode: null == isBorrowMode
+          ? _value.isBorrowMode
+          : isBorrowMode // ignore: cast_nullable_to_non_nullable
+              as bool,
+      availableSpaces: null == availableSpaces
+          ? _value.availableSpaces
+          : availableSpaces // ignore: cast_nullable_to_non_nullable
+              as List<SpaceDetail>,
+      currentCarouselIndex: null == currentCarouselIndex
+          ? _value.currentCarouselIndex
+          : currentCarouselIndex // ignore: cast_nullable_to_non_nullable
+              as int,
+      isLoading: null == isLoading
+          ? _value.isLoading
+          : isLoading // ignore: cast_nullable_to_non_nullable
+              as bool,
+      hasError: null == hasError
+          ? _value.hasError
+          : hasError // ignore: cast_nullable_to_non_nullable
+              as bool,
+      errorMessage: freezed == errorMessage
+          ? _value.errorMessage
+          : errorMessage // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -74,7 +117,14 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       __$$HomeStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({List<String> filters});
+  $Res call(
+      {List<String> filters,
+      bool isBorrowMode,
+      List<SpaceDetail> availableSpaces,
+      int currentCarouselIndex,
+      bool isLoading,
+      bool hasError,
+      String? errorMessage});
 }
 
 /// @nodoc
@@ -91,12 +141,42 @@ class __$$HomeStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? filters = null,
+    Object? isBorrowMode = null,
+    Object? availableSpaces = null,
+    Object? currentCarouselIndex = null,
+    Object? isLoading = null,
+    Object? hasError = null,
+    Object? errorMessage = freezed,
   }) {
     return _then(_$HomeStateImpl(
       filters: null == filters
           ? _value._filters
           : filters // ignore: cast_nullable_to_non_nullable
               as List<String>,
+      isBorrowMode: null == isBorrowMode
+          ? _value.isBorrowMode
+          : isBorrowMode // ignore: cast_nullable_to_non_nullable
+              as bool,
+      availableSpaces: null == availableSpaces
+          ? _value._availableSpaces
+          : availableSpaces // ignore: cast_nullable_to_non_nullable
+              as List<SpaceDetail>,
+      currentCarouselIndex: null == currentCarouselIndex
+          ? _value.currentCarouselIndex
+          : currentCarouselIndex // ignore: cast_nullable_to_non_nullable
+              as int,
+      isLoading: null == isLoading
+          ? _value.isLoading
+          : isLoading // ignore: cast_nullable_to_non_nullable
+              as bool,
+      hasError: null == hasError
+          ? _value.hasError
+          : hasError // ignore: cast_nullable_to_non_nullable
+              as bool,
+      errorMessage: freezed == errorMessage
+          ? _value.errorMessage
+          : errorMessage // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -104,7 +184,16 @@ class __$$HomeStateImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$HomeStateImpl implements _HomeState {
-  _$HomeStateImpl({required final List<String> filters}) : _filters = filters;
+  _$HomeStateImpl(
+      {required final List<String> filters,
+      this.isBorrowMode = true,
+      final List<SpaceDetail> availableSpaces = const [],
+      this.currentCarouselIndex = 0,
+      this.isLoading = false,
+      this.hasError = false,
+      this.errorMessage})
+      : _filters = filters,
+        _availableSpaces = availableSpaces;
 
   factory _$HomeStateImpl.fromJson(Map<String, dynamic> json) =>
       _$$HomeStateImplFromJson(json);
@@ -118,8 +207,32 @@ class _$HomeStateImpl implements _HomeState {
   }
 
   @override
+  @JsonKey()
+  final bool isBorrowMode;
+  final List<SpaceDetail> _availableSpaces;
+  @override
+  @JsonKey()
+  List<SpaceDetail> get availableSpaces {
+    if (_availableSpaces is EqualUnmodifiableListView) return _availableSpaces;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_availableSpaces);
+  }
+
+  @override
+  @JsonKey()
+  final int currentCarouselIndex;
+  @override
+  @JsonKey()
+  final bool isLoading;
+  @override
+  @JsonKey()
+  final bool hasError;
+  @override
+  final String? errorMessage;
+
+  @override
   String toString() {
-    return 'HomeState(filters: $filters)';
+    return 'HomeState(filters: $filters, isBorrowMode: $isBorrowMode, availableSpaces: $availableSpaces, currentCarouselIndex: $currentCarouselIndex, isLoading: $isLoading, hasError: $hasError, errorMessage: $errorMessage)';
   }
 
   @override
@@ -127,13 +240,32 @@ class _$HomeStateImpl implements _HomeState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$HomeStateImpl &&
-            const DeepCollectionEquality().equals(other._filters, _filters));
+            const DeepCollectionEquality().equals(other._filters, _filters) &&
+            (identical(other.isBorrowMode, isBorrowMode) ||
+                other.isBorrowMode == isBorrowMode) &&
+            const DeepCollectionEquality()
+                .equals(other._availableSpaces, _availableSpaces) &&
+            (identical(other.currentCarouselIndex, currentCarouselIndex) ||
+                other.currentCarouselIndex == currentCarouselIndex) &&
+            (identical(other.isLoading, isLoading) ||
+                other.isLoading == isLoading) &&
+            (identical(other.hasError, hasError) ||
+                other.hasError == hasError) &&
+            (identical(other.errorMessage, errorMessage) ||
+                other.errorMessage == errorMessage));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(_filters));
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(_filters),
+      isBorrowMode,
+      const DeepCollectionEquality().hash(_availableSpaces),
+      currentCarouselIndex,
+      isLoading,
+      hasError,
+      errorMessage);
 
   /// Create a copy of HomeState
   /// with the given fields replaced by the non-null parameter values.
@@ -152,13 +284,32 @@ class _$HomeStateImpl implements _HomeState {
 }
 
 abstract class _HomeState implements HomeState {
-  factory _HomeState({required final List<String> filters}) = _$HomeStateImpl;
+  factory _HomeState(
+      {required final List<String> filters,
+      final bool isBorrowMode,
+      final List<SpaceDetail> availableSpaces,
+      final int currentCarouselIndex,
+      final bool isLoading,
+      final bool hasError,
+      final String? errorMessage}) = _$HomeStateImpl;
 
   factory _HomeState.fromJson(Map<String, dynamic> json) =
       _$HomeStateImpl.fromJson;
 
   @override
   List<String> get filters;
+  @override
+  bool get isBorrowMode;
+  @override
+  List<SpaceDetail> get availableSpaces;
+  @override
+  int get currentCarouselIndex;
+  @override
+  bool get isLoading;
+  @override
+  bool get hasError;
+  @override
+  String? get errorMessage;
 
   /// Create a copy of HomeState
   /// with the given fields replaced by the non-null parameter values.

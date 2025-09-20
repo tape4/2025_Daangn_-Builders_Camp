@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hankan/app/feature/home/logic/home_provider.dart';
 import 'package:hankan/app/feature/home/screens/home/widgets/home_address_bottomsheet.dart';
 import 'package:hankan/app/routing/router_service.dart';
 import 'package:hankan/app/service/secure_storage_service.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
-class HomeAppbar extends StatefulWidget implements PreferredSizeWidget {
+class HomeAppbar extends ConsumerStatefulWidget implements PreferredSizeWidget {
   const HomeAppbar({Key? key}) : super(key: key);
 
   @override
-  State<HomeAppbar> createState() => _HomeAppbarState();
+  ConsumerState<HomeAppbar> createState() => _HomeAppbarState();
 
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
-class _HomeAppbarState extends State<HomeAppbar> {
+class _HomeAppbarState extends ConsumerState<HomeAppbar> {
   String? selectedAddress;
   final SecureStorageService _storageService = SecureStorageService.I;
 
@@ -71,6 +73,9 @@ class _HomeAppbarState extends State<HomeAppbar> {
 
   @override
   Widget build(BuildContext context) {
+    final homeState = ref.watch(homeProvider);
+    final homeNotifier = ref.read(homeProvider.notifier);
+
     return AppBar(
       elevation: 1,
       title: GestureDetector(
@@ -82,6 +87,7 @@ class _HomeAppbarState extends State<HomeAppbar> {
             Text(
               _getDisplayAddress(selectedAddress),
               style: ShadTheme.of(context).textTheme.h4,
+              overflow: TextOverflow.ellipsis,
             ),
             Transform.rotate(
               angle: -3.14 / 2,
@@ -90,6 +96,95 @@ class _HomeAppbarState extends State<HomeAppbar> {
           ],
         ),
       ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 16.0),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: ShadTheme.of(context).colorScheme.border,
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                InkWell(
+                  onTap: homeState.isBorrowMode
+                      ? null
+                      : () => homeNotifier.toggleBorrowMode(),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(7),
+                    bottomLeft: Radius.circular(7),
+                  ),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: homeState.isBorrowMode
+                          ? ShadTheme.of(context).colorScheme.primary
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(7),
+                        bottomLeft: Radius.circular(7),
+                      ),
+                    ),
+                    child: Text(
+                      '빌릴레요',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: homeState.isBorrowMode
+                            ? ShadTheme.of(context)
+                                .colorScheme
+                                .primaryForeground
+                            : ShadTheme.of(context).colorScheme.foreground,
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  width: 1,
+                  height: 24,
+                  color: ShadTheme.of(context).colorScheme.border,
+                ),
+                InkWell(
+                  onTap: !homeState.isBorrowMode
+                      ? null
+                      : () => homeNotifier.toggleBorrowMode(),
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(7),
+                    bottomRight: Radius.circular(7),
+                  ),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: !homeState.isBorrowMode
+                          ? ShadTheme.of(context).colorScheme.primary
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(7),
+                        bottomRight: Radius.circular(7),
+                      ),
+                    ),
+                    child: Text(
+                      '빌려줄레요',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: !homeState.isBorrowMode
+                            ? ShadTheme.of(context)
+                                .colorScheme
+                                .primaryForeground
+                            : ShadTheme.of(context).colorScheme.foreground,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

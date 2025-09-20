@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:hankan/app/routing/router_service.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:flutter/services.dart';
@@ -36,6 +38,16 @@ void main() async {
             brightness: Brightness.light,
           ),
           debugShowCheckedModeBanner: false,
+          locale: const Locale('ko', 'KR'),
+          supportedLocales: const [
+            Locale('ko', 'KR'),
+          ],
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
           builder: (context, child) {
             return Overlay(
               initialEntries: [

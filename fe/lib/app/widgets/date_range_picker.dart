@@ -25,10 +25,6 @@ class DateRangePicker extends StatelessWidget {
     this.showDurationInfo = true,
   }) : super(key: key);
 
-  String _formatDate(DateTime date) {
-    return '${date.year}.${date.month.toString().padLeft(2, '0')}.${date.day.toString().padLeft(2, '0')}';
-  }
-
   int get _duration {
     if (startDate != null && endDate != null) {
       return endDate!.difference(startDate!).inDays + 1;
@@ -120,16 +116,20 @@ class DateRangePicker extends StatelessWidget {
           SizedBox(
             width: double.maxFinite,
             height: 60,
-            child: ShadDatePicker.range(
-              selected: startDate != null && endDate != null
-                  ? ShadDateTimeRange(start: startDate!, end: endDate!)
-                  : null,
-              onRangeChanged: (ShadDateTimeRange? range) {
-                if (range != null) {
-                  onDateRangeChanged(range.start, range.end);
-                  // Navigator.of(context).pop();
-                }
-              },
+            child: Localizations.override(
+              context: context,
+              locale: const Locale('ko', 'KR'),
+              child: ShadDatePicker.range(
+                selected: startDate != null && endDate != null
+                    ? ShadDateTimeRange(start: startDate!, end: endDate!)
+                    : null,
+                onRangeChanged: (ShadDateTimeRange? range) {
+                  if (range != null) {
+                    onDateRangeChanged(range.start, range.end);
+                    // Navigator.of(context).pop();
+                  }
+                },
+              ),
             ),
           ),
         ],
