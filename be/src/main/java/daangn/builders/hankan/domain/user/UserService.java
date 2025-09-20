@@ -1,5 +1,7 @@
 package daangn.builders.hankan.domain.user;
 
+import daangn.builders.hankan.common.exception.DuplicatePhoneNumberException;
+import daangn.builders.hankan.common.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,7 +26,7 @@ public class UserService {
         
         // 중복 전화번호 체크
         if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
-            throw new IllegalArgumentException("User with this phone number already exists");
+            throw new DuplicatePhoneNumberException(request.getPhoneNumber());
         }
 
         User user = User.builder()
@@ -43,7 +45,7 @@ public class UserService {
 
     public User findById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
     public Optional<User> findByPhoneNumber(String phoneNumber) {
@@ -52,7 +54,7 @@ public class UserService {
 
     public User findByPhoneNumberOrThrow(String phoneNumber) {
         return findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with phone number: " + maskPhoneNumber(phoneNumber)));
+                .orElseThrow(() -> new UserNotFoundException("User not found with phone number: " + maskPhoneNumber(phoneNumber)));
     }
 
     public Page<User> findByNicknameContaining(String nickname, Pageable pageable) {

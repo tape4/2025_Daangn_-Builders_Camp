@@ -1,17 +1,21 @@
 package daangn.builders.hankan.api.controller;
 
+import daangn.builders.hankan.api.dto.UserProfileUpdateRequest;
+import daangn.builders.hankan.api.dto.UserResponse;
 import daangn.builders.hankan.common.auth.Login;
-import daangn.builders.hankan.common.auth.LoginContext;
 import daangn.builders.hankan.domain.user.User;
-import daangn.builders.hankan.domain.user.UserRegistrationRequest;
 import daangn.builders.hankan.domain.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,107 +29,119 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/register")
-    @Operation(summary = "사용자 등록", description = "새로운 사용자를 등록합니다.")
-    public ResponseEntity<User> registerUser(@RequestBody UserRegistrationRequest request) {
-        User user = userService.registerUser(request);
-        
-        // 개발용: 등록 후 자동 로그인
-        LoginContext.setCurrentUser(user);
-        
-        return ResponseEntity.ok(user);
-    }
 
     @GetMapping("/me")
-    @Login
-    @Operation(summary = "내 프로필 조회", description = "현재 로그인한 사용자의 프로필을 조회합니다.")
-    public ResponseEntity<User> getMyProfile() {
-        Long currentUserId = LoginContext.getCurrentUserId();
-        if (currentUserId == null) {
-            // 개발용: 첫 번째 사용자 사용
-            currentUserId = 1L;
-        }
-        
-        User user = userService.findById(currentUserId);
-        return ResponseEntity.ok(user);
+    @Operation(summary = "내 정보 조회", description = "로그인한 사용자의 정보를 조회합니다")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "조회 성공"),
+        @ApiResponse(responseCode = "401", description = "인증 실패")
+    })
+    public ResponseEntity<UserResponse> getMyInfo(@Login Long userId) {
+        log.info("Getting user info for userId: {}", userId);
+        User user = userService.findById(userId);
+        return ResponseEntity.ok(UserResponse.from(user));
     }
 
     @GetMapping("/{userId}")
-    @Operation(summary = "사용자 프로필 조회", description = "특정 사용자의 프로필을 조회합니다.")
-    public ResponseEntity<User> getUserProfile(@PathVariable Long userId) {
+    @Operation(summary = "사용자 정보 조회", description = "특정 사용자의 정보를 조회합니다")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "조회 성공"),
+        @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음")
+    })
+    public ResponseEntity<UserResponse> getUserInfo(
+            @Parameter(description = "사용자 ID", required = true)
+            @PathVariable Long userId) {
+        log.info("Getting user info for userId: {}", userId);
         User user = userService.findById(userId);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(UserResponse.from(user));
     }
 
     @GetMapping("/phone/{phoneNumber}")
-    @Operation(summary = "전화번호로 사용자 조회", description = "전화번호로 사용자를 조회합니다.")
-    public ResponseEntity<User> getUserByPhone(@PathVariable String phoneNumber) {
+    @Operation(summary = "전화번호로 사용자 조회", description = "전화번호로 사용자를 조회합니다")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "조회 성공"),
+        @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음")
+    })
+    public ResponseEntity<UserResponse> getUserByPhone(
+            @Parameter(description = "전화번호", required = true)
+            @PathVariable String phoneNumber) {
+        log.info("Getting user by phone number");
         User user = userService.findByPhoneNumberOrThrow(phoneNumber);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(UserResponse.from(user));
     }
 
     @GetMapping("/search")
-    @Operation(summary = "닉네임으로 사용자 검색", description = "닉네임을 포함하는 사용자를 검색합니다.")
-    public ResponseEntity<Page<User>> searchUsersByNickname(
-            @Parameter(description = "검색할 닉네임") @RequestParam String nickname,
-            @PageableDefault(size = 20) Pageable pageable) {
-        
+    @Operation(summary = "닉네임으로 사용자 검색", description = "닉네임을 포함하는 사용자를 검색합니다")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "검색 성공")
+    })
+    public ResponseEntity<Page<UserResponse>> searchByNickname(
+            @Parameter(description = "검색할 닉네임", required = true)
+            @RequestParam String nickname,
+            @Parameter(description = "페이지 정보")
+            @PageableDefault(size = 20, sort = "nickname", direction = Sort.Direction.ASC) Pageable pageable) {
+        log.info("Searching users with nickname containing: {}", nickname);
         Page<User> users = userService.findByNicknameContaining(nickname, pageable);
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(users.map(UserResponse::from));
     }
 
     @GetMapping("/top-rated")
-    @Operation(summary = "평점 높은 사용자 조회", description = "평점이 높은 순서로 사용자를 조회합니다.")
-    public ResponseEntity<Page<User>> getTopRatedUsers(@PageableDefault(size = 20) Pageable pageable) {
+    @Operation(summary = "평점 상위 사용자 조회", description = "평점이 높은 순서대로 사용자를 조회합니다")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "조회 성공")
+    })
+    public ResponseEntity<Page<UserResponse>> getTopRatedUsers(
+            @Parameter(description = "페이지 정보")
+            @PageableDefault(size = 20) Pageable pageable) {
+        log.info("Getting top rated users");
         Page<User> users = userService.findTopRatedUsers(pageable);
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(users.map(UserResponse::from));
     }
 
-    @PatchMapping("/profile")
-    @Login
-    @Operation(summary = "프로필 업데이트", description = "사용자의 프로필 정보를 업데이트합니다.")
-    public ResponseEntity<User> updateProfile(
-            @Parameter(description = "새 닉네임") @RequestParam(required = false) String nickname,
-            @Parameter(description = "새 프로필 이미지 URL") @RequestParam(required = false) String profileImageUrl) {
-        
-        Long currentUserId = LoginContext.getCurrentUserId();
-        if (currentUserId == null) {
-            // 개발용: 첫 번째 사용자 사용
-            currentUserId = 1L;
-        }
-        
-        User user = userService.updateProfile(currentUserId, nickname, profileImageUrl);
-        return ResponseEntity.ok(user);
+    @PatchMapping("/me")
+    @Operation(summary = "내 프로필 수정", description = "로그인한 사용자의 프로필을 수정합니다")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "수정 성공"),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+        @ApiResponse(responseCode = "401", description = "인증 실패")
+    })
+    public ResponseEntity<UserResponse> updateMyProfile(
+            @Login Long userId,
+            @Valid @RequestBody UserProfileUpdateRequest request) {
+        log.info("Updating profile for userId: {}", userId);
+        User updatedUser = userService.updateProfile(
+                userId, 
+                request.getNickname(), 
+                request.getProfileImageUrl()
+        );
+        return ResponseEntity.ok(UserResponse.from(updatedUser));
     }
 
-    @PostMapping("/login-dev")
-    @Operation(summary = "개발용 로그인", description = "개발용 임시 로그인 기능입니다.")
-    public ResponseEntity<String> devLogin(@Parameter(description = "사용자 ID") @RequestParam Long userId) {
-        User user = userService.findById(userId);
-        LoginContext.setCurrentUser(user);
-        return ResponseEntity.ok("Logged in as: " + user.getNickname());
-    }
-
-    @PostMapping("/logout-dev")
-    @Operation(summary = "개발용 로그아웃", description = "개발용 임시 로그아웃 기능입니다.")
-    public ResponseEntity<String> devLogout() {
-        LoginContext.clear();
-        return ResponseEntity.ok("Logged out successfully");
-    }
 
     @GetMapping("/check-phone")
-    @Operation(summary = "전화번호 중복 확인", description = "전화번호 중복 여부를 확인합니다.")
+    @Operation(summary = "전화번호 중복 확인", description = "전화번호가 이미 등록되어 있는지 확인합니다")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "확인 성공")
+    })
     public ResponseEntity<Boolean> checkPhoneNumber(
-            @Parameter(description = "확인할 전화번호") @RequestParam String phoneNumber) {
-        
+            @Parameter(description = "확인할 전화번호", required = true)
+            @RequestParam String phoneNumber) {
+        log.info("Checking phone number availability");
         boolean exists = userService.existsByPhoneNumber(phoneNumber);
         return ResponseEntity.ok(exists);
     }
 
-    @GetMapping("/stats/total")
-    @Operation(summary = "총 사용자 수 조회", description = "전체 사용자 수를 조회합니다.")
-    public ResponseEntity<Long> getTotalUserCount() {
-        long count = userService.getTotalUserCount();
-        return ResponseEntity.ok(count);
+    @GetMapping("/stats")
+    @Operation(summary = "사용자 통계 조회", description = "전체 사용자 수 등의 통계를 조회합니다")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "조회 성공")
+    })
+    public ResponseEntity<UserStatsResponse> getUserStats() {
+        log.info("Getting user statistics");
+        long totalCount = userService.getTotalUserCount();
+        return ResponseEntity.ok(new UserStatsResponse(totalCount));
     }
+
+    // Inner class for stats response
+    public record UserStatsResponse(long totalUserCount) {}
 }

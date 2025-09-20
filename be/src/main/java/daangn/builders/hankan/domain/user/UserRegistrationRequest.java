@@ -16,6 +16,6 @@ public class UserRegistrationRequest {
     private String phoneNumber;
     private String nickname;
     private LocalDate birthDate;
-    private User.Gender gender;
+    private Gender gender;
     private String profileImageUrl;
 }

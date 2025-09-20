@@ -63,12 +63,12 @@ public class User extends BaseEntity {
         }
     }
     
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
     public void updateRating(double rating, int reviewCount) {
         this.rating = rating;
         this.reviewCount = reviewCount;
-    }
-    
-    public enum Gender {
-        MALE, FEMALE, OTHER
     }
 }
