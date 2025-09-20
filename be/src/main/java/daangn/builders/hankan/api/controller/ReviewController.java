@@ -29,17 +29,12 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @PostMapping("/space")
-    @Login
     @Operation(summary = "공간 리뷰 작성", description = "공간에 대한 리뷰를 작성합니다.")
-    public ResponseEntity<Review> createSpaceReview(@RequestBody ReviewRequest request) {
-        Long currentUserId = LoginContext.getCurrentUserId();
-        if (currentUserId == null) {
-            // 개발용: 첫 번째 사용자 사용
-            currentUserId = 1L;
-        }
-        
+    public ResponseEntity<Review> createSpaceReview(
+            @Login Long userId,
+            @RequestBody ReviewRequest request) {
         ReviewRequest updatedRequest = ReviewRequest.builder()
-                .reviewerId(currentUserId)
+                .reviewerId(userId)
                 .reservationId(request.getReservationId())
                 .rating(request.getRating())
                 .comment(request.getComment())
@@ -50,17 +45,12 @@ public class ReviewController {
     }
 
     @PostMapping("/user")
-    @Login
     @Operation(summary = "사용자 리뷰 작성", description = "사용자에 대한 리뷰를 작성합니다.")
-    public ResponseEntity<Review> createUserReview(@RequestBody ReviewRequest request) {
-        Long currentUserId = LoginContext.getCurrentUserId();
-        if (currentUserId == null) {
-            // 개발용: 첫 번째 사용자 사용
-            currentUserId = 1L;
-        }
-        
+    public ResponseEntity<Review> createUserReview(
+            @Login Long userId,
+            @RequestBody ReviewRequest request) {
         ReviewRequest updatedRequest = ReviewRequest.builder()
-                .reviewerId(currentUserId)
+                .reviewerId(userId)
                 .reservationId(request.getReservationId())
                 .rating(request.getRating())
                 .comment(request.getComment())
@@ -98,15 +88,11 @@ public class ReviewController {
     }
 
     @GetMapping("/my-written")
-    @Login
     @Operation(summary = "내가 작성한 리뷰 조회", description = "현재 사용자가 작성한 리뷰 목록을 조회합니다.")
-    public ResponseEntity<Page<Review>> getMyWrittenReviews(@PageableDefault(size = 20) Pageable pageable) {
-        Long currentUserId = LoginContext.getCurrentUserId();
-        if (currentUserId == null) {
-            currentUserId = 1L;
-        }
-        
-        Page<Review> reviews = reviewService.findReviewsByReviewer(currentUserId, pageable);
+    public ResponseEntity<Page<Review>> getMyWrittenReviews(
+            @Login Long userId,
+            @PageableDefault(size = 20) Pageable pageable) {
+        Page<Review> reviews = reviewService.findReviewsByReviewer(userId, pageable);
         return ResponseEntity.ok(reviews);
     }
 
@@ -146,9 +132,9 @@ public class ReviewController {
     }
 
     @PatchMapping("/{reviewId}")
-    @Login
     @Operation(summary = "리뷰 수정", description = "작성한 리뷰를 수정합니다.")
     public ResponseEntity<Review> updateReview(
+            @Login Long userId,
             @PathVariable Long reviewId,
             @Parameter(description = "새 평점 (1-5)") @RequestParam(required = false) Integer rating,
             @Parameter(description = "새 댓글") @RequestParam(required = false) String comment) {
@@ -158,25 +144,19 @@ public class ReviewController {
     }
 
     @GetMapping("/check-existing")
-    @Login
     @Operation(summary = "기존 리뷰 확인", description = "특정 예약에 대한 리뷰 작성 여부를 확인합니다.")
     public ResponseEntity<Optional<Review>> checkExistingReview(
+            @Login Long userId,
             @Parameter(description = "예약 ID") @RequestParam Long reservationId,
             @Parameter(description = "리뷰 타입") @RequestParam Review.ReviewType reviewType) {
-        
-        Long currentUserId = LoginContext.getCurrentUserId();
-        if (currentUserId == null) {
-            currentUserId = 1L;
-        }
-        
-        Optional<Review> review = reviewService.findExistingReview(currentUserId, reservationId, reviewType);
+        Optional<Review> review = reviewService.findExistingReview(userId, reservationId, reviewType);
         return ResponseEntity.ok(review);
     }
 
     @GetMapping("/check-review-permission")
-    @Login
     @Operation(summary = "리뷰 작성 권한 확인", description = "특정 예약에 대한 리뷰 작성 권한이 있는지 확인합니다.")
     public ResponseEntity<Boolean> checkReviewPermission(
+            @Login Long userId,
             @Parameter(description = "예약 ID") @RequestParam Long reservationId,
             @Parameter(description = "리뷰 타입") @RequestParam Review.ReviewType reviewType) {
         
@@ -185,18 +165,20 @@ public class ReviewController {
     }
 
     @PostMapping("/space/{spaceId}/update-rating")
-    @Login
     @Operation(summary = "공간 평점 재계산", description = "공간의 평점을 재계산합니다 (관리자용).")
-    public ResponseEntity<String> updateSpaceRating(@PathVariable Long spaceId) {
+    public ResponseEntity<String> updateSpaceRating(
+            @Login Long userId,
+            @PathVariable Long spaceId) {
         reviewService.updateSpaceRating(spaceId);
         return ResponseEntity.ok("Space rating updated successfully");
     }
 
-    @PostMapping("/user/{userId}/update-rating")
-    @Login
+    @PostMapping("/user/{targetUserId}/update-rating")
     @Operation(summary = "사용자 평점 재계산", description = "사용자의 평점을 재계산합니다 (관리자용).")
-    public ResponseEntity<String> updateUserRating(@PathVariable Long userId) {
-        reviewService.updateUserRating(userId);
+    public ResponseEntity<String> updateUserRating(
+            @Login Long userId,
+            @PathVariable Long targetUserId) {
+        reviewService.updateUserRating(targetUserId);
         return ResponseEntity.ok("User rating updated successfully");
     }
 }

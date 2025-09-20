@@ -57,6 +57,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
+    @ExceptionHandler(DuplicatePhoneNumberException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicatePhoneNumber(DuplicatePhoneNumberException ex) {
+        log.warn("Duplicate phone number: {}", ex.getMessage());
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.CONFLICT.value())
+                .error("Conflict")
+                .message(ex.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
     @ExceptionHandler(ReservationNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleReservationNotFound(ReservationNotFoundException ex) {
         log.warn("Reservation not found: {}", ex.getMessage());

@@ -38,6 +38,7 @@ out/
 
 ### CI/CD ###
 application-dev.properties
+application-infrastructure.properties
 
 ### template
 .template-backup**

@@ -69,6 +69,20 @@ jobs:
                   echo "api.server.url=http://${{ secrets.SERVER_URL }}" >> ./src/main/resources/application-prod.properties
                   echo "commit.hash=${{ steps.slug.outputs.sha7 }}" >> ./src/main/resources/application-prod.properties
 
+            - name: Generate application-infrastructure.properties
+              run: |
+                  # CoolSMS Configuration
+                  echo "coolsms.api-key=${{ secrets.COOLSMS_API_KEY }}" >> ./src/main/resources/application-infrastructure.properties
+                  echo "coolsms.api-secret=${{ secrets.COOLSMS_API_SECRET }}" >> ./src/main/resources/application-infrastructure.properties
+                  echo "coolsms.phone-number=${{ secrets.COOLSMS_PHONE_NUMBER }}" >> ./src/main/resources/application-infrastructure.properties
+                  echo "coolsms.base-url=${{ secrets.COOLSMS_BASE_URL }}" >> ./src/main/resources/application-infrastructure.properties
+                  
+                  # JWT Configuration
+                  echo "jwt.access-secret-key=${{ secrets.JWT_ACCESS_SECRET_KEY }}" >> ./src/main/resources/application-infrastructure.properties
+                  echo "jwt.refresh-secret-key=${{ secrets.JWT_REFRESH_SECRET_KEY }}" >> ./src/main/resources/application-infrastructure.properties
+                  echo "jwt.access-token-expiration=3600000" >> ./src/main/resources/application-infrastructure.properties
+                  echo "jwt.refresh-token-expiration=604800000" >> ./src/main/resources/application-infrastructure.properties
+
             - name: Build with Gradle Wrapper
               run: ./gradlew build
 
