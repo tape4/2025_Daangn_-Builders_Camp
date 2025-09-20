@@ -6,6 +6,7 @@ import 'package:hankan/app/feature/space_rental/logic/space_rental_state.dart';
 import 'package:hankan/app/feature/space_rental/widgets/dimension_input_section.dart';
 import 'package:hankan/app/feature/space_rental/widgets/location_panel.dart';
 import 'package:hankan/app/feature/space_rental/widgets/storage_option_item.dart';
+import 'package:hankan/app/common/widgets/date_range_picker.dart';
 import 'package:hankan/app/feature/space_rental/models/space_rental_option.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
@@ -59,6 +60,14 @@ class _SpaceRentalPageState extends ConsumerState<SpaceRentalPage> {
                   onLocationChanged: notifier.updateLocation,
                 ),
                 const SizedBox(height: 20),
+                CommonDateRangePicker(
+                  title: '대여 기간',
+                  startDate: state.startDate,
+                  endDate: state.endDate,
+                  onDateRangeChanged: notifier.updateDateRange,
+                  description: '공간을 대여할 기간을 선택해주세요',
+                ),
+                const SizedBox(height: 20),
                 _buildOptionsSection(context, state, notifier),
                 if (state.errorMessage != null) ...[
                   Padding(
@@ -97,7 +106,8 @@ class _SpaceRentalPageState extends ConsumerState<SpaceRentalPage> {
                           ShadToaster.of(context).show(
                             ShadToast(
                               title: const Text('등록 완료'),
-                              description: const Text('공간 대여 정보가 성공적으로 등록되었습니다.'),
+                              description:
+                                  const Text('공간 대여 정보가 성공적으로 등록되었습니다.'),
                             ),
                           );
                           context.pop();

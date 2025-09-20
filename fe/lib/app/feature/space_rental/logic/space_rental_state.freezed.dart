@@ -26,6 +26,8 @@ mixin _$SpaceRentalState {
   double get height => throw _privateConstructorUsedError;
   String get region => throw _privateConstructorUsedError;
   String get detailAddress => throw _privateConstructorUsedError;
+  DateTime? get startDate => throw _privateConstructorUsedError;
+  DateTime? get endDate => throw _privateConstructorUsedError;
   Map<StorageOption, int> get optionQuantities =>
       throw _privateConstructorUsedError;
   Map<StorageOption, int> get optionPrices =>
@@ -56,6 +58,8 @@ abstract class $SpaceRentalStateCopyWith<$Res> {
       double height,
       String region,
       String detailAddress,
+      DateTime? startDate,
+      DateTime? endDate,
       Map<StorageOption, int> optionQuantities,
       Map<StorageOption, int> optionPrices,
       bool isLoading,
@@ -83,6 +87,8 @@ class _$SpaceRentalStateCopyWithImpl<$Res, $Val extends SpaceRentalState>
     Object? height = null,
     Object? region = null,
     Object? detailAddress = null,
+    Object? startDate = freezed,
+    Object? endDate = freezed,
     Object? optionQuantities = null,
     Object? optionPrices = null,
     Object? isLoading = null,
@@ -113,6 +119,14 @@ class _$SpaceRentalStateCopyWithImpl<$Res, $Val extends SpaceRentalState>
           ? _value.detailAddress
           : detailAddress // ignore: cast_nullable_to_non_nullable
               as String,
+      startDate: freezed == startDate
+          ? _value.startDate
+          : startDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      endDate: freezed == endDate
+          ? _value.endDate
+          : endDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       optionQuantities: null == optionQuantities
           ? _value.optionQuantities
           : optionQuantities // ignore: cast_nullable_to_non_nullable
@@ -148,6 +162,8 @@ abstract class _$$SpaceRentalStateImplCopyWith<$Res>
       double height,
       String region,
       String detailAddress,
+      DateTime? startDate,
+      DateTime? endDate,
       Map<StorageOption, int> optionQuantities,
       Map<StorageOption, int> optionPrices,
       bool isLoading,
@@ -173,6 +189,8 @@ class __$$SpaceRentalStateImplCopyWithImpl<$Res>
     Object? height = null,
     Object? region = null,
     Object? detailAddress = null,
+    Object? startDate = freezed,
+    Object? endDate = freezed,
     Object? optionQuantities = null,
     Object? optionPrices = null,
     Object? isLoading = null,
@@ -203,6 +221,14 @@ class __$$SpaceRentalStateImplCopyWithImpl<$Res>
           ? _value.detailAddress
           : detailAddress // ignore: cast_nullable_to_non_nullable
               as String,
+      startDate: freezed == startDate
+          ? _value.startDate
+          : startDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      endDate: freezed == endDate
+          ? _value.endDate
+          : endDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
       optionQuantities: null == optionQuantities
           ? _value._optionQuantities
           : optionQuantities // ignore: cast_nullable_to_non_nullable
@@ -233,6 +259,8 @@ class _$SpaceRentalStateImpl implements _SpaceRentalState {
       this.height = 0.0,
       this.region = '',
       this.detailAddress = '',
+      this.startDate,
+      this.endDate,
       final Map<StorageOption, int> optionQuantities = const {},
       final Map<StorageOption, int> optionPrices = const {},
       this.isLoading = false,
@@ -260,6 +288,10 @@ class _$SpaceRentalStateImpl implements _SpaceRentalState {
   @override
   @JsonKey()
   final String detailAddress;
+  @override
+  final DateTime? startDate;
+  @override
+  final DateTime? endDate;
   final Map<StorageOption, int> _optionQuantities;
   @override
   @JsonKey()
@@ -286,7 +318,7 @@ class _$SpaceRentalStateImpl implements _SpaceRentalState {
 
   @override
   String toString() {
-    return 'SpaceRentalState(imagePath: $imagePath, width: $width, depth: $depth, height: $height, region: $region, detailAddress: $detailAddress, optionQuantities: $optionQuantities, optionPrices: $optionPrices, isLoading: $isLoading, errorMessage: $errorMessage)';
+    return 'SpaceRentalState(imagePath: $imagePath, width: $width, depth: $depth, height: $height, region: $region, detailAddress: $detailAddress, startDate: $startDate, endDate: $endDate, optionQuantities: $optionQuantities, optionPrices: $optionPrices, isLoading: $isLoading, errorMessage: $errorMessage)';
   }
 
   @override
@@ -302,6 +334,9 @@ class _$SpaceRentalStateImpl implements _SpaceRentalState {
             (identical(other.region, region) || other.region == region) &&
             (identical(other.detailAddress, detailAddress) ||
                 other.detailAddress == detailAddress) &&
+            (identical(other.startDate, startDate) ||
+                other.startDate == startDate) &&
+            (identical(other.endDate, endDate) || other.endDate == endDate) &&
             const DeepCollectionEquality()
                 .equals(other._optionQuantities, _optionQuantities) &&
             const DeepCollectionEquality()
@@ -322,6 +357,8 @@ class _$SpaceRentalStateImpl implements _SpaceRentalState {
       height,
       region,
       detailAddress,
+      startDate,
+      endDate,
       const DeepCollectionEquality().hash(_optionQuantities),
       const DeepCollectionEquality().hash(_optionPrices),
       isLoading,
@@ -352,6 +389,8 @@ abstract class _SpaceRentalState implements SpaceRentalState {
       final double height,
       final String region,
       final String detailAddress,
+      final DateTime? startDate,
+      final DateTime? endDate,
       final Map<StorageOption, int> optionQuantities,
       final Map<StorageOption, int> optionPrices,
       final bool isLoading,
@@ -372,6 +411,10 @@ abstract class _SpaceRentalState implements SpaceRentalState {
   String get region;
   @override
   String get detailAddress;
+  @override
+  DateTime? get startDate;
+  @override
+  DateTime? get endDate;
   @override
   Map<StorageOption, int> get optionQuantities;
   @override

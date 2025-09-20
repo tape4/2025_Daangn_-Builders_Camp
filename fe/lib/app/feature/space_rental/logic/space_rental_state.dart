@@ -13,6 +13,8 @@ class SpaceRentalState with _$SpaceRentalState {
     @Default(0.0) double height,
     @Default('') String region,
     @Default('') String detailAddress,
+    DateTime? startDate,
+    DateTime? endDate,
     @Default({}) Map<StorageOption, int> optionQuantities,
     @Default({}) Map<StorageOption, int> optionPrices,
     @Default(false) bool isLoading,
@@ -51,6 +53,8 @@ extension SpaceRentalStateExtension on SpaceRentalState {
         depth > 0 &&
         height > 0 &&
         region.isNotEmpty &&
+        startDate != null &&
+        endDate != null &&
         optionQuantities.values.any((quantity) => quantity > 0) &&
         optionPrices.entries
             .where((entry) => (optionQuantities[entry.key] ?? 0) > 0)

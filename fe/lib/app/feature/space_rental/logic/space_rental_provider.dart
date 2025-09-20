@@ -37,6 +37,13 @@ class SpaceRentalNotifier extends Notifier<SpaceRentalState> {
     );
   }
 
+  void updateDateRange(DateTime? start, DateTime? end) {
+    state = state.copyWith(
+      startDate: start,
+      endDate: end,
+    );
+  }
+
   void updateOptionQuantity(StorageOption option, int quantity) {
     if (quantity < 0) return;
 

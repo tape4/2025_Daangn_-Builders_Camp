@@ -1,8 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hankan/app/feature/profile_edit/profile_edit_provider.dart';
 import 'package:hankan/app/feature/profile_edit/profile_edit_state.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
@@ -14,19 +16,24 @@ class ProfileEditPage extends ConsumerStatefulWidget {
 }
 
 class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
-  late TextEditingController _nicknameController;
+  TextEditingController? _nicknameController;
   final _formKey = GlobalKey<ShadFormState>();
 
   @override
   void initState() {
     super.initState();
-    final state = ref.read(profileEditProvider);
-    _nicknameController = TextEditingController(text: state.nickname);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        final state = ref.read(profileEditProvider);
+        _nicknameController = TextEditingController(text: state.nickname);
+        setState(() {});
+      }
+    });
   }
 
   @override
   void dispose() {
-    _nicknameController.dispose();
+    _nicknameController?.dispose();
     super.dispose();
   }
 
@@ -34,6 +41,32 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(profileEditProvider);
     final notifier = ref.read(profileEditProvider.notifier);
+
+    // Show loading while initializing controller
+    if (_nicknameController == null) {
+      return Scaffold(
+        backgroundColor: ShadTheme.of(context).colorScheme.background,
+        appBar: AppBar(
+          backgroundColor: ShadTheme.of(context).colorScheme.background,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(
+              Symbols.arrow_back_ios,
+              color: ShadTheme.of(context).colorScheme.foreground,
+            ),
+            onPressed: () => context.pop(),
+          ),
+          title: Text(
+            '프로필 수정',
+            style: ShadTheme.of(context).textTheme.h4,
+          ),
+          centerTitle: true,
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: ShadTheme.of(context).colorScheme.background,
@@ -117,45 +150,7 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
     return Center(
       child: Column(
         children: [
-          Stack(
-            children: [
-              ShadAvatar(
-                state.profileUrl.isEmpty
-                    ? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTF_IdW_JHgWJh_GBrudxZXPOFfdf5598pnew&s'
-                    : state.profileUrl,
-                placeholder: Text(
-                  state.nickname.isNotEmpty ? state.nickname[0].toUpperCase() : 'U',
-                ),
-                size: const Size.square(100),
-                fit: BoxFit.cover,
-              ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: ShadTheme.of(context).colorScheme.primary,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: ShadTheme.of(context).colorScheme.background,
-                      width: 2,
-                    ),
-                  ),
-                  child: ShadButton.ghost(
-                    size: ShadButtonSize.sm,
-                    icon: Icon(
-                      Symbols.camera_alt,
-                      color: ShadTheme.of(context).colorScheme.primaryForeground,
-                      size: 18,
-                    ),
-                    onPressed: () {
-                      _showImagePickerDialog(context, notifier);
-                    },
-                  ),
-                ),
-              ),
-            ],
-          ),
+          _buildAvatar(state),
           const SizedBox(height: 12),
           ShadButton.outline(
             size: ShadButtonSize.sm,
@@ -169,6 +164,45 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
     );
   }
 
+  Widget _buildAvatar(ProfileEditState state) {
+    final size = const Size.square(100);
+
+    // Check if it's a local file path
+    if (state.profileUrl.isNotEmpty && !state.profileUrl.startsWith('http')) {
+      return ClipOval(
+        child: Image.file(
+          File(state.profileUrl),
+          width: size.width,
+          height: size.height,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            // Fallback to placeholder if image loading fails
+            return ShadAvatar(
+              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTF_IdW_JHgWJh_GBrudxZXPOFfdf5598pnew&s',
+              placeholder: Text(
+                state.nickname.isNotEmpty ? state.nickname[0].toUpperCase() : 'U',
+              ),
+              size: size,
+              fit: BoxFit.cover,
+            );
+          },
+        ),
+      );
+    }
+
+    // Use ShadAvatar for URLs or default image
+    return ShadAvatar(
+      state.profileUrl.isEmpty
+          ? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTF_IdW_JHgWJh_GBrudxZXPOFfdf5598pnew&s'
+          : state.profileUrl,
+      placeholder: Text(
+        state.nickname.isNotEmpty ? state.nickname[0].toUpperCase() : 'U',
+      ),
+      size: size,
+      fit: BoxFit.cover,
+    );
+  }
+
   Widget _buildNicknameField(
     BuildContext context,
     ProfileEditState state,
@@ -176,7 +210,7 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
   ) {
     return ShadInputFormField(
       id: 'nickname',
-      controller: _nicknameController,
+      controller: _nicknameController!,
       label: Text(
         '닉네임',
         style: ShadTheme.of(context).textTheme.small.copyWith(
@@ -201,7 +235,7 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
         return null;
       },
       description: Text(
-        '${_nicknameController.text.length}/20',
+        '${_nicknameController!.text.length}/20',
         style: ShadTheme.of(context).textTheme.muted.copyWith(
               fontSize: 12,
             ),
@@ -209,67 +243,92 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
     );
   }
 
-void _showImagePickerDialog(BuildContext context, ProfileEditNotifier notifier) {
-    final urlController = TextEditingController(text: ref.read(profileEditProvider).profileUrl);
-    final dialogFormKey = GlobalKey<ShadFormState>();
-
+  void _showImagePickerDialog(
+      BuildContext context, ProfileEditNotifier notifier) {
     showShadDialog(
       context: context,
       builder: (context) => ShadDialog(
         title: const Text('프로필 사진 변경'),
-        description: const Text('새 프로필 사진을 선택하거나 URL을 입력하세요.'),
-        child: ShadForm(
-          key: dialogFormKey,
-          child: Column(
-            children: [
-              ShadInputFormField(
-                id: 'profileUrl',
-                controller: urlController,
-                placeholder: const Text('이미지 URL 입력'),
-                validator: (value) {
-                  if (value != null && value.isNotEmpty) {
-                    final urlPattern = RegExp(
-                      r'^https?:\/\/.*\.(jpg|jpeg|png|gif|webp)',
-                      caseSensitive: false,
-                    );
-                    if (!urlPattern.hasMatch(value)) {
-                      return '올바른 이미지 URL을 입력해주세요.';
-                    }
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-              Row(
+        description: const Text('갤러리 또는 카메라에서 사진을 선택하세요.'),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ShadButton.outline(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await _pickImage(ImageSource.gallery, notifier);
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Expanded(
-                    child: ShadButton.outline(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text('취소'),
-                    ),
-                  ),
+                  Icon(Symbols.photo_library),
                   const SizedBox(width: 8),
-                  Expanded(
-                    child: ShadButton(
-                      onPressed: () {
-                        if (dialogFormKey.currentState?.saveAndValidate() ?? false) {
-                          notifier.updateProfileUrl(urlController.text);
-                          Navigator.of(context).pop();
-                        }
-                      },
-                      child: const Text('확인'),
-                    ),
-                  ),
+                  const Text('갤러리에서 선택'),
                 ],
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 12),
+            ShadButton.outline(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await _pickImage(ImageSource.camera, notifier);
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Symbols.camera_alt),
+                  const SizedBox(width: 8),
+                  const Text('카메라로 촬영'),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            ShadButton.ghost(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('취소'),
+            ),
+          ],
         ),
       ),
-    ).then((_) {
-      urlController.dispose();
-    });
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source, ProfileEditNotifier notifier) async {
+    final ImagePicker picker = ImagePicker();
+
+    try {
+      final XFile? image = await picker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+
+      if (image != null) {
+        // For now, we'll use the file path as a placeholder
+        // In a real app, you would upload this to a server and get a URL back
+        notifier.updateProfileUrl(image.path);
+
+        // Show a toast to indicate success
+        if (mounted) {
+          ShadToaster.of(context).show(
+            ShadToast(
+              title: const Text('사진이 선택되었습니다.'),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ShadToaster.of(context).show(
+          ShadToast.destructive(
+            title: const Text('사진 선택 실패'),
+            description: const Text('사진을 선택할 수 없습니다. 다시 시도해주세요.'),
+          ),
+        );
+      }
+    }
   }
 }

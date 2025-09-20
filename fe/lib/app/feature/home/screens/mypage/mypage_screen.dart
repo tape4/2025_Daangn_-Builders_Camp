@@ -76,12 +76,6 @@ class MypageScreen extends ConsumerWidget {
       children: [
         _buildMenuItem(
           context: context,
-          icon: Symbols.history,
-          title: '대여 내역',
-          onTap: () => context.push(Routes.mypageHistory),
-        ),
-        _buildMenuItem(
-          context: context,
           icon: Symbols.description,
           title: '이용 약관',
           onTap: () {

@@ -1,27 +1,90 @@
 import 'package:flutter/material.dart';
 import 'package:hankan/app/feature/home/screens/home/widgets/home_address_bottomsheet.dart';
+import 'package:hankan/app/routing/router_service.dart';
+import 'package:hankan/app/service/secure_storage_service.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
-class HomeAppbar extends StatelessWidget implements PreferredSizeWidget {
+class HomeAppbar extends StatefulWidget implements PreferredSizeWidget {
   const HomeAppbar({Key? key}) : super(key: key);
+
+  @override
+  State<HomeAppbar> createState() => _HomeAppbarState();
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}
+
+class _HomeAppbarState extends State<HomeAppbar> {
+  String? selectedAddress;
+  final SecureStorageService _storageService = SecureStorageService.I;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedAddress();
+  }
+
+  Future<void> _loadSavedAddress() async {
+    final address = await _storageService.read('selected_address');
+    if (mounted) {
+      setState(() {
+        selectedAddress = address;
+      });
+      if (address == null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _showAddressPrompt();
+        });
+      }
+    }
+  }
+
+  void _showAddressPrompt() {
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      builder: (context) {
+        return PopScope(
+          canPop: false,
+          child: HomeAddressBottomsheet(),
+        );
+      },
+    ).then((result) {
+      if (result != null && mounted) {
+        setState(() {
+          selectedAddress = result;
+        });
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          RouterService.I.showNotification(
+            title: '주소 설정 완료',
+            message: '선택한 주소로 변경되었습니다',
+          );
+        });
+      }
+    });
+  }
+
+  String _getDisplayAddress(String? address) {
+    if (address == null) return '주소를 선택해주세요';
+    final parts = address.split(' ');
+    if (parts.length >= 2) {
+      return '${parts[0]} ${parts[1]}';
+    }
+    return address;
+  }
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       elevation: 1,
       title: GestureDetector(
-        onTap: () {
-          showModalBottomSheet(
-            context: context,
-            builder: (context) {
-              return HomeAddressBottomsheet();
-            },
-          );
+        onTap: () async {
+          _showAddressPrompt();
         },
         child: Row(
           children: [
             Text(
-              "인천광역시",
+              _getDisplayAddress(selectedAddress),
               style: ShadTheme.of(context).textTheme.h4,
             ),
             Transform.rotate(
@@ -33,7 +96,4 @@ class HomeAppbar extends StatelessWidget implements PreferredSizeWidget {
       ),
     );
   }
-
-  @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }

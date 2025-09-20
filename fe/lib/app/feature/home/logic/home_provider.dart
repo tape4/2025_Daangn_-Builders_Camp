@@ -8,7 +8,7 @@ final homeProvider = NotifierProvider<HomeProvider, HomeState>(
 class HomeProvider extends Notifier<HomeState> {
   @override
   build() {
-    return HomeState(filters: ["asdf"], sometings: []);
+    return HomeState(filters: ["asdf"]);
   }
 
   void someFunctions() {

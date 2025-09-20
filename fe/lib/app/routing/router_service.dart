@@ -9,7 +9,6 @@ import 'package:hankan/app/feature/auth/region/region_select_page.dart';
 import 'package:hankan/app/feature/auth/register/register_page.dart';
 import 'package:hankan/app/feature/error/error_page.dart';
 import 'package:hankan/app/feature/faq/faq_page.dart';
-import 'package:hankan/app/feature/history/history_page.dart';
 import 'package:hankan/app/feature/home/home_page.dart';
 import 'package:hankan/app/feature/home/screens/message/chat_screen.dart';
 import 'package:hankan/app/feature/profile_edit/profile_edit_page.dart';
@@ -269,30 +268,6 @@ class RouterService {
                     ),
                     child: child,
                   ),
-                );
-              },
-            );
-          },
-        ),
-        GoRoute(
-          path: Routes.mypageHistory,
-          pageBuilder: (context, state) {
-            return CustomTransitionPage(
-              key: state.pageKey,
-              child: const HistoryPage(),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                const begin = Offset(1.0, 0.0);
-                const end = Offset.zero;
-                const curve = Curves.easeInOutCubic;
-
-                var tween = Tween(begin: begin, end: end).chain(
-                  CurveTween(curve: curve),
-                );
-
-                return SlideTransition(
-                  position: animation.drive(tween),
-                  child: child,
                 );
               },
             );

@@ -1,9 +1,7 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
-import 'package:hankan/app/extension/context_x.dart';
 import 'package:hankan/app/feature/home/screens/home/widgets/expandable_fab.dart';
 import 'package:hankan/app/feature/home/screens/home/widgets/home_appbar.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class HomeScreen extends StatefulWidget {

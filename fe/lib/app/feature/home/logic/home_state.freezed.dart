@@ -21,7 +21,6 @@ HomeState _$HomeStateFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$HomeState {
   List<String> get filters => throw _privateConstructorUsedError;
-  List<SomeModel> get sometings => throw _privateConstructorUsedError;
 
   /// Serializes this HomeState to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -38,7 +37,7 @@ abstract class $HomeStateCopyWith<$Res> {
   factory $HomeStateCopyWith(HomeState value, $Res Function(HomeState) then) =
       _$HomeStateCopyWithImpl<$Res, HomeState>;
   @useResult
-  $Res call({List<String> filters, List<SomeModel> sometings});
+  $Res call({List<String> filters});
 }
 
 /// @nodoc
@@ -57,17 +56,12 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
   @override
   $Res call({
     Object? filters = null,
-    Object? sometings = null,
   }) {
     return _then(_value.copyWith(
       filters: null == filters
           ? _value.filters
           : filters // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      sometings: null == sometings
-          ? _value.sometings
-          : sometings // ignore: cast_nullable_to_non_nullable
-              as List<SomeModel>,
     ) as $Val);
   }
 }
@@ -80,7 +74,7 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       __$$HomeStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({List<String> filters, List<SomeModel> sometings});
+  $Res call({List<String> filters});
 }
 
 /// @nodoc
@@ -97,17 +91,12 @@ class __$$HomeStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? filters = null,
-    Object? sometings = null,
   }) {
     return _then(_$HomeStateImpl(
       filters: null == filters
           ? _value._filters
           : filters // ignore: cast_nullable_to_non_nullable
               as List<String>,
-      sometings: null == sometings
-          ? _value._sometings
-          : sometings // ignore: cast_nullable_to_non_nullable
-              as List<SomeModel>,
     ));
   }
 }
@@ -115,11 +104,7 @@ class __$$HomeStateImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$HomeStateImpl implements _HomeState {
-  _$HomeStateImpl(
-      {required final List<String> filters,
-      required final List<SomeModel> sometings})
-      : _filters = filters,
-        _sometings = sometings;
+  _$HomeStateImpl({required final List<String> filters}) : _filters = filters;
 
   factory _$HomeStateImpl.fromJson(Map<String, dynamic> json) =>
       _$$HomeStateImplFromJson(json);
@@ -132,17 +117,9 @@ class _$HomeStateImpl implements _HomeState {
     return EqualUnmodifiableListView(_filters);
   }
 
-  final List<SomeModel> _sometings;
-  @override
-  List<SomeModel> get sometings {
-    if (_sometings is EqualUnmodifiableListView) return _sometings;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_sometings);
-  }
-
   @override
   String toString() {
-    return 'HomeState(filters: $filters, sometings: $sometings)';
+    return 'HomeState(filters: $filters)';
   }
 
   @override
@@ -150,17 +127,13 @@ class _$HomeStateImpl implements _HomeState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$HomeStateImpl &&
-            const DeepCollectionEquality().equals(other._filters, _filters) &&
-            const DeepCollectionEquality()
-                .equals(other._sometings, _sometings));
+            const DeepCollectionEquality().equals(other._filters, _filters));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(_filters),
-      const DeepCollectionEquality().hash(_sometings));
+  int get hashCode =>
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(_filters));
 
   /// Create a copy of HomeState
   /// with the given fields replaced by the non-null parameter values.
@@ -179,17 +152,13 @@ class _$HomeStateImpl implements _HomeState {
 }
 
 abstract class _HomeState implements HomeState {
-  factory _HomeState(
-      {required final List<String> filters,
-      required final List<SomeModel> sometings}) = _$HomeStateImpl;
+  factory _HomeState({required final List<String> filters}) = _$HomeStateImpl;
 
   factory _HomeState.fromJson(Map<String, dynamic> json) =
       _$HomeStateImpl.fromJson;
 
   @override
   List<String> get filters;
-  @override
-  List<SomeModel> get sometings;
 
   /// Create a copy of HomeState
   /// with the given fields replaced by the non-null parameter values.

@@ -6,7 +6,7 @@ import 'package:hankan/app/feature/item_storage/logic/item_storage_state.dart';
 import 'package:hankan/app/feature/item_storage/widgets/item_image_dimension_section.dart';
 import 'package:hankan/app/feature/item_storage/widgets/item_location_panel.dart';
 import 'package:hankan/app/feature/item_storage/widgets/price_range_bottom_sheet.dart';
-import 'package:hankan/app/feature/item_storage/widgets/storage_period_picker.dart';
+import 'package:hankan/app/common/widgets/date_range_picker.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class ItemStoragePage extends ConsumerStatefulWidget {
@@ -29,7 +29,9 @@ class _ItemStoragePageState extends ConsumerState<ItemStoragePage> {
         currentMaxPrice: state.maxPrice,
         recommendedPrice: state.recommendedPrice,
         onPriceRangeChanged: (minPrice, maxPrice) {
-          ref.read(itemStorageProvider.notifier).updatePriceRange(minPrice, maxPrice);
+          ref
+              .read(itemStorageProvider.notifier)
+              .updatePriceRange(minPrice, maxPrice);
         },
       ),
     );
@@ -75,10 +77,12 @@ class _ItemStoragePageState extends ConsumerState<ItemStoragePage> {
                   detailAddress: state.detailAddress,
                   onLocationChanged: notifier.updateLocation,
                 ),
-                StoragePeriodPicker(
+                CommonDateRangePicker(
+                  title: '보관 기간',
                   startDate: state.startDate,
                   endDate: state.endDate,
-                  onPeriodChanged: notifier.updateStoragePeriod,
+                  onDateRangeChanged: notifier.updateStoragePeriod,
+                  description: '물건을 보관할 기간',
                 ),
                 _buildPriceSection(context, state),
                 if (state.errorMessage != null) ...[
@@ -118,7 +122,8 @@ class _ItemStoragePageState extends ConsumerState<ItemStoragePage> {
                           ShadToaster.of(context).show(
                             ShadToast(
                               title: const Text('등록 완료'),
-                              description: const Text('물건 맡기기 요청이 성공적으로 등록되었습니다.'),
+                              description:
+                                  const Text('물건 맡기기 요청이 성공적으로 등록되었습니다.'),
                             ),
                           );
                           if (context.mounted) {
@@ -139,7 +144,7 @@ class _ItemStoragePageState extends ConsumerState<ItemStoragePage> {
     );
   }
 
-  Widget _buildPriceSection(BuildContext context, state) {
+  Widget _buildPriceSection(BuildContext context, ItemStorageState state) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -168,7 +173,8 @@ class _ItemStoragePageState extends ConsumerState<ItemStoragePage> {
               if (state.minPrice > 0 && state.maxPrice > 0) ...[
                 const Spacer(),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
                     color: Colors.green.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(4),
@@ -206,7 +212,10 @@ class _ItemStoragePageState extends ConsumerState<ItemStoragePage> {
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: state.volume == 0
-                      ? ShadTheme.of(context).colorScheme.border.withOpacity(0.5)
+                      ? ShadTheme.of(context)
+                          .colorScheme
+                          .border
+                          .withOpacity(0.5)
                       : ShadTheme.of(context).colorScheme.border,
                 ),
                 color: state.volume == 0
@@ -245,9 +254,13 @@ class _ItemStoragePageState extends ConsumerState<ItemStoragePage> {
                           const SizedBox(height: 2),
                           Text(
                             '추천 가격: ₩${state.recommendedPrice.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} / 월',
-                            style: ShadTheme.of(context).textTheme.muted.copyWith(
+                            style: ShadTheme.of(context)
+                                .textTheme
+                                .muted
+                                .copyWith(
                                   fontSize: 12,
-                                  color: ShadTheme.of(context).colorScheme.primary,
+                                  color:
+                                      ShadTheme.of(context).colorScheme.primary,
                                 ),
                           ),
                         ],
@@ -270,10 +283,14 @@ class _ItemStoragePageState extends ConsumerState<ItemStoragePage> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: ShadTheme.of(context).colorScheme.primary.withOpacity(0.05),
+                color:
+                    ShadTheme.of(context).colorScheme.primary.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: ShadTheme.of(context).colorScheme.primary.withOpacity(0.2),
+                  color: ShadTheme.of(context)
+                      .colorScheme
+                      .primary
+                      .withOpacity(0.2),
                 ),
               ),
               child: Row(
@@ -298,14 +315,20 @@ class _ItemStoragePageState extends ConsumerState<ItemStoragePage> {
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: ShadTheme.of(context).colorScheme.background,
+                                color: ShadTheme.of(context)
+                                    .colorScheme
+                                    .background,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
                                 '최소: ₩${state.minPrice.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
-                                style: ShadTheme.of(context).textTheme.muted.copyWith(
+                                style: ShadTheme.of(context)
+                                    .textTheme
+                                    .muted
+                                    .copyWith(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -313,14 +336,20 @@ class _ItemStoragePageState extends ConsumerState<ItemStoragePage> {
                             ),
                             const SizedBox(width: 8),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: ShadTheme.of(context).colorScheme.background,
+                                color: ShadTheme.of(context)
+                                    .colorScheme
+                                    .background,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
                                 '최대: ₩${state.maxPrice.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
-                                style: ShadTheme.of(context).textTheme.muted.copyWith(
+                                style: ShadTheme.of(context)
+                                    .textTheme
+                                    .muted
+                                    .copyWith(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -332,9 +361,10 @@ class _ItemStoragePageState extends ConsumerState<ItemStoragePage> {
                           const SizedBox(height: 2),
                           Text(
                             '총 ${state.storageDays}일 보관 예정',
-                            style: ShadTheme.of(context).textTheme.muted.copyWith(
-                                  fontSize: 11,
-                                ),
+                            style:
+                                ShadTheme.of(context).textTheme.muted.copyWith(
+                                      fontSize: 11,
+                                    ),
                           ),
                         ],
                       ],

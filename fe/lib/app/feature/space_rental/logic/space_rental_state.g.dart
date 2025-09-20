@@ -15,6 +15,12 @@ _$SpaceRentalStateImpl _$$SpaceRentalStateImplFromJson(
       height: (json['height'] as num?)?.toDouble() ?? 0.0,
       region: json['region'] as String? ?? '',
       detailAddress: json['detailAddress'] as String? ?? '',
+      startDate: json['startDate'] == null
+          ? null
+          : DateTime.parse(json['startDate'] as String),
+      endDate: json['endDate'] == null
+          ? null
+          : DateTime.parse(json['endDate'] as String),
       optionQuantities:
           (json['optionQuantities'] as Map<String, dynamic>?)?.map(
                 (k, e) => MapEntry(
@@ -39,6 +45,8 @@ Map<String, dynamic> _$$SpaceRentalStateImplToJson(
       'height': instance.height,
       'region': instance.region,
       'detailAddress': instance.detailAddress,
+      'startDate': instance.startDate?.toIso8601String(),
+      'endDate': instance.endDate?.toIso8601String(),
       'optionQuantities': instance.optionQuantities
           .map((k, e) => MapEntry(_$StorageOptionEnumMap[k]!, e)),
       'optionPrices': instance.optionPrices

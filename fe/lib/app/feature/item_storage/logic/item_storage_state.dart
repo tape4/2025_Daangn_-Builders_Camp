@@ -24,8 +24,8 @@ class ItemStorageState with _$ItemStorageState {
       _$ItemStorageStateFromJson(json);
 }
 
-extension ItemStorageStateExtension on ItemStorageState {
-  double get volume => width * depth * height;
+extension ItemStorageStateX on ItemStorageState {
+  double get volume => (width * depth * height);
 
   int get storageDays {
     if (startDate == null || endDate == null) return 0;
