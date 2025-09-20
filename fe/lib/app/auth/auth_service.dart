@@ -22,6 +22,7 @@ class AuthService {
     required this.container,
   }) : _api = api {
     _api.setAuthService(this);
+
     _loadAuthState();
   }
 
@@ -94,8 +95,6 @@ class AuthService {
           accessToken: null,
           refreshToken: null,
         );
-
-    RouterService.I.router.go(Routes.login);
   }
 
   Future<void> refreshAccessToken() async {}

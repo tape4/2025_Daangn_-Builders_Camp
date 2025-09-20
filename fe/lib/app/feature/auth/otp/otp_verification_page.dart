@@ -125,18 +125,10 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
 
     final notifier = ref.read(loginProvider.notifier);
     notifier.updateOtp(otp);
-    final success = await notifier.verifyOtp();
+    final isLoginSuccess = await notifier.verifyOtp();
 
-    if (success && mounted) {
-      // Check if new user (needs registration)
-      // For now, we'll assume new users need to register
-      final isNewUser = true; // This should be determined from API response
-
-      if (isNewUser) {
-        context.push('/auth/nickname', extra: {'phone': widget.phone});
-      } else {
-        context.go('/');
-      }
+    if (isLoginSuccess && mounted) {
+      context.go('/');
     }
   }
 

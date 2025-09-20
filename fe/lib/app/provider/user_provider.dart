@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hankan/app/api/api_service.dart';
 import 'package:hankan/app/model/user.dart';
@@ -11,10 +13,8 @@ class UserProvider extends Notifier<User> {
   build() {
     return User(
       id: 0,
-      email: '',
-      username: 'Guest',
       nickname: 'Guest',
-      phone: null,
+      phoneNumber: '',
     );
   }
 
@@ -23,8 +23,11 @@ class UserProvider extends Notifier<User> {
     response.fold(
       onSuccess: (user) {
         state = user;
+        log(user.toString());
       },
-      onFailure: (error) {},
+      onFailure: (error) {
+        log('Failed to fetch user: $error');
+      },
     );
   }
 }

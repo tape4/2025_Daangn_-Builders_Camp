@@ -128,7 +128,7 @@ class LoginNotifier extends Notifier<LoginState> {
               title: '회원가입',
               message: '해당 번호로 가입할 수 있습니다.',
             );
-            return true;
+            return false;
           }
           state = state.copyWith(
             isLoading: false,

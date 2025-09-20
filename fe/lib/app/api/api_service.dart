@@ -30,7 +30,7 @@ class ApiService {
   }
 
   Future<Result<User>> getUser() => _dio.get(
-        '/user',
+        '/api/users/me',
         fromJson: User.fromJson,
       );
 
@@ -57,10 +57,10 @@ class ApiService {
   Future<Result<Token>> register(String phoneNumber, String nickname) =>
       _dio.post(
         '/api/auth/signup',
-        data: {
-          'phoneNumber': phoneNumber,
-          'nickname': nickname,
-          "birthDate": "1990-01-01",
+        queryParameters: {
+          "phoneNumber": phoneNumber,
+          "nickname": nickname,
+          "birthDate": "1999-01-01",
           "gender": "MALE",
         },
         fromJson: Token.fromJson,

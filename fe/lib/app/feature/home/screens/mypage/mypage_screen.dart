@@ -1,7 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hankan/app/auth/auth_service.dart';
+import 'package:hankan/app/model/user.dart';
 import 'package:hankan/app/routing/router_service.dart';
+import 'package:hankan/app/provider/user_provider.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:material_symbols_icons/material_symbols_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -11,6 +16,7 @@ class MypageScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(userProvider);
     return SafeArea(
       child: Scaffold(
         backgroundColor: ShadTheme.of(context).colorScheme.background,
@@ -20,10 +26,10 @@ class MypageScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildProfileCard(context),
+                _buildProfileCard(context, user),
                 const SizedBox(height: 24),
                 Divider(),
-                _buildMenuSection(context, ref),
+                _buildMenuSection(context, user),
               ],
             ),
           ),
@@ -32,30 +38,52 @@ class MypageScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildProfileCard(BuildContext context) {
+  Widget _buildProfileCard(BuildContext context, User user) {
+    log('user profile image: ${user.nickname}');
+    final displayName =
+        user.nickname.isNotEmpty == true ? user.nickname : 'Guest';
+    final hasProfileImage = user.profile_image.isNotEmpty;
+
     return GestureDetector(
       onTap: () => context.push(Routes.profileEdit),
       child: ShadCard(
         child: Row(
           children: [
-            ShadAvatar(
-              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTF_IdW_JHgWJh_GBrudxZXPOFfdf5598pnew&s',
-              placeholder: const Text('JD'),
-              size: const Size.square(80),
-              fit: BoxFit.cover,
-            ),
+            if (hasProfileImage)
+              ShadAvatar(
+                user.profile_image,
+                placeholder: Text(displayName.substring(0, 1).toUpperCase()),
+                size: const Size.square(80),
+                fit: BoxFit.cover,
+              )
+            else
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: ShadTheme.of(context).colorScheme.muted,
+                ),
+                child: Center(
+                  child: Icon(
+                    Symbols.person,
+                    size: 40,
+                    color: ShadTheme.of(context).colorScheme.mutedForeground,
+                  ),
+                ),
+              ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'John Doe',
+                    displayName,
                     style: ShadTheme.of(context).textTheme.h4,
                   ),
                   const SizedBox(height: 4),
                   ShadBadge(
-                    child: const Text('36.5℃'),
+                    child: Text('${user.rating}℃'),
                   ),
                 ],
               ),
@@ -71,7 +99,7 @@ class MypageScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildMenuSection(BuildContext context, WidgetRef ref) {
+  Widget _buildMenuSection(BuildContext context, User user) {
     return Column(
       children: [
         _buildMenuItem(
@@ -122,9 +150,9 @@ class MypageScreen extends ConsumerWidget {
         _buildMenuItem(
           context: context,
           icon: Symbols.logout,
-          title: 'Logout',
+          title: '로그아웃',
           isDestructive: true,
-          onTap: () => _showLogoutDialog(context, ref),
+          onTap: () => _showLogoutDialog(context),
         ),
       ],
     );
@@ -172,7 +200,7 @@ class MypageScreen extends ConsumerWidget {
     );
   }
 
-  void _showLogoutDialog(BuildContext context, WidgetRef ref) {
+  void _showLogoutDialog(BuildContext context) {
     showShadDialog(
       context: context,
       builder: (context) => ShadDialog(
@@ -187,7 +215,8 @@ class MypageScreen extends ConsumerWidget {
             child: const Text('로그아웃'),
             onPressed: () {
               Navigator.of(context).pop();
-              context.go('/');
+
+              AuthService.I.logout();
             },
           ),
         ],

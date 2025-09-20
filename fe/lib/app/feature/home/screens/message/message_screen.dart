@@ -5,6 +5,8 @@ import 'package:hankan/app/extension/context_x.dart';
 import 'package:hankan/app/feature/home/screens/message/logic/channel_list_provider.dart';
 import 'package:hankan/app/feature/home/screens/message/logic/message_provider.dart';
 import 'package:hankan/app/feature/home/screens/message/widgets/channel_list_item.dart';
+import 'package:hankan/app/model/user.dart';
+import 'package:hankan/app/provider/user_provider.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
@@ -44,12 +46,11 @@ class _MessageScreenState extends ConsumerState<MessageScreen> {
   Future<void> _initializeMessages() async {
     final messageNotifier = ref.read(messageProvider.notifier);
     final state = ref.read(messageProvider);
-
-    if (!state.isConnected) {
-      // TODO: Replace with actual user ID from your auth system
+    final user = ref.read(userProvider);
+    if (!state.isConnected && user.id != -1) {
       await messageNotifier.connectUser(
-        userId: 'test_user_${DateTime.now().millisecondsSinceEpoch}',
-        nickname: 'Test User',
+        userId: 'user_${user.id}',
+        nickname: user.nickname,
       );
     }
   }

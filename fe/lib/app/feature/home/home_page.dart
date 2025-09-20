@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:hankan/app/auth/auth_helper.dart';
+import 'package:hankan/app/auth/auth_service.dart';
 import 'package:hankan/app/extension/context_x.dart';
 import 'package:hankan/app/feature/home/screens/home/home_screen.dart';
 import 'package:hankan/app/feature/home/screens/history/history_screen.dart';
@@ -26,6 +29,9 @@ class _HomePageState extends ConsumerState<HomePage> {
     super.initState();
     _controller = PersistentTabController(initialIndex: 0);
     _controller.addListener(_handleTabChange);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(userProvider.notifier).getUser();
+    });
   }
 
   @override
