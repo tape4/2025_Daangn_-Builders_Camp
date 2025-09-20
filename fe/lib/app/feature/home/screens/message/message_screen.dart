@@ -5,6 +5,7 @@ import 'package:hankan/app/extension/context_x.dart';
 import 'package:hankan/app/feature/home/screens/message/logic/channel_list_provider.dart';
 import 'package:hankan/app/feature/home/screens/message/logic/message_provider.dart';
 import 'package:hankan/app/feature/home/screens/message/widgets/channel_list_item.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class MessageScreen extends ConsumerStatefulWidget {
@@ -64,15 +65,9 @@ class _MessageScreenState extends ConsumerState<MessageScreen> {
       appBar: AppBar(
         backgroundColor: context.colorScheme.background,
         title: Text(
-          '메시지',
+          '메시지함',
           style: ShadTheme.of(context).textTheme.h3,
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add, color: context.colorScheme.foreground),
-            onPressed: _showCreateChannelDialog,
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -134,31 +129,17 @@ class _MessageScreenState extends ConsumerState<MessageScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
-                      Icons.chat_bubble_outline,
+                      searchQuery.isNotEmpty
+                          ? Symbols.chat_error
+                          : Symbols.chat_bubble_outline,
                       size: 64,
                       color: context.colorScheme.mutedForeground,
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      searchQuery.isNotEmpty
-                          ? '검색 결과가 없습니다'
-                          : '아직 대화가 없습니다',
+                      searchQuery.isNotEmpty ? '검색 결과가 없습니다' : '아직 대화가 없습니다',
                       style: ShadTheme.of(context).textTheme.h4,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      searchQuery.isNotEmpty
-                          ? '다른 검색어를 시도해보세요'
-                          : '새 대화를 시작하세요',
-                      style: ShadTheme.of(context).textTheme.muted,
-                    ),
-                    if (searchQuery.isEmpty) ...[
-                      const SizedBox(height: 16),
-                      ShadButton(
-                        onPressed: _showCreateChannelDialog,
-                        child: const Text('새 채팅 시작'),
-                      ),
-                    ],
                   ],
                 ),
               ),
@@ -198,76 +179,6 @@ class _MessageScreenState extends ConsumerState<MessageScreen> {
                 ),
               ),
             ),
-        ],
-      ),
-    );
-  }
-
-  void _showCreateChannelDialog() {
-    final userIdController = TextEditingController();
-    final channelNameController = TextEditingController();
-
-    showShadDialog(
-      context: context,
-      builder: (context) => ShadDialog(
-        title: const Text('새 대화'),
-        description: const Text('다른 사용자와 새 채팅을 시작합니다'),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ShadInputFormField(
-              controller: channelNameController,
-              placeholder: const Text('채널 이름 (선택사항)'),
-              label: const Text('채널 이름'),
-            ),
-            const SizedBox(height: 16),
-            ShadInputFormField(
-              controller: userIdController,
-              placeholder: const Text('사용자 ID를 쉼표로 구분하여 입력'),
-              label: const Text('사용자 ID'),
-              validator: (value) {
-                if (value?.isEmpty ?? true) {
-                  return '최소 한 개의 사용자 ID를 입력해주세요';
-                }
-                return null;
-              },
-            ),
-          ],
-        ),
-        actions: [
-          ShadButton.outline(
-            child: const Text('취소'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          ShadButton(
-            child: const Text('생성'),
-            onPressed: () async {
-              final userIds = userIdController.text
-                  .split(',')
-                  .map((id) => id.trim())
-                  .where((id) => id.isNotEmpty)
-                  .toList();
-
-              if (userIds.isNotEmpty) {
-                try {
-                  final channel =
-                      await ref.read(messageProvider.notifier).createChannel(
-                            userIds: userIds,
-                            name: channelNameController.text.trim().isEmpty
-                                ? null
-                                : channelNameController.text.trim(),
-                          );
-
-                  Navigator.of(context).pop();
-                  context.push('/chat/${channel.channelUrl}');
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('채널 생성 실패: $e')),
-                  );
-                }
-              }
-            },
-          ),
         ],
       ),
     );

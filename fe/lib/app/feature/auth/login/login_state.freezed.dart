@@ -14,6 +14,10 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
+LoginState _$LoginStateFromJson(Map<String, dynamic> json) {
+  return _LoginState.fromJson(json);
+}
+
 /// @nodoc
 mixin _$LoginState {
   String get phone => throw _privateConstructorUsedError;
@@ -23,6 +27,9 @@ mixin _$LoginState {
   int get resendTimer => throw _privateConstructorUsedError;
   bool get canResend => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
+
+  /// Serializes this LoginState to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
   /// Create a copy of LoginState
   /// with the given fields replaced by the non-null parameter values.
@@ -176,7 +183,7 @@ class __$$LoginStateImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-
+@JsonSerializable()
 class _$LoginStateImpl implements _LoginState {
   _$LoginStateImpl(
       {this.phone = '',
@@ -186,6 +193,9 @@ class _$LoginStateImpl implements _LoginState {
       this.resendTimer = 60,
       this.canResend = false,
       this.errorMessage});
+
+  factory _$LoginStateImpl.fromJson(Map<String, dynamic> json) =>
+      _$$LoginStateImplFromJson(json);
 
   @override
   @JsonKey()
@@ -231,6 +241,7 @@ class _$LoginStateImpl implements _LoginState {
                 other.errorMessage == errorMessage));
   }
 
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, phone, otp, isLoading, otpSent,
       resendTimer, canResend, errorMessage);
@@ -242,6 +253,13 @@ class _$LoginStateImpl implements _LoginState {
   @pragma('vm:prefer-inline')
   _$$LoginStateImplCopyWith<_$LoginStateImpl> get copyWith =>
       __$$LoginStateImplCopyWithImpl<_$LoginStateImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$LoginStateImplToJson(
+      this,
+    );
+  }
 }
 
 abstract class _LoginState implements LoginState {
@@ -253,6 +271,9 @@ abstract class _LoginState implements LoginState {
       final int resendTimer,
       final bool canResend,
       final String? errorMessage}) = _$LoginStateImpl;
+
+  factory _LoginState.fromJson(Map<String, dynamic> json) =
+      _$LoginStateImpl.fromJson;
 
   @override
   String get phone;

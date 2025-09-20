@@ -16,7 +16,8 @@ class OtpVerificationPage extends ConsumerStatefulWidget {
   }) : super(key: key);
 
   @override
-  ConsumerState<OtpVerificationPage> createState() => _OtpVerificationPageState();
+  ConsumerState<OtpVerificationPage> createState() =>
+      _OtpVerificationPageState();
 }
 
 class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
@@ -189,8 +190,14 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                           counterText: '',
                           filled: true,
                           fillColor: _otpControllers[index].text.isNotEmpty
-                              ? ShadTheme.of(context).colorScheme.primary.withOpacity(0.1)
-                              : ShadTheme.of(context).colorScheme.muted.withOpacity(0.1),
+                              ? ShadTheme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withOpacity(0.1)
+                              : ShadTheme.of(context)
+                                  .colorScheme
+                                  .muted
+                                  .withOpacity(0.1),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide(
@@ -232,10 +239,12 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                       Text(
                         _timerText,
                         style: ShadTheme.of(context).textTheme.h3.copyWith(
-                          color: _secondsRemaining > 30
-                              ? ShadTheme.of(context).colorScheme.primary
-                              : ShadTheme.of(context).colorScheme.destructive,
-                        ),
+                              color: _secondsRemaining > 30
+                                  ? ShadTheme.of(context).colorScheme.primary
+                                  : ShadTheme.of(context)
+                                      .colorScheme
+                                      .destructive,
+                            ),
                       ),
                       const SizedBox(height: 16),
                       if (_canResend) ...[
@@ -278,7 +287,8 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       )
                     : const Text('확인'),

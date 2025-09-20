@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hankan/app/feature/auth/confirm/confirmation_page.dart';
-import 'package:hankan/app/feature/auth/login/login_page.dart';
 import 'package:hankan/app/feature/auth/nickname/nickname_input_page.dart';
 import 'package:hankan/app/feature/auth/otp/otp_verification_page.dart';
 import 'package:hankan/app/feature/auth/phone/phone_input_page.dart';
@@ -92,7 +91,8 @@ class RouterService {
             return CustomTransitionPage(
               key: state.pageKey,
               child: const HomePage(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
                 return FadeTransition(
                   opacity: CurvedAnimation(
                     parent: animation,
@@ -110,7 +110,8 @@ class RouterService {
             return CustomTransitionPage(
               key: state.pageKey,
               child: const PhoneInputPage(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
                 const begin = Offset(1.0, 0.0);
                 const end = Offset.zero;
                 const curve = Curves.easeInOutCubic;
@@ -136,7 +137,8 @@ class RouterService {
               child: OtpVerificationPage(
                 phone: extra?['phone'] ?? '',
               ),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
                 const begin = Offset(1.0, 0.0);
                 const end = Offset.zero;
                 const curve = Curves.easeInOutCubic;
@@ -162,7 +164,8 @@ class RouterService {
               child: NicknameInputPage(
                 phone: extra?['phone'] ?? '',
               ),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
                 const begin = Offset(1.0, 0.0);
                 const end = Offset.zero;
                 const curve = Curves.easeInOutCubic;
@@ -189,7 +192,8 @@ class RouterService {
                 phone: extra?['phone'] ?? '',
                 nickname: extra?['nickname'] ?? '',
               ),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
                 const begin = Offset(1.0, 0.0);
                 const end = Offset.zero;
                 const curve = Curves.easeInOutCubic;
@@ -218,7 +222,8 @@ class RouterService {
                 region: extra?['region'] ?? '',
                 detailAddress: extra?['detailAddress'],
               ),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
                 const begin = Offset(1.0, 0.0);
                 const end = Offset.zero;
                 const curve = Curves.easeInOutCubic;
@@ -236,41 +241,13 @@ class RouterService {
           },
         ),
         GoRoute(
-          path: Routes.login,
-          pageBuilder: (context, state) {
-            return CustomTransitionPage(
-              key: state.pageKey,
-              child: const LoginPage(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                return FadeTransition(
-                  opacity: CurvedAnimation(
-                    parent: animation,
-                    curve: Curves.easeInOut,
-                  ),
-                  child: ScaleTransition(
-                    scale: Tween<double>(
-                      begin: 0.95,
-                      end: 1.0,
-                    ).animate(
-                      CurvedAnimation(
-                        parent: animation,
-                        curve: Curves.easeOut,
-                      ),
-                    ),
-                    child: child,
-                  ),
-                );
-              },
-            );
-          },
-        ),
-        GoRoute(
           path: Routes.register,
           pageBuilder: (context, state) {
             return CustomTransitionPage(
               key: state.pageKey,
               child: const RegisterPage(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
                 return FadeTransition(
                   opacity: CurvedAnimation(
                     parent: animation,
@@ -299,7 +276,8 @@ class RouterService {
             return CustomTransitionPage(
               key: state.pageKey,
               child: const HistoryPage(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
                 const begin = Offset(1.0, 0.0);
                 const end = Offset.zero;
                 const curve = Curves.easeInOutCubic;
@@ -322,7 +300,8 @@ class RouterService {
             return CustomTransitionPage(
               key: state.pageKey,
               child: const FaqPage(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
                 const begin = Offset(1.0, 0.0);
                 const end = Offset.zero;
                 const curve = Curves.easeInOutCubic;
@@ -346,7 +325,8 @@ class RouterService {
             return CustomTransitionPage(
               key: state.pageKey,
               child: ChatScreen(channelUrl: channelUrl),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
                 const begin = Offset(0.0, 1.0);
                 const end = Offset.zero;
                 const curve = Curves.easeInOutCubic;
@@ -369,7 +349,8 @@ class RouterService {
             return CustomTransitionPage(
               key: state.pageKey,
               child: const ProfileEditPage(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
                 const begin = Offset(0.0, 1.0);
                 const end = Offset.zero;
                 const curve = Curves.easeInOutCubic;
