@@ -42,6 +42,9 @@ public class ReservationService {
 
         // 박스 용량 체크
         validateBoxRequirements(space, request);
+        
+        // 가격 검증
+        validatePrice(request.getTotalPrice());
 
         // 기간 중 충돌하는 예약 체크
         validateNoConflictingReservations(space.getId(), request.getStartDate(), request.getEndDate());
@@ -204,6 +207,15 @@ public class ReservationService {
         long conflictCount = reservationRepository.countActiveReservationsInPeriod(spaceId, startDate, endDate);
         if (conflictCount > 0) {
             throw new IllegalArgumentException("Space is already reserved for the requested period");
+        }
+    }
+    
+    private void validatePrice(BigDecimal price) {
+        if (price == null) {
+            throw new IllegalArgumentException("Price is required");
+        }
+        if (price.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Price cannot be negative");
         }
     }
 }

@@ -8,11 +8,13 @@ import daangn.builders.hankan.domain.reservation.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +32,7 @@ public class ReservationController {
     @PostMapping
     @Login
     @Operation(summary = "예약 생성", description = "새로운 예약을 생성합니다.")
-    public ResponseEntity<Reservation> createReservation(@RequestBody ReservationRequest request) {
+    public ResponseEntity<Reservation> createReservation(@Valid @RequestBody ReservationRequest request) {
         // 현재 로그인된 사용자를 예약자로 설정 (임시)
         Long currentUserId = LoginContext.getCurrentUserId();
         if (currentUserId == null) {
@@ -66,7 +68,8 @@ public class ReservationController {
     @GetMapping("/my")
     @Login
     @Operation(summary = "내 예약 목록 조회", description = "현재 사용자의 예약 목록을 조회합니다.")
-    public ResponseEntity<Page<Reservation>> getMyReservations(@PageableDefault(size = 20) Pageable pageable) {
+    public ResponseEntity<Page<Reservation>> getMyReservations(
+            @ParameterObject @PageableDefault(size = 20) Pageable pageable) {
         Long currentUserId = LoginContext.getCurrentUserId();
         if (currentUserId == null) {
             // 개발용: 첫 번째 사용자 사용
@@ -82,7 +85,7 @@ public class ReservationController {
     @Operation(summary = "상태별 내 예약 조회", description = "특정 상태의 내 예약을 조회합니다.")
     public ResponseEntity<Page<Reservation>> getMyReservationsByStatus(
             @PathVariable Reservation.ReservationStatus status,
-            @PageableDefault(size = 20) Pageable pageable) {
+            @ParameterObject @PageableDefault(size = 20) Pageable pageable) {
         
         Long currentUserId = LoginContext.getCurrentUserId();
         if (currentUserId == null) {
@@ -98,7 +101,7 @@ public class ReservationController {
     @Operation(summary = "공간별 예약 조회", description = "특정 공간의 예약 목록을 조회합니다.")
     public ResponseEntity<Page<Reservation>> getReservationsBySpace(
             @PathVariable Long spaceId,
-            @PageableDefault(size = 20) Pageable pageable) {
+            @ParameterObject @PageableDefault(size = 20) Pageable pageable) {
         
         Page<Reservation> reservations = reservationService.findBySpace(spaceId, pageable);
         return ResponseEntity.ok(reservations);
@@ -107,7 +110,8 @@ public class ReservationController {
     @GetMapping("/my-spaces")
     @Login
     @Operation(summary = "내 공간 예약 조회", description = "내가 소유한 공간들의 예약을 조회합니다.")
-    public ResponseEntity<Page<Reservation>> getMySpaceReservations(@PageableDefault(size = 20) Pageable pageable) {
+    public ResponseEntity<Page<Reservation>> getMySpaceReservations(
+            @ParameterObject @PageableDefault(size = 20) Pageable pageable) {
         Long currentUserId = LoginContext.getCurrentUserId();
         if (currentUserId == null) {
             // 개발용: 공간 소유자 ID 사용
