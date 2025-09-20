@@ -1,6 +1,7 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:hankan/app/extension/context_x.dart';
+import 'package:hankan/app/feature/auth/widgets/auth_bottom_sheet.dart';
 import 'package:hankan/app/feature/home/screens/home/widgets/home_appbar.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
@@ -80,7 +81,15 @@ class HomeScreen extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(bottom: 70.0),
               child: ShadButton.outline(
-                onPressed: () {},
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (context) {
+                      return AuthBottomSheet();
+                    },
+                  );
+                },
                 icon: const Icon(Icons.book),
                 child: const Text('어떻게 사용하나요?'),
               ),

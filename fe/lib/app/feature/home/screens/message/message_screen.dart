@@ -64,7 +64,7 @@ class _MessageScreenState extends ConsumerState<MessageScreen> {
       appBar: AppBar(
         backgroundColor: context.colorScheme.background,
         title: Text(
-          'Messages',
+          '메시지',
           style: ShadTheme.of(context).textTheme.h3,
         ),
         actions: [
@@ -79,7 +79,7 @@ class _MessageScreenState extends ConsumerState<MessageScreen> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: ShadInput(
-              placeholder: const Text('Search messages...'),
+              placeholder: const Text('메시지 검색...'),
               prefix: Icon(
                 Icons.search,
                 color: context.colorScheme.mutedForeground,
@@ -109,7 +109,7 @@ class _MessageScreenState extends ConsumerState<MessageScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Error loading messages',
+                      '메시지 로드 오류',
                       style: ShadTheme.of(context).textTheme.h4,
                     ),
                     const SizedBox(height: 8),
@@ -121,7 +121,7 @@ class _MessageScreenState extends ConsumerState<MessageScreen> {
                     const SizedBox(height: 16),
                     ShadButton(
                       onPressed: _initializeMessages,
-                      child: const Text('Retry'),
+                      child: const Text('다시 시도'),
                     ),
                   ],
                 ),
@@ -141,22 +141,22 @@ class _MessageScreenState extends ConsumerState<MessageScreen> {
                     const SizedBox(height: 16),
                     Text(
                       searchQuery.isNotEmpty
-                          ? 'No results found'
-                          : 'No conversations yet',
+                          ? '검색 결과가 없습니다'
+                          : '아직 대화가 없습니다',
                       style: ShadTheme.of(context).textTheme.h4,
                     ),
                     const SizedBox(height: 8),
                     Text(
                       searchQuery.isNotEmpty
-                          ? 'Try a different search term'
-                          : 'Start a new conversation',
+                          ? '다른 검색어를 시도해보세요'
+                          : '새 대화를 시작하세요',
                       style: ShadTheme.of(context).textTheme.muted,
                     ),
                     if (searchQuery.isEmpty) ...[
                       const SizedBox(height: 16),
                       ShadButton(
                         onPressed: _showCreateChannelDialog,
-                        child: const Text('Start New Chat'),
+                        child: const Text('새 채팅 시작'),
                       ),
                     ],
                   ],
@@ -210,24 +210,24 @@ class _MessageScreenState extends ConsumerState<MessageScreen> {
     showShadDialog(
       context: context,
       builder: (context) => ShadDialog(
-        title: const Text('New Conversation'),
-        description: const Text('Start a new chat with other users'),
+        title: const Text('새 대화'),
+        description: const Text('다른 사용자와 새 채팅을 시작합니다'),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ShadInputFormField(
               controller: channelNameController,
-              placeholder: const Text('Channel name (optional)'),
-              label: const Text('Channel Name'),
+              placeholder: const Text('채널 이름 (선택사항)'),
+              label: const Text('채널 이름'),
             ),
             const SizedBox(height: 16),
             ShadInputFormField(
               controller: userIdController,
-              placeholder: const Text('Enter user IDs separated by commas'),
-              label: const Text('User IDs'),
+              placeholder: const Text('사용자 ID를 쉼표로 구분하여 입력'),
+              label: const Text('사용자 ID'),
               validator: (value) {
                 if (value?.isEmpty ?? true) {
-                  return 'Please enter at least one user ID';
+                  return '최소 한 개의 사용자 ID를 입력해주세요';
                 }
                 return null;
               },
@@ -236,11 +236,11 @@ class _MessageScreenState extends ConsumerState<MessageScreen> {
         ),
         actions: [
           ShadButton.outline(
-            child: const Text('Cancel'),
+            child: const Text('취소'),
             onPressed: () => Navigator.of(context).pop(),
           ),
           ShadButton(
-            child: const Text('Create'),
+            child: const Text('생성'),
             onPressed: () async {
               final userIds = userIdController.text
                   .split(',')
@@ -262,7 +262,7 @@ class _MessageScreenState extends ConsumerState<MessageScreen> {
                   context.push('/chat/${channel.channelUrl}');
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Failed to create channel: $e')),
+                    SnackBar(content: Text('채널 생성 실패: $e')),
                   );
                 }
               }
