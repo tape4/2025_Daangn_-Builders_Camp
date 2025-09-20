@@ -128,14 +128,18 @@ public class SpaceController {
     }
 
     @GetMapping("/search/date")
-    @Operation(summary = "날짜별 이용 가능한 공간 검색", description = "특정 날짜에 이용 가능한 공간을 검색합니다.")
+    @Operation(summary = "날짜 범위로 이용 가능한 공간 검색", description = "지정된 날짜 범위 내에서 이용 가능한 공간을 검색합니다.")
     public ResponseEntity<List<Space>> searchSpacesByDate(
-            @Parameter(description = "검색 날짜 (YYYY-MM-DD 형식, 예: 2025-09-24)", 
+            @Parameter(description = "시작 날짜 (YYYY-MM-DD 형식, 예: 2025-09-24)", 
                       example = "2025-09-24",
                       schema = @io.swagger.v3.oas.annotations.media.Schema(type = "string", format = "date"))
-            @RequestParam LocalDate date) {
+            @RequestParam LocalDate startDate,
+            @Parameter(description = "종료 날짜 (YYYY-MM-DD 형식, 예: 2025-12-31)", 
+                      example = "2025-12-31",
+                      schema = @io.swagger.v3.oas.annotations.media.Schema(type = "string", format = "date"))
+            @RequestParam LocalDate endDate) {
         
-        List<Space> spaces = spaceService.findAvailableSpacesOnDate(date);
+        List<Space> spaces = spaceService.findAvailableSpacesInDateRange(startDate, endDate);
         return ResponseEntity.ok(spaces);
     }
 

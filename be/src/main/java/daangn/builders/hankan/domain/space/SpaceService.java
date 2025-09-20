@@ -68,6 +68,10 @@ public class SpaceService {
         return spaceRepository.findByAvailableDate(date);
     }
 
+    public List<Space> findAvailableSpacesInDateRange(LocalDate startDate, LocalDate endDate) {
+        return spaceRepository.findByDateRange(startDate, endDate);
+    }
+
     public Page<Object[]> findSpacesNearLocation(Double latitude, Double longitude, double radiusKm, Pageable pageable) {
         return spaceRepository.findByLocationWithinRadius(latitude, longitude, radiusKm, pageable);
     }

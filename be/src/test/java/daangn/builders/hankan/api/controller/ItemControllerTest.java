@@ -14,6 +14,8 @@ import daangn.builders.hankan.domain.user.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.MethodOrderer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,6 +23,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -35,8 +38,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 @Transactional
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class ItemControllerTest {
 
     @Autowired
@@ -65,19 +70,29 @@ class ItemControllerTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        // 테스트 사용자 생성
-        testUser = User.builder()
-                .phoneNumber("01012345678")
+        // LoginArgumentResolver Mock 설정
+        when(loginArgumentResolver.supportsParameter(any()))
+                .thenReturn(true);
+        
+        // S3Service Mock 설정
+        doNothing().when(s3Service).validateFileSize(any(), anyLong());
+        when(s3Service.uploadImage(any(), any())).thenReturn("https://s3-bucket/items/test-image.jpg");
+    }
+    
+    private User createTestUser(String phoneNumber) {
+        User user = User.builder()
+                .phoneNumber(phoneNumber)
                 .nickname("테스트유저")
                 .birthDate(LocalDate.of(1990, 1, 1))
                 .gender(Gender.MALE)
                 .build();
-        testUser = userRepository.save(testUser);
-
-        // 테스트 아이템 생성
-        testItem = Item.builder()
-                .title("겨울 옷 보관")
-                .description("겨울 패딩과 코트를 보관하고자 합니다")
+        return userRepository.save(user);
+    }
+    
+    private Item createTestItem(User owner, String title) {
+        Item item = Item.builder()
+                .title(title)
+                .description("테스트 설명")
                 .width(50.0)
                 .height(40.0)
                 .depth(30.0)
@@ -85,25 +100,19 @@ class ItemControllerTest {
                 .endDate(LocalDate.now().plusMonths(3))
                 .minPrice(new BigDecimal("30000"))
                 .maxPrice(new BigDecimal("50000"))
-                .owner(testUser)
+                .owner(owner)
                 .status(Item.ItemStatus.ACTIVE)
                 .build();
-        testItem = itemRepository.save(testItem);
-
-        // LoginArgumentResolver Mock 설정
-        when(loginArgumentResolver.supportsParameter(any()))
-                .thenReturn(true);
-        when(loginArgumentResolver.resolveArgument(any(), any(), any(), any()))
-                .thenReturn(testUser.getId());
-
-        // S3Service Mock 설정
-        doNothing().when(s3Service).validateFileSize(any(), anyLong());
-        when(s3Service.uploadImage(any(), any())).thenReturn("https://s3-bucket/items/test-image.jpg");
+        return itemRepository.save(item);
     }
 
     @Test
     @DisplayName("물품 등록 - 성공")
     void registerItem_Success() throws Exception {
+        testUser = createTestUser("01011111111");
+        when(loginArgumentResolver.resolveArgument(any(), any(), any(), any()))
+                .thenReturn(testUser.getId());
+        
         MockMultipartFile imageFile = new MockMultipartFile(
                 "image",
                 "test.jpg",
@@ -133,6 +142,9 @@ class ItemControllerTest {
     @Test
     @DisplayName("물품 등록 - 이미지 없이 성공")
     void registerItem_WithoutImage_Success() throws Exception {
+        testUser = createTestUser("01022222222");
+        when(loginArgumentResolver.resolveArgument(any(), any(), any(), any()))
+                .thenReturn(testUser.getId());
         mockMvc.perform(multipart("/api/items")
                 .param("title", "책 보관")
                 .param("description", "책들을 보관하고자 합니다")
@@ -152,6 +164,9 @@ class ItemControllerTest {
     @Test
     @DisplayName("물품 등록 - 잘못된 날짜 범위")
     void registerItem_InvalidDateRange() throws Exception {
+        testUser = createTestUser("01033333333");
+        when(loginArgumentResolver.resolveArgument(any(), any(), any(), any()))
+                .thenReturn(testUser.getId());
         mockMvc.perform(multipart("/api/items")
                 .param("title", "테스트 물품")
                 .param("width", "30.0")
@@ -168,6 +183,9 @@ class ItemControllerTest {
     @Test
     @DisplayName("물품 등록 - 잘못된 가격 범위")
     void registerItem_InvalidPriceRange() throws Exception {
+        testUser = createTestUser("01044444444");
+        when(loginArgumentResolver.resolveArgument(any(), any(), any(), any()))
+                .thenReturn(testUser.getId());
         mockMvc.perform(multipart("/api/items")
                 .param("title", "테스트 물품")
                 .param("width", "30.0")
@@ -184,10 +202,12 @@ class ItemControllerTest {
     @Test
     @DisplayName("물품 상세 조회 - 성공")
     void getItem_Success() throws Exception {
+        testUser = createTestUser("01055555555");
+        testItem = createTestItem(testUser, "조회용 물품");
         mockMvc.perform(get("/api/items/{itemId}", testItem.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(testItem.getId()))
-                .andExpect(jsonPath("$.title").value("겨울 옷 보관"))
+                .andExpect(jsonPath("$.title").value("조회용 물품"))
                 .andExpect(jsonPath("$.owner.nickname").value("테스트유저"));
     }
 
@@ -201,6 +221,10 @@ class ItemControllerTest {
     @Test
     @DisplayName("물품 삭제 - 성공")
     void deleteItem_Success() throws Exception {
+        testUser = createTestUser("01066666666");
+        testItem = createTestItem(testUser, "삭제용 물품");
+        when(loginArgumentResolver.resolveArgument(any(), any(), any(), any()))
+                .thenReturn(testUser.getId());
         mockMvc.perform(delete("/api/items/{itemId}", testItem.getId()))
                 .andExpect(status().isNoContent());
     }
@@ -208,27 +232,16 @@ class ItemControllerTest {
     @Test
     @DisplayName("물품 삭제 - 다른 사용자의 물품")
     void deleteItem_Unauthorized() throws Exception {
+        // 테스트 사용자
+        testUser = createTestUser("01010101010");
+        when(loginArgumentResolver.resolveArgument(any(), any(), any(), any()))
+                .thenReturn(testUser.getId());
+        
         // 다른 사용자 생성
-        User otherUser = User.builder()
-                .phoneNumber("01087654321")
-                .nickname("다른유저")
-                .birthDate(LocalDate.of(1995, 5, 5))
-                .build();
-        otherUser = userRepository.save(otherUser);
+        User otherUser = createTestUser("01087654321");
 
         // 다른 사용자의 물품 생성
-        Item otherItem = Item.builder()
-                .title("다른 사용자 물품")
-                .width(30.0)
-                .height(30.0)
-                .depth(30.0)
-                .startDate(LocalDate.now().plusDays(1))
-                .endDate(LocalDate.now().plusDays(10))
-                .minPrice(new BigDecimal("10000"))
-                .maxPrice(new BigDecimal("20000"))
-                .owner(otherUser)
-                .build();
-        otherItem = itemRepository.save(otherItem);
+        Item otherItem = createTestItem(otherUser, "다른 사용자 물품");
 
         mockMvc.perform(delete("/api/items/{itemId}", otherItem.getId()))
                 .andExpect(status().isForbidden());
@@ -237,6 +250,10 @@ class ItemControllerTest {
     @Test
     @DisplayName("물품 이미지 업데이트 - 성공")
     void updateItemImage_Success() throws Exception {
+        testUser = createTestUser("01077777777");
+        testItem = createTestItem(testUser, "이미지 업데이트용 물품");
+        when(loginArgumentResolver.resolveArgument(any(), any(), any(), any()))
+                .thenReturn(testUser.getId());
         MockMultipartFile newImageFile = new MockMultipartFile(
                 "image",
                 "new-image.jpg",
@@ -257,6 +274,10 @@ class ItemControllerTest {
     @Test
     @DisplayName("물품 상태 변경 - 성공")
     void updateItemStatus_Success() throws Exception {
+        testUser = createTestUser("01088888888");
+        testItem = createTestItem(testUser, "상태 변경용 물품");
+        when(loginArgumentResolver.resolveArgument(any(), any(), any(), any()))
+                .thenReturn(testUser.getId());
         mockMvc.perform(patch("/api/items/{itemId}/status", testItem.getId())
                 .param("status", "MATCHED"))
                 .andExpect(status().isOk())
@@ -266,19 +287,15 @@ class ItemControllerTest {
     @Test
     @DisplayName("내 물품 목록 조회 - 성공")
     void getMyItems_Success() throws Exception {
+        testUser = createTestUser("01099999999");
+        when(loginArgumentResolver.resolveArgument(any(), any(), any(), any()))
+                .thenReturn(testUser.getId());
+        
+        // 테스트용 물품 생성
+        testItem = createTestItem(testUser, "물품1");
+        
         // 추가 물품 생성
-        Item item2 = Item.builder()
-                .title("전자기기 보관")
-                .width(20.0)
-                .height(20.0)
-                .depth(20.0)
-                .startDate(LocalDate.now().plusDays(2))
-                .endDate(LocalDate.now().plusDays(20))
-                .minPrice(new BigDecimal("15000"))
-                .maxPrice(new BigDecimal("25000"))
-                .owner(testUser)
-                .build();
-        itemRepository.save(item2);
+        Item item2 = createTestItem(testUser, "물품2");
 
         mockMvc.perform(get("/api/items/my"))
                 .andExpect(status().isOk())

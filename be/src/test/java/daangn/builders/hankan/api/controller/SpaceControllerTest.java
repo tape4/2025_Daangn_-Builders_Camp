@@ -242,15 +242,16 @@ class SpaceControllerTest {
     }
 
     @Test
-    @DisplayName("날짜별 이용 가능한 공간 검색 - 성공")
-    void searchSpacesByDate_Success() throws Exception {
+    @DisplayName("날짜 범위로 이용 가능한 공간 검색 - 성공")
+    void searchSpacesByDateRange_Success() throws Exception {
         // Given
         SpaceRegistrationRequest request = createValidRequest();
         spaceService.registerSpace(request);
 
         // When & Then
         mockMvc.perform(get("/api/spaces/search/date")
-                .param("date", "2025-10-15"))
+                .param("startDate", "2025-10-01")
+                .param("endDate", "2025-10-31"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray());
     }
@@ -468,11 +469,12 @@ class SpaceControllerTest {
     }
 
     @Test
-    @DisplayName("날짜별 이용 가능한 공간 검색 - 잘못된 날짜 형식으로 실패")
-    void searchSpacesByDate_FailWithInvalidDateFormat() throws Exception {
+    @DisplayName("날짜 범위 검색 - 잘못된 날짜 형식으로 실패")
+    void searchSpacesByDateRange_FailWithInvalidDateFormat() throws Exception {
         // When & Then
         mockMvc.perform(get("/api/spaces/search/date")
-                .param("date", "invalid-date"))
+                .param("startDate", "invalid-date")
+                .param("endDate", "2025-10-31"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("Bad Request"));
     }
@@ -506,11 +508,12 @@ class SpaceControllerTest {
     }
 
     @Test
-    @DisplayName("잘못된 날짜 형식 파라미터 처리")
-    void searchSpacesByDate_InvalidDateFormat() throws Exception {
+    @DisplayName("날짜 범위 검색 - 잘못된 날짜 형식 파라미터 처리")
+    void searchSpacesByDateRange_InvalidDateFormat() throws Exception {
         // When & Then
         mockMvc.perform(get("/api/spaces/search/date")
-                .param("date", "2025/09/24"))  // 잘못된 형식
+                .param("startDate", "2025/09/24")  // 잘못된 형식
+                .param("endDate", "2025/10/31"))
                 .andExpect(status().isBadRequest());
     }
 

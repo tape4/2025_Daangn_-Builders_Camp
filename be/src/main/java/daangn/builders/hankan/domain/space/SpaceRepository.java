@@ -45,6 +45,14 @@ public interface SpaceRepository extends JpaRepository<Space, Long> {
     List<Space> findByAvailableDate(@Param("date") LocalDate date);
     
     /**
+     * 날짜 범위로 이용 가능한 공간 검색
+     * 공간의 이용 가능 기간이 검색 날짜 범위와 겹치는 경우 조회
+     */
+    @Query("SELECT s FROM Space s " +
+           "WHERE s.availableStartDate <= :endDate AND s.availableEndDate >= :startDate")
+    List<Space> findByDateRange(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+    
+    /**
      * 위치와 날짜 조건으로 공간 검색
      */
     @Query("SELECT s, " +
