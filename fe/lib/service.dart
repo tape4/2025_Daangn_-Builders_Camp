@@ -7,7 +7,7 @@ class Service {
   }
 
   static Future<void> initEnv() async {
-    await dotenv.load(fileName: '.env');
+    await dotenv.load(fileName: 'dotenv');
   }
 
   static ProviderContainer registerServices() {

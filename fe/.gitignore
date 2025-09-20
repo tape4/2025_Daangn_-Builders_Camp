@@ -45,3 +45,10 @@ app.*.map.json
 
 .fvm/
 .env
+.env.local
+.env.production
+.env.development
+
+# Firebase
+.firebase/
+firebase-debug.log

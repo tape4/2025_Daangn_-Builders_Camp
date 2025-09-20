@@ -7,9 +7,18 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MyDio {
   final Dio dio;
-  final _host = dotenv.env["API_ADDRESS"].toString();
+  late final String _host;
 
   MyDio({required this.dio}) {
+    // Try to get from dart-define first, then from .env
+    _host = const String.fromEnvironment('API_ADDRESS').isNotEmpty
+        ? const String.fromEnvironment('API_ADDRESS')
+        : dotenv.env["API_ADDRESS"] ?? '';
+
+    if (_host.isEmpty) {
+      throw Exception('API_ADDRESS not configured');
+    }
+
     dio.options.baseUrl = _host;
     dio.options.connectTimeout = const Duration(milliseconds: 10000);
     dio.options.receiveTimeout = const Duration(milliseconds: 10000);
