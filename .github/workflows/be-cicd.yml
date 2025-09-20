@@ -20,12 +20,12 @@ jobs:
                 working-directory: be # run 스텝은 be 디렉터리 기준
 
         steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
             - name: Get short SHA
               id: slug
               run: echo "sha7=$(echo ${GITHUB_SHA} | cut -c1-7)" >> $GITHUB_OUTPUT
-
-            - name: Checkout
-              uses: actions/checkout@v4
 
             - name: Set up JDK 17
               uses: actions/setup-java@v4
@@ -38,8 +38,8 @@ jobs:
               with:
                   host port: 3306
                   mysql database: "TESTDB"
-                  mysql user: "aaa"
-                  mysql password: "aaa"
+                  mysql user: "hankan"
+                  mysql password: "hankan"
 
             - name: Setup Redis
               uses: supercharge/redis-github-action@1.7.0
