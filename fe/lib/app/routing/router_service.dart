@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hankan/app/feature/auth/login/login_page.dart';
+import 'package:hankan/app/feature/auth/register/register_page.dart';
 import 'package:hankan/app/feature/error/error_page.dart';
 import 'package:hankan/app/feature/faq/faq_page.dart';
 import 'package:hankan/app/feature/history/history_page.dart';
@@ -28,6 +30,7 @@ extension GoRouterX on GoRouter {
 abstract class Routes {
   static const String home = '/';
   static const String login = '/login';
+  static const String register = '/register';
   static const String error = '/error';
   static const String mypageHistory = '/mypage/history';
   static const String mypageFaq = '/mypage/faq';
@@ -44,13 +47,25 @@ class RouterService {
 
   void init() {
     router = GoRouter(
-      initialLocation: Routes.home,
+      initialLocation: Routes.login,
       routes: [
         GoRoute(
           path: Routes.home,
           builder: (context, state) {
             // var args = state.extra;
             return const HomePage();
+          },
+        ),
+        GoRoute(
+          path: Routes.login,
+          builder: (context, state) {
+            return const LoginPage();
+          },
+        ),
+        GoRoute(
+          path: Routes.register,
+          builder: (context, state) {
+            return const RegisterPage();
           },
         ),
         GoRoute(
@@ -75,7 +90,7 @@ class RouterService {
         GoRoute(
           path: Routes.profileEdit,
           builder: (context, state) {
-            return ProfileEditPage();
+            return const ProfileEditPage();
           },
         ),
       ],

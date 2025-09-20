@@ -13,6 +13,18 @@ class _AuthStateNotifier extends Notifier<AuthState> {
   AuthState build() {
     return AuthState(isLoggedIn: false);
   }
+
+  void updateAuthState({
+    required bool isLoggedIn,
+    String? accessToken,
+    String? refreshToken,
+  }) {
+    state = state.copyWith(
+      isLoggedIn: isLoggedIn,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+    );
+  }
 }
 
 @freezed
