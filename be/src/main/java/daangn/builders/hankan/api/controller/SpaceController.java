@@ -1,5 +1,6 @@
 package daangn.builders.hankan.api.controller;
 
+import daangn.builders.hankan.api.dto.BoxCapacityResponse;
 import daangn.builders.hankan.common.auth.Login;
 import daangn.builders.hankan.common.auth.LoginContext;
 import daangn.builders.hankan.domain.space.Space;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -68,42 +70,66 @@ public class SpaceController {
     }
 
     @GetMapping("/search/location")
-    @Operation(summary = "위치 기반 공간 검색", description = "위치와 반경을 기준으로 공간을 검색합니다.")
+    @Operation(summary = "위치 기반 공간 검색", description = "위치와 반경을 기준으로 공간을 검색합니다. 결과는 거리순으로 정렬됩니다.")
     public ResponseEntity<Page<Object[]>> searchSpacesByLocation(
             @Parameter(description = "위도") @RequestParam Double latitude,
             @Parameter(description = "경도") @RequestParam Double longitude,
             @Parameter(description = "검색 반경 (km)") @RequestParam(defaultValue = "5.0") Double radiusKm,
-            @PageableDefault(size = 20) Pageable pageable) {
+            @PageableDefault(size = 20) 
+            @Parameter(description = "페이징 정보 (정렬은 거리순으로 고정)", 
+                      example = "page=0&size=20")
+            Pageable pageable) {
         
-        Page<Object[]> spaces = spaceService.findSpacesNearLocation(latitude, longitude, radiusKm, pageable);
+        // 정렬을 무시하고 페이징만 적용 (거리순 정렬은 쿼리에서 처리)
+        Pageable unsortedPageable = org.springframework.data.domain.PageRequest.of(
+            pageable.getPageNumber(), pageable.getPageSize());
+        
+        Page<Object[]> spaces = spaceService.findSpacesNearLocation(latitude, longitude, radiusKm, unsortedPageable);
         return ResponseEntity.ok(spaces);
     }
 
     @GetMapping("/search/date")
     @Operation(summary = "날짜별 이용 가능한 공간 검색", description = "특정 날짜에 이용 가능한 공간을 검색합니다.")
     public ResponseEntity<List<Space>> searchSpacesByDate(
-            @Parameter(description = "검색 날짜 (YYYY-MM-DD)") @RequestParam LocalDate date) {
+            @Parameter(description = "검색 날짜 (YYYY-MM-DD 형식, 예: 2025-09-24)", 
+                      example = "2025-09-24",
+                      schema = @io.swagger.v3.oas.annotations.media.Schema(type = "string", format = "date"))
+            @RequestParam LocalDate date) {
         
         List<Space> spaces = spaceService.findAvailableSpacesOnDate(date);
         return ResponseEntity.ok(spaces);
     }
 
     @GetMapping("/search/location-and-date")
-    @Operation(summary = "위치와 날짜 조건으로 공간 검색", description = "위치, 반경, 날짜 조건을 모두 만족하는 공간을 검색합니다.")
+    @Operation(summary = "위치와 날짜 조건으로 공간 검색", description = "위치, 반경, 날짜 조건을 모두 만족하는 공간을 검색합니다. 결과는 거리순으로 정렬됩니다.")
     public ResponseEntity<Page<Object[]>> searchSpacesByLocationAndDate(
             @Parameter(description = "위도") @RequestParam Double latitude,
             @Parameter(description = "경도") @RequestParam Double longitude,
             @Parameter(description = "검색 반경 (km)") @RequestParam(defaultValue = "5.0") Double radiusKm,
-            @Parameter(description = "검색 날짜 (YYYY-MM-DD)") @RequestParam LocalDate date,
-            @PageableDefault(size = 20) Pageable pageable) {
+            @Parameter(description = "검색 날짜 (YYYY-MM-DD 형식, 예: 2025-09-24)", 
+                      example = "2025-09-24",
+                      schema = @io.swagger.v3.oas.annotations.media.Schema(type = "string", format = "date"))
+            @RequestParam LocalDate date,
+            @PageableDefault(size = 20)
+            @Parameter(description = "페이징 정보 (정렬은 거리순으로 고정)", 
+                      example = "page=0&size=20")
+            Pageable pageable) {
         
-        Page<Object[]> spaces = spaceService.findSpacesNearLocationOnDate(latitude, longitude, radiusKm, date, pageable);
+        // 정렬을 무시하고 페이징만 적용 (거리순 정렬은 쿼리에서 처리)
+        Pageable unsortedPageable = org.springframework.data.domain.PageRequest.of(
+            pageable.getPageNumber(), pageable.getPageSize());
+        
+        Page<Object[]> spaces = spaceService.findSpacesNearLocationOnDate(latitude, longitude, radiusKm, date, unsortedPageable);
         return ResponseEntity.ok(spaces);
     }
 
     @GetMapping("/top-rated")
     @Operation(summary = "평점 높은 공간 조회", description = "평점이 높은 순서로 공간을 조회합니다.")
-    public ResponseEntity<Page<Space>> getTopRatedSpaces(@PageableDefault(size = 20) Pageable pageable) {
+    public ResponseEntity<Page<Space>> getTopRatedSpaces(
+            @PageableDefault(size = 20, sort = "rating", direction = org.springframework.data.domain.Sort.Direction.DESC) 
+            @Parameter(description = "페이징 정보 (정렬 가능 필드: id, name, rating, createdAt)", 
+                      example = "page=0&size=20&sort=rating,desc")
+            Pageable pageable) {
         Page<Space> spaces = spaceService.findTopRatedSpaces(pageable);
         return ResponseEntity.ok(spaces);
     }
@@ -111,7 +137,11 @@ public class SpaceController {
     @GetMapping("/my")
     @Login
     @Operation(summary = "내 공간 목록 조회", description = "현재 사용자가 소유한 공간 목록을 조회합니다.")
-    public ResponseEntity<Page<Space>> getMySpaces(@PageableDefault(size = 20) Pageable pageable) {
+    public ResponseEntity<Page<Space>> getMySpaces(
+            @PageableDefault(size = 20, sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC)
+            @Parameter(description = "페이징 정보 (정렬 가능 필드: id, name, rating, createdAt)", 
+                      example = "page=0&size=20&sort=createdAt,desc")
+            Pageable pageable) {
         Long currentUserId = LoginContext.getCurrentUserId();
         if (currentUserId == null) {
             // 개발용: 공간 소유자 ID 사용
@@ -122,14 +152,22 @@ public class SpaceController {
         return ResponseEntity.ok(spaces);
     }
 
-    @PatchMapping("/{spaceId}/image")
+    @PatchMapping(value = "/{spaceId}/image", consumes = "multipart/form-data")
     @Login
-    @Operation(summary = "공간 이미지 업데이트", description = "공간의 이미지를 업데이트합니다.")
+    @Operation(summary = "공간 이미지 업데이트", description = "공간의 이미지 파일을 업로드하여 업데이트합니다.")
     public ResponseEntity<Space> updateSpaceImage(
             @PathVariable Long spaceId,
-            @Parameter(description = "새 이미지 URL") @RequestParam String imageUrl) {
+            @Parameter(description = "업로드할 이미지 파일", 
+                      content = @io.swagger.v3.oas.annotations.media.Content(
+                          mediaType = "multipart/form-data"
+                      )) 
+            @RequestParam("image") MultipartFile imageFile) {
         
-        Space space = spaceService.updateSpaceImage(spaceId, imageUrl);
+        // TODO: S3 업로드 로직 구현 예정
+        // 현재는 임시로 파일명을 URL로 사용
+        String tempImageUrl = "https://temp-s3-bucket/" + imageFile.getOriginalFilename();
+        
+        Space space = spaceService.updateSpaceImage(spaceId, tempImageUrl);
         return ResponseEntity.ok(space);
     }
 
@@ -138,8 +176,14 @@ public class SpaceController {
     @Operation(summary = "공간 이용 가능 기간 업데이트", description = "공간의 이용 가능 기간을 업데이트합니다.")
     public ResponseEntity<Space> updateAvailabilityPeriod(
             @PathVariable Long spaceId,
-            @Parameter(description = "시작 날짜") @RequestParam LocalDate startDate,
-            @Parameter(description = "종료 날짜") @RequestParam LocalDate endDate) {
+            @Parameter(description = "시작 날짜 (YYYY-MM-DD 형식, 예: 2025-09-24)", 
+                      example = "2025-09-24",
+                      schema = @io.swagger.v3.oas.annotations.media.Schema(type = "string", format = "date"))
+            @RequestParam LocalDate startDate,
+            @Parameter(description = "종료 날짜 (YYYY-MM-DD 형식, 예: 2025-12-31)", 
+                      example = "2025-12-31",
+                      schema = @io.swagger.v3.oas.annotations.media.Schema(type = "string", format = "date"))
+            @RequestParam LocalDate endDate) {
         
         Space space = spaceService.updateAvailabilityPeriod(spaceId, startDate, endDate);
         return ResponseEntity.ok(space);
@@ -164,6 +208,9 @@ public class SpaceController {
     @Operation(summary = "특정 날짜 공간 이용 가능 여부 확인", description = "특정 날짜에 공간이 이용 가능한지 확인합니다.")
     public ResponseEntity<Boolean> checkAvailability(
             @PathVariable Long spaceId,
+            @Parameter(description = "확인할 날짜 (YYYY-MM-DD 형식, 예: 2025-09-24)", 
+                      example = "2025-09-24",
+                      schema = @io.swagger.v3.oas.annotations.media.Schema(type = "string", format = "date"))
             @PathVariable LocalDate date) {
         
         boolean available = spaceService.isSpaceAvailableOnDate(spaceId, date);
@@ -171,9 +218,19 @@ public class SpaceController {
     }
 
     @GetMapping("/{spaceId}/capacity")
-    @Operation(summary = "공간 총 박스 수 조회", description = "공간의 총 박스 수를 조회합니다.")
-    public ResponseEntity<Integer> getTotalBoxCount(@PathVariable Long spaceId) {
-        int totalCount = spaceService.getTotalBoxCount(spaceId);
-        return ResponseEntity.ok(totalCount);
+    @Operation(summary = "공간 박스 용량 상세 조회", description = "공간의 박스 종류별 개수와 총 박스 수를 조회합니다.")
+    public ResponseEntity<BoxCapacityResponse> getBoxCapacityDetails(@PathVariable Long spaceId) {
+        Space space = spaceService.findById(spaceId);
+        
+        BoxCapacityResponse response = BoxCapacityResponse.builder()
+                .xsCount(space.getBoxCapacityXs())
+                .sCount(space.getBoxCapacityS())
+                .mCount(space.getBoxCapacityM())
+                .lCount(space.getBoxCapacityL())
+                .xlCount(space.getBoxCapacityXl())
+                .totalCount(space.getTotalBoxCount())
+                .build();
+        
+        return ResponseEntity.ok(response);
     }
 }
