@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hankan/app/feature/error/error_page.dart';
+import 'package:hankan/app/feature/faq/faq_page.dart';
+import 'package:hankan/app/feature/history/history_page.dart';
 import 'package:hankan/app/feature/home/home_page.dart';
+import 'package:hankan/app/feature/home/screens/message/chat_screen.dart';
 
 extension GoRouterX on GoRouter {
   BuildContext? get context => configuration.navigatorKey.currentContext;
@@ -25,6 +28,9 @@ abstract class Routes {
   static const String home = '/';
   static const String login = '/login';
   static const String error = '/error';
+  static const String mypageHistory = '/mypage/history';
+  static const String mypageFaq = '/mypage/faq';
+  static const String chat = '/chat/:channelUrl';
 }
 
 class RouterService {
@@ -45,8 +51,26 @@ class RouterService {
             return const HomePage();
           },
         ),
-      ], // TODO: Add routes
-
+        GoRoute(
+          path: Routes.mypageHistory,
+          builder: (context, state) {
+            return const HistoryPage();
+          },
+        ),
+        GoRoute(
+          path: Routes.mypageFaq,
+          builder: (context, state) {
+            return const FaqPage();
+          },
+        ),
+        GoRoute(
+          path: Routes.chat,
+          builder: (context, state) {
+            final channelUrl = state.pathParameters['channelUrl']!;
+            return ChatScreen(channelUrl: channelUrl);
+          },
+        ),
+      ],
       errorBuilder: (context, state) {
         return const ErrorPage();
       },

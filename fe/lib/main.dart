@@ -11,6 +11,7 @@ import 'package:get_it/get_it.dart';
 import 'package:hankan/app/api/api_service.dart';
 import 'package:hankan/app/auth/auth_service.dart';
 import 'package:hankan/app/service/secure_storage_service.dart';
+import 'package:hankan/app/service/sendbird_service.dart';
 
 part 'service.dart';
 
@@ -25,7 +26,7 @@ void main() async {
       runApp(UncontrolledProviderScope(
         container: serviceProviderContainer,
         child: ShadApp.router(
-          title: 'Han:Kan',
+          title: '한칸 | Han:Kan',
           routerConfig: router,
           themeMode: ThemeMode.light,
           theme: ShadThemeData(

@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Design System
-Read @shadcn_guide.md
+**Do Read @shadcn_guide.md before writing UI layer.**
 
 ## Development Commands
 

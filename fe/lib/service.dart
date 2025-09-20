@@ -21,7 +21,7 @@ class Service {
       secureStorageService: secureStorageSerivce,
       container: container,
     ));
-
+    GetIt.I.registerSingleton(SendbirdService()..init());
     GetIt.I.registerSingleton(RouterService()..init());
     return container;
   }
