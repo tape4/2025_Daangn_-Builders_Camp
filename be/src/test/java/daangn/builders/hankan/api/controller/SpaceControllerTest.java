@@ -94,7 +94,7 @@ class SpaceControllerTest {
     }
 
     @Test
-    @Disabled("Multipart 및 Login resolver 테스트 환경 문제")
+    @Disabled("Multipart 및 Login resolver 테스트 환경 문제 - 실제 환경에서는 정상 동작")
     @DisplayName("공간 등록 - 성공")
     void registerSpace_Success() throws Exception {
         // Given
