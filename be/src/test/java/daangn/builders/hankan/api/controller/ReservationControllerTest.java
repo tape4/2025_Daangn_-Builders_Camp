@@ -3,6 +3,9 @@ package daangn.builders.hankan.api.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import daangn.builders.hankan.common.exception.GlobalExceptionHandler;
+import daangn.builders.hankan.common.exception.ReservationNotFoundException;
+import daangn.builders.hankan.common.exception.SpaceNotFoundException;
+import daangn.builders.hankan.common.exception.UserNotFoundException;
 import daangn.builders.hankan.domain.reservation.Reservation;
 import daangn.builders.hankan.domain.reservation.ReservationRequest;
 import daangn.builders.hankan.domain.reservation.ReservationService;
@@ -287,14 +290,16 @@ class ReservationControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/reservations/{id} - 존재하지 않는 예약")
+    @DisplayName("GET /api/reservations/{id} - 존재하지 않는 예약 (404)")
     void getReservation_NotFound() throws Exception {
         when(reservationService.findById(999L))
-                .thenThrow(new IllegalArgumentException("Reservation not found with id: 999"));
+                .thenThrow(new ReservationNotFoundException(999L));
 
         mockMvc.perform(get("/api/reservations/999"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Reservation not found with id: 999"));
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("Not Found"))
+                .andExpect(jsonPath("$.message").value("해당 ID의 예약을 찾을 수 없습니다: 999"));
     }
 
     @Test
@@ -618,38 +623,94 @@ class ReservationControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/reservations - 사용자 없음")
+    @DisplayName("POST /api/reservations - 사용자 없음 (404)")
     void createReservation_UserNotFound() throws Exception {
         when(reservationService.createReservation(any(ReservationRequest.class)))
-                .thenThrow(new IllegalArgumentException("User not found with id: 999"));
+                .thenThrow(new UserNotFoundException(999L));
 
         mockMvc.perform(post("/api/reservations")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(sampleRequest)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("User not found with id: 999"));
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("Not Found"))
+                .andExpect(jsonPath("$.message").value("해당 ID의 사용자를 찾을 수 없습니다: 999"));
     }
 
     @Test
-    @DisplayName("POST /api/reservations - 공간 없음")
+    @DisplayName("POST /api/reservations - 공간 없음 (404)")
     void createReservation_SpaceNotFound() throws Exception {
         when(reservationService.createReservation(any(ReservationRequest.class)))
-                .thenThrow(new IllegalArgumentException("Space not found with id: 999"));
+                .thenThrow(new SpaceNotFoundException(999L));
 
         mockMvc.perform(post("/api/reservations")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(sampleRequest)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Space not found with id: 999"));
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("Not Found"))
+                .andExpect(jsonPath("$.message").value("해당 ID의 공간을 찾을 수 없습니다: 999"));
     }
 
     @Test
     @DisplayName("GET /api/reservations/space/{spaceId} - 존재하지 않는 공간")
     void getReservationsBySpace_SpaceNotFound() throws Exception {
         when(reservationService.findBySpace(eq(999L), any(Pageable.class)))
-                .thenThrow(new IllegalArgumentException("Space not found"));
+                .thenThrow(new SpaceNotFoundException(999L));
 
         mockMvc.perform(get("/api/reservations/space/999"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.error").value("Not Found"));
+    }
+
+    @Test
+    @DisplayName("PATCH /api/reservations/{id}/confirm - 존재하지 않는 예약 (404)")
+    void confirmReservation_NotFound() throws Exception {
+        when(reservationService.confirmReservation(999L))
+                .thenThrow(new ReservationNotFoundException(999L));
+
+        mockMvc.perform(patch("/api/reservations/999/confirm"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value("해당 ID의 예약을 찾을 수 없습니다: 999"));
+    }
+
+    @Test
+    @DisplayName("PATCH /api/reservations/{id}/cancel - 존재하지 않는 예약 (404)")
+    void cancelReservation_NotFound() throws Exception {
+        when(reservationService.cancelReservation(999L))
+                .thenThrow(new ReservationNotFoundException(999L));
+
+        mockMvc.perform(patch("/api/reservations/999/cancel"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value("해당 ID의 예약을 찾을 수 없습니다: 999"));
+    }
+
+    @Test
+    @DisplayName("PATCH /api/reservations/{id}/check-in - 존재하지 않는 예약 (404)")
+    void checkIn_NotFound() throws Exception {
+        when(reservationService.checkIn(eq(999L), anyString(), isNull()))
+                .thenThrow(new ReservationNotFoundException(999L));
+
+        mockMvc.perform(patch("/api/reservations/999/check-in")
+                        .param("itemDescription", "테스트 물품"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value("해당 ID의 예약을 찾을 수 없습니다: 999"));
+    }
+
+    @Test
+    @DisplayName("PATCH /api/reservations/{id}/check-out - 존재하지 않는 예약 (404)")
+    void checkOut_NotFound() throws Exception {
+        when(reservationService.checkOut(eq(999L), any(Reservation.ItemCondition.class)))
+                .thenThrow(new ReservationNotFoundException(999L));
+
+        mockMvc.perform(patch("/api/reservations/999/check-out")
+                        .param("itemCondition", "GOOD"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message").value("해당 ID의 예약을 찾을 수 없습니다: 999"));
     }
 }

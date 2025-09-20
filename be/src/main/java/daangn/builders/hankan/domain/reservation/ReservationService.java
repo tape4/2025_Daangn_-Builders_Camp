@@ -1,5 +1,6 @@
 package daangn.builders.hankan.domain.reservation;
 
+import daangn.builders.hankan.common.exception.*;
 import daangn.builders.hankan.domain.space.Space;
 import daangn.builders.hankan.domain.space.SpaceRepository;
 import daangn.builders.hankan.domain.user.User;
@@ -32,10 +33,10 @@ public class ReservationService {
                 request.getUserId(), request.getSpaceId(), request.getStartDate(), request.getEndDate());
 
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + request.getUserId()));
+                .orElseThrow(() -> new UserNotFoundException(request.getUserId()));
 
         Space space = spaceRepository.findById(request.getSpaceId())
-                .orElseThrow(() -> new IllegalArgumentException("Space not found with id: " + request.getSpaceId()));
+                .orElseThrow(() -> new SpaceNotFoundException(request.getSpaceId()));
 
         // 예약 가능한 날짜 범위 체크
         validateReservationDates(space, request.getStartDate(), request.getEndDate());
@@ -70,7 +71,7 @@ public class ReservationService {
 
     public Reservation findById(Long reservationId) {
         return reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new IllegalArgumentException("Reservation not found with id: " + reservationId));
+                .orElseThrow(() -> new ReservationNotFoundException(reservationId));
     }
 
     public Page<Reservation> findByUser(Long userId, Pageable pageable) {
@@ -94,7 +95,7 @@ public class ReservationService {
         Reservation reservation = findById(reservationId);
         
         if (reservation.getStatus() != Reservation.ReservationStatus.PENDING) {
-            throw new IllegalStateException("Only pending reservations can be confirmed");
+            throw new InvalidReservationStateException("대기 중인 예약만 확정할 수 있습니다");
         }
 
         reservation.confirm();
@@ -108,7 +109,7 @@ public class ReservationService {
         Reservation reservation = findById(reservationId);
         
         if (reservation.getStatus() == Reservation.ReservationStatus.COMPLETED) {
-            throw new IllegalStateException("Completed reservations cannot be cancelled");
+            throw new InvalidReservationStateException("완료된 예약은 취소할 수 없습니다");
         }
 
         reservation.cancel();
@@ -122,13 +123,13 @@ public class ReservationService {
         Reservation reservation = findById(reservationId);
         
         if (reservation.getStatus() != Reservation.ReservationStatus.CONFIRMED) {
-            throw new IllegalStateException("Only confirmed reservations can be checked in");
+            throw new InvalidReservationStateException("확정된 예약만 체크인할 수 있습니다");
         }
 
         // 체크인 날짜 검증 (시작 날짜 당일만 체크인 가능)
         LocalDate today = LocalDate.now();
         if (!today.equals(reservation.getStartDate())) {
-            throw new IllegalStateException("Check-in is only allowed on the reservation start date");
+            throw new InvalidReservationStateException("체크인은 예약 시작일에만 가능합니다");
         }
 
         reservation.checkIn(itemDescription, itemImageUrl, LocalDateTime.now());
@@ -142,7 +143,7 @@ public class ReservationService {
         Reservation reservation = findById(reservationId);
         
         if (reservation.getStatus() != Reservation.ReservationStatus.CHECKED_IN) {
-            throw new IllegalStateException("Only checked-in reservations can be checked out");
+            throw new InvalidReservationStateException("체크인된 예약만 체크아웃할 수 있습니다");
         }
 
         reservation.checkOut(LocalDateTime.now(), itemCondition);
@@ -170,15 +171,15 @@ public class ReservationService {
 
     private void validateReservationDates(Space space, LocalDate startDate, LocalDate endDate) {
         if (startDate.isAfter(endDate)) {
-            throw new IllegalArgumentException("Start date cannot be after end date");
+            throw new InvalidDateRangeException("시작일이 종료일보다 늦을 수 없습니다");
         }
 
         if (startDate.isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Cannot make reservations for past dates");
+            throw new InvalidDateRangeException("과거 날짜에 대한 예약은 불가능합니다");
         }
 
         if (!space.isAvailableOn(startDate) || !space.isAvailableOn(endDate)) {
-            throw new IllegalArgumentException("Space is not available for the requested dates");
+            throw new InvalidDateRangeException("해당 날짜에 공간을 이용할 수 없습니다");
         }
     }
 
@@ -190,7 +191,7 @@ public class ReservationService {
                            (request.getBoxRequirementXl() != null ? request.getBoxRequirementXl() : 0);
 
         if (totalRequired == 0) {
-            throw new IllegalArgumentException("At least one box must be requested");
+            throw new InvalidBoxCapacityException("최소 1개 이상의 박스를 요청해야 합니다");
         }
 
         // 각 사이즈별 용량 체크
@@ -199,14 +200,14 @@ public class ReservationService {
             (request.getBoxRequirementM() != null ? request.getBoxRequirementM() : 0) > space.getBoxCapacityM() ||
             (request.getBoxRequirementL() != null ? request.getBoxRequirementL() : 0) > space.getBoxCapacityL() ||
             (request.getBoxRequirementXl() != null ? request.getBoxRequirementXl() : 0) > space.getBoxCapacityXl()) {
-            throw new IllegalArgumentException("Box requirements exceed space capacity");
+            throw new InvalidBoxCapacityException("요청한 박스 수가 공간의 수용 가능한 용량을 초과합니다");
         }
     }
 
     private void validateNoConflictingReservations(Long spaceId, LocalDate startDate, LocalDate endDate) {
         long conflictCount = reservationRepository.countActiveReservationsInPeriod(spaceId, startDate, endDate);
         if (conflictCount > 0) {
-            throw new IllegalArgumentException("Space is already reserved for the requested period");
+            throw new ConflictingReservationException("해당 기간에 이미 예약이 존재합니다");
         }
     }
     

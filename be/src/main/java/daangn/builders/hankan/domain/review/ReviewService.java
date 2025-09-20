@@ -1,5 +1,6 @@
 package daangn.builders.hankan.domain.review;
 
+import daangn.builders.hankan.common.exception.*;
 import daangn.builders.hankan.domain.reservation.Reservation;
 import daangn.builders.hankan.domain.reservation.ReservationRepository;
 import daangn.builders.hankan.domain.space.Space;
@@ -32,12 +33,12 @@ public class ReviewService {
         log.info("Creating space review for reservation {}", request.getReservationId());
 
         Reservation reservation = reservationRepository.findById(request.getReservationId())
-                .orElseThrow(() -> new IllegalArgumentException("Reservation not found with id: " + request.getReservationId()));
+                .orElseThrow(() -> new ReservationNotFoundException(request.getReservationId()));
 
         validateReviewEligibility(reservation, request.getReviewerId(), Review.ReviewType.SPACE);
 
         User reviewer = userRepository.findById(request.getReviewerId())
-                .orElseThrow(() -> new IllegalArgumentException("Reviewer not found with id: " + request.getReviewerId()));
+                .orElseThrow(() -> new UserNotFoundException(request.getReviewerId()));
 
         Review review = Review.createSpaceReview(
                 reviewer, 
@@ -61,12 +62,12 @@ public class ReviewService {
         log.info("Creating user review for reservation {}", request.getReservationId());
 
         Reservation reservation = reservationRepository.findById(request.getReservationId())
-                .orElseThrow(() -> new IllegalArgumentException("Reservation not found with id: " + request.getReservationId()));
+                .orElseThrow(() -> new ReservationNotFoundException(request.getReservationId()));
 
         validateReviewEligibility(reservation, request.getReviewerId(), Review.ReviewType.USER);
 
         User reviewer = userRepository.findById(request.getReviewerId())
-                .orElseThrow(() -> new IllegalArgumentException("Reviewer not found with id: " + request.getReviewerId()));
+                .orElseThrow(() -> new UserNotFoundException(request.getReviewerId()));
 
         // 리뷰 대상 결정 (예약자가 공간 소유자를 리뷰하거나, 소유자가 예약자를 리뷰)
         User reviewedUser = determineReviewedUser(reservation, reviewer);
@@ -90,7 +91,7 @@ public class ReviewService {
 
     public Review findById(Long reviewId) {
         return reviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("Review not found with id: " + reviewId));
+                .orElseThrow(() -> new ReviewNotFoundException(reviewId));
     }
 
     public Page<Review> findSpaceReviews(Long spaceId, Pageable pageable) {
@@ -150,7 +151,7 @@ public class ReviewService {
     private void validateReviewEligibility(Reservation reservation, Long reviewerId, Review.ReviewType reviewType) {
         // 완료된 예약인지 확인
         if (reservation.getStatus() != Reservation.ReservationStatus.COMPLETED) {
-            throw new IllegalArgumentException("Reviews can only be created for completed reservations");
+            throw new ReviewNotAllowedException("완료된 예약에 대해서만 리뷰를 작성할 수 있습니다");
         }
 
         // 리뷰어가 예약 관련자인지 확인 (예약자 또는 공간 소유자)
@@ -158,12 +159,12 @@ public class ReviewService {
         boolean isSpaceOwner = reservation.getSpace().getOwner().getId().equals(reviewerId);
         
         if (!isReserver && !isSpaceOwner) {
-            throw new IllegalArgumentException("Only reservation participants can write reviews");
+            throw new ReviewNotAllowedException("예약 관련자만 리뷰를 작성할 수 있습니다");
         }
 
         // 중복 리뷰 확인
         if (reviewRepository.existsByReservationIdAndReviewType(reservation.getId(), reviewType)) {
-            throw new IllegalArgumentException("Review already exists for this reservation and type");
+            throw new DuplicateReviewException("이미 해당 예약에 대한 리뷰가 존재합니다");
         }
     }
 
@@ -177,7 +178,7 @@ public class ReviewService {
             return reservation.getUser();
         }
         else {
-            throw new IllegalArgumentException("Reviewer is not a participant in this reservation");
+            throw new ReviewNotAllowedException("리뷰 작성자가 해당 예약의 관련자가 아닙니다");
         }
     }
 
@@ -187,7 +188,7 @@ public class ReviewService {
         Long reviewCount = reviewRepository.countSpaceReviews(spaceId);
         
         Space space = spaceRepository.findById(spaceId)
-                .orElseThrow(() -> new IllegalArgumentException("Space not found with id: " + spaceId));
+                .orElseThrow(() -> new SpaceNotFoundException(spaceId));
         
         space.updateRating(
                 averageRating != null ? averageRating : 0.0, 
@@ -203,7 +204,7 @@ public class ReviewService {
         Long reviewCount = reviewRepository.countUserReviews(userId);
         
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
         
         user.updateRating(
                 averageRating != null ? averageRating : 0.0, 
