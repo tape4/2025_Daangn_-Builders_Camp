@@ -33,37 +33,40 @@ class MypageScreen extends ConsumerWidget {
   }
 
   Widget _buildProfileCard(BuildContext context) {
-    return ShadCard(
-      child: Row(
-        children: [
-          ShadAvatar(
-            'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTF_IdW_JHgWJh_GBrudxZXPOFfdf5598pnew&s',
-            placeholder: const Text('JD'),
-            size: const Size.square(80),
-            fit: BoxFit.cover,
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'John Doe',
-                  style: ShadTheme.of(context).textTheme.h4,
-                ),
-                const SizedBox(height: 4),
-                ShadBadge(
-                  child: const Text('36.5℃'),
-                ),
-              ],
+    return GestureDetector(
+      onTap: () => context.push(Routes.profileEdit),
+      child: ShadCard(
+        child: Row(
+          children: [
+            ShadAvatar(
+              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTF_IdW_JHgWJh_GBrudxZXPOFfdf5598pnew&s',
+              placeholder: const Text('JD'),
+              size: const Size.square(80),
+              fit: BoxFit.cover,
             ),
-          ),
-          Icon(
-            Symbols.arrow_forward_ios,
-            size: 24,
-            color: ShadTheme.of(context).colorScheme.mutedForeground,
-          ),
-        ],
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'John Doe',
+                    style: ShadTheme.of(context).textTheme.h4,
+                  ),
+                  const SizedBox(height: 4),
+                  ShadBadge(
+                    child: const Text('36.5℃'),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Symbols.arrow_forward_ios,
+              size: 24,
+              color: ShadTheme.of(context).colorScheme.mutedForeground,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -74,13 +77,13 @@ class MypageScreen extends ConsumerWidget {
         _buildMenuItem(
           context: context,
           icon: Symbols.history,
-          title: 'History',
+          title: '대여 내역',
           onTap: () => context.push(Routes.mypageHistory),
         ),
         _buildMenuItem(
           context: context,
           icon: Symbols.description,
-          title: 'Terms & Policy',
+          title: '이용 약관',
           onTap: () {
             launchUrl(Uri.parse('https://www.example.com/terms'));
           },
@@ -88,13 +91,13 @@ class MypageScreen extends ConsumerWidget {
         _buildMenuItem(
           context: context,
           icon: Symbols.help,
-          title: 'FAQ',
+          title: '자주 묻는 질문(FAQ)',
           onTap: () => context.push(Routes.mypageFaq),
         ),
         _buildMenuItem(
           context: context,
           icon: Symbols.article,
-          title: 'License',
+          title: '라이센스',
           onTap: () {
             Navigator.of(context).push(
               MaterialPageRoute(

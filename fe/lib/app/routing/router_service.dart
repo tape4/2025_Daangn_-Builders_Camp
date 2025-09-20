@@ -6,6 +6,7 @@ import 'package:hankan/app/feature/faq/faq_page.dart';
 import 'package:hankan/app/feature/history/history_page.dart';
 import 'package:hankan/app/feature/home/home_page.dart';
 import 'package:hankan/app/feature/home/screens/message/chat_screen.dart';
+import 'package:hankan/app/feature/profile_edit/profile_edit_page.dart';
 
 extension GoRouterX on GoRouter {
   BuildContext? get context => configuration.navigatorKey.currentContext;
@@ -30,6 +31,7 @@ abstract class Routes {
   static const String error = '/error';
   static const String mypageHistory = '/mypage/history';
   static const String mypageFaq = '/mypage/faq';
+  static const String profileEdit = '/profile_edit';
   static const String chat = '/chat/:channelUrl';
 }
 
@@ -68,6 +70,12 @@ class RouterService {
           builder: (context, state) {
             final channelUrl = state.pathParameters['channelUrl']!;
             return ChatScreen(channelUrl: channelUrl);
+          },
+        ),
+        GoRoute(
+          path: Routes.profileEdit,
+          builder: (context, state) {
+            return ProfileEditPage();
           },
         ),
       ],
