@@ -4,10 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:hankan/app/feature/space_rental/logic/space_rental_provider.dart';
 import 'package:hankan/app/feature/space_rental/logic/space_rental_state.dart';
 import 'package:hankan/app/feature/space_rental/widgets/dimension_input_section.dart';
-import 'package:hankan/app/feature/space_rental/widgets/location_panel.dart';
 import 'package:hankan/app/feature/space_rental/widgets/storage_option_item.dart';
-import 'package:hankan/app/common/widgets/date_range_picker.dart';
+import 'package:hankan/app/widgets/date_range_picker.dart';
 import 'package:hankan/app/feature/space_rental/models/space_rental_option.dart';
+import 'package:hankan/app/widgets/location_panel.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class SpaceRentalPage extends ConsumerStatefulWidget {
@@ -58,9 +58,17 @@ class _SpaceRentalPageState extends ConsumerState<SpaceRentalPage> {
                   region: state.region,
                   detailAddress: state.detailAddress,
                   onLocationChanged: notifier.updateLocation,
+                  title: '지역 정보',
+                  showStatusBadge: false,
+                  statusIcon: Icon(
+                    Icons.check_circle,
+                    size: 16,
+                    color: Colors.green,
+                  ),
+                  statusTitle: '현재 선택된 지역',
                 ),
                 const SizedBox(height: 20),
-                CommonDateRangePicker(
+                DateRangePicker(
                   title: '대여 기간',
                   startDate: state.startDate,
                   endDate: state.endDate,
@@ -152,7 +160,7 @@ class _SpaceRentalPageState extends ConsumerState<SpaceRentalPage> {
                       style: ShadTheme.of(context).textTheme.small,
                     ),
                     Text(
-                      '${state.remainingVolume.toStringAsFixed(0)} cm³',
+                      '${(state.remainingVolume / 1000).toStringAsFixed(1)} L',
                       style: ShadTheme.of(context).textTheme.muted,
                     ),
                   ],
@@ -178,7 +186,7 @@ class _SpaceRentalPageState extends ConsumerState<SpaceRentalPage> {
               ),
             ),
           ] else ...[
-            ...StorageOption.values.map((option) {
+            ...StorageOption.values.where((option) => option != StorageOption.box).map((option) {
               final quantity = state.optionQuantities[option] ?? 0;
               final price = state.optionPrices[option] ?? 0;
               final maxQuantity = state.getMaxQuantityForOption(option);
@@ -196,6 +204,32 @@ class _SpaceRentalPageState extends ConsumerState<SpaceRentalPage> {
                 },
               );
             }),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: ShadTheme.of(context).colorScheme.muted.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    size: 14,
+                    color: ShadTheme.of(context).colorScheme.mutedForeground,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '부피로만 계산되어 실제 배치 가능 여부와 다를 수 있습니다',
+                      style: ShadTheme.of(context).textTheme.muted.copyWith(
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ],
       ),

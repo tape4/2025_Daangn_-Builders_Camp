@@ -11,7 +11,8 @@ class DimensionInputSection extends StatefulWidget {
   final double depth;
   final double height;
   final Function(String?) onImageChanged;
-  final Function({double? width, double? depth, double? height}) onDimensionsChanged;
+  final Function({double? width, double? depth, double? height})
+      onDimensionsChanged;
 
   const DimensionInputSection({
     Key? key,
@@ -174,7 +175,10 @@ class _DimensionInputSectionState extends State<DimensionInputSection> {
                     height: 120,
                     decoration: BoxDecoration(
                       color: widget.imagePath == null
-                          ? ShadTheme.of(context).colorScheme.muted.withOpacity(0.1)
+                          ? ShadTheme.of(context)
+                              .colorScheme
+                              .muted
+                              .withOpacity(0.1)
                           : null,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
@@ -195,12 +199,17 @@ class _DimensionInputSectionState extends State<DimensionInputSection> {
                                     Icon(
                                       Icons.broken_image,
                                       size: 32,
-                                      color: ShadTheme.of(context).colorScheme.mutedForeground,
+                                      color: ShadTheme.of(context)
+                                          .colorScheme
+                                          .mutedForeground,
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
                                       '이미지 로드 실패',
-                                      style: ShadTheme.of(context).textTheme.muted.copyWith(
+                                      style: ShadTheme.of(context)
+                                          .textTheme
+                                          .muted
+                                          .copyWith(
                                             fontSize: 12,
                                           ),
                                     ),
@@ -216,12 +225,17 @@ class _DimensionInputSectionState extends State<DimensionInputSection> {
                                 Icon(
                                   Icons.add_photo_alternate,
                                   size: 32,
-                                  color: ShadTheme.of(context).colorScheme.mutedForeground,
+                                  color: ShadTheme.of(context)
+                                      .colorScheme
+                                      .mutedForeground,
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   '사진 추가',
-                                  style: ShadTheme.of(context).textTheme.muted.copyWith(
+                                  style: ShadTheme.of(context)
+                                      .textTheme
+                                      .muted
+                                      .copyWith(
                                         fontSize: 12,
                                       ),
                                 ),
@@ -250,7 +264,7 @@ class _DimensionInputSectionState extends State<DimensionInputSection> {
                   children: [
                     Expanded(
                       child: _buildDimensionInput(
-                        label: '가로',
+                        label: '가로 (W)',
                         controller: _widthController,
                         onChanged: (value) {
                           final doubleValue = double.tryParse(value) ?? 0;
@@ -261,7 +275,7 @@ class _DimensionInputSectionState extends State<DimensionInputSection> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: _buildDimensionInput(
-                        label: '세로',
+                        label: '세로 (D)',
                         controller: _depthController,
                         onChanged: (value) {
                           final doubleValue = double.tryParse(value) ?? 0;
@@ -272,7 +286,7 @@ class _DimensionInputSectionState extends State<DimensionInputSection> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: _buildDimensionInput(
-                        label: '높이',
+                        label: '높이 (H)',
                         controller: _heightController,
                         onChanged: (value) {
                           final doubleValue = double.tryParse(value) ?? 0;
@@ -282,13 +296,38 @@ class _DimensionInputSectionState extends State<DimensionInputSection> {
                     ),
                   ],
                 ),
-                if (widget.width > 0 && widget.depth > 0 && widget.height > 0) ...[
+                ...[
                   const SizedBox(height: 8),
-                  Text(
-                    '총 부피: ${(widget.width * widget.depth * widget.height).toStringAsFixed(0)} cm³',
-                    style: ShadTheme.of(context).textTheme.muted.copyWith(
-                          fontSize: 12,
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: ShadTheme.of(context)
+                          .colorScheme
+                          .primary
+                          .withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.straighten,
+                          size: 14,
+                          color: ShadTheme.of(context).colorScheme.primary,
                         ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '부피: ${((widget.width * widget.depth * widget.height) / 1000).toStringAsFixed(1)} L',
+                          style: ShadTheme.of(context).textTheme.muted.copyWith(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color:
+                                    ShadTheme.of(context).colorScheme.primary,
+                              ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ],

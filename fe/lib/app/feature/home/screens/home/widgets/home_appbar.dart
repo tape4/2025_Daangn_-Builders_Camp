@@ -41,13 +41,9 @@ class _HomeAppbarState extends State<HomeAppbar> {
   void _showAddressPrompt() {
     showModalBottomSheet(
       context: context,
-      isDismissible: false,
-      enableDrag: false,
+      isDismissible: true,
       builder: (context) {
-        return PopScope(
-          canPop: false,
-          child: HomeAddressBottomsheet(),
-        );
+        return HomeAddressBottomsheet();
       },
     ).then((result) {
       if (result != null && mounted) {

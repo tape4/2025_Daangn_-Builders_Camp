@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class PriceRangeBottomSheet extends StatefulWidget {
@@ -23,37 +22,52 @@ class PriceRangeBottomSheet extends StatefulWidget {
 }
 
 class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
-  late TextEditingController _minPriceController;
-  late TextEditingController _maxPriceController;
   late double _sliderMin;
   late double _sliderMax;
+
+  // 추천 가격의 50% ~ 200% 범위 계산
+  double get _minBound => (widget.recommendedPrice * 0.5 / 500).round() * 500;
+  double get _maxBound => (widget.recommendedPrice * 2.0 / 500).round() * 500;
 
   @override
   void initState() {
     super.initState();
-    _minPriceController = TextEditingController(
-      text: widget.currentMinPrice > 0
-          ? widget.currentMinPrice.toString()
-          : widget.recommendedPrice.toString(),
-    );
-    _maxPriceController = TextEditingController(
-      text: widget.currentMaxPrice > 0
-          ? widget.currentMaxPrice.toString()
-          : (widget.recommendedPrice * 1.5).round().toString(),
-    );
-    _sliderMin = widget.currentMinPrice > 0
-        ? widget.currentMinPrice.toDouble()
-        : widget.recommendedPrice.toDouble();
-    _sliderMax = widget.currentMaxPrice > 0
-        ? widget.currentMaxPrice.toDouble()
-        : (widget.recommendedPrice * 1.5).toDouble();
+
+    // 현재 가격이 설정되어 있으면 사용, 없으면 추천 가격 기준으로 설정
+    if (widget.currentMinPrice > 0 && widget.currentMaxPrice > 0) {
+      // 현재 가격을 500원 단위로 반올림하고 범위 내로 제한
+      _sliderMin = ((widget.currentMinPrice / 500).round() * 500).toDouble();
+      _sliderMax = ((widget.currentMaxPrice / 500).round() * 500).toDouble();
+
+      // 범위를 벗어나면 조정
+      if (_sliderMin < _minBound) _sliderMin = _minBound;
+      if (_sliderMin > _maxBound) _sliderMin = _maxBound;
+      if (_sliderMax < _minBound) _sliderMax = _minBound;
+      if (_sliderMax > _maxBound) _sliderMax = _maxBound;
+
+      // 최소가 최대보다 크면 교체
+      if (_sliderMin > _sliderMax) {
+        final temp = _sliderMin;
+        _sliderMin = _sliderMax;
+        _sliderMax = temp;
+      }
+    } else {
+      // 기본값: 추천 가격의 80% ~ 120%
+      _sliderMin =
+          ((widget.recommendedPrice * 0.8 / 500).round() * 500).toDouble();
+      _sliderMax =
+          ((widget.recommendedPrice * 1.2 / 500).round() * 500).toDouble();
+    }
   }
 
   @override
   void dispose() {
-    _minPriceController.dispose();
-    _maxPriceController.dispose();
     super.dispose();
+  }
+
+  // 500원 단위로 반올림하는 헬퍼 메서드
+  double _roundToNearest500(double value) {
+    return (value / 500).round() * 500.0;
   }
 
   String _formatVolume(double volume) {
@@ -95,7 +109,10 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: ShadTheme.of(context).colorScheme.mutedForeground.withOpacity(0.3),
+              color: ShadTheme.of(context)
+                  .colorScheme
+                  .mutedForeground
+                  .withOpacity(0.3),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -134,10 +151,16 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: ShadTheme.of(context).colorScheme.primary.withOpacity(0.1),
+                      color: ShadTheme.of(context)
+                          .colorScheme
+                          .primary
+                          .withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: ShadTheme.of(context).colorScheme.primary.withOpacity(0.2),
+                        color: ShadTheme.of(context)
+                            .colorScheme
+                            .primary
+                            .withOpacity(0.2),
                       ),
                     ),
                     child: Column(
@@ -153,7 +176,10 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
                             const SizedBox(width: 8),
                             Text(
                               '추천 가격',
-                              style: ShadTheme.of(context).textTheme.small.copyWith(
+                              style: ShadTheme.of(context)
+                                  .textTheme
+                                  .small
+                                  .copyWith(
                                     fontWeight: FontWeight.w600,
                                   ),
                             ),
@@ -183,7 +209,10 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: ShadTheme.of(context).colorScheme.muted.withOpacity(0.05),
+                      color: ShadTheme.of(context)
+                          .colorScheme
+                          .muted
+                          .withOpacity(0.05),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
                         color: ShadTheme.of(context).colorScheme.border,
@@ -200,7 +229,10 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
                             ),
                             Text(
                               '₩${_sliderMin.round().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
-                              style: ShadTheme.of(context).textTheme.small.copyWith(
+                              style: ShadTheme.of(context)
+                                  .textTheme
+                                  .small
+                                  .copyWith(
                                     fontWeight: FontWeight.w600,
                                   ),
                             ),
@@ -210,13 +242,17 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
                         ShadSlider(
                           initialValue: _sliderMin,
                           onChanged: (value) {
+                            final roundedValue = _roundToNearest500(value);
                             setState(() {
-                              _sliderMin = value;
-                              _minPriceController.text = value.round().toString();
+                              _sliderMin = roundedValue;
+                              // 최소가 최대를 넘으면 최대도 같이 올림
+                              if (_sliderMin > _sliderMax) {
+                                _sliderMax = _sliderMin;
+                              }
                             });
                           },
-                          min: 10000,
-                          max: 200000,
+                          min: _minBound,
+                          max: _maxBound,
                         ),
                         const SizedBox(height: 16),
                         Row(
@@ -228,7 +264,10 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
                             ),
                             Text(
                               '₩${_sliderMax.round().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
-                              style: ShadTheme.of(context).textTheme.small.copyWith(
+                              style: ShadTheme.of(context)
+                                  .textTheme
+                                  .small
+                                  .copyWith(
                                     fontWeight: FontWeight.w600,
                                   ),
                             ),
@@ -238,81 +277,20 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
                         ShadSlider(
                           initialValue: _sliderMax,
                           onChanged: (value) {
+                            final roundedValue = _roundToNearest500(value);
                             setState(() {
-                              _sliderMax = value;
-                              _maxPriceController.text = value.round().toString();
+                              _sliderMax = roundedValue;
+                              // 최대가 최소보다 작으면 최소도 같이 내림
+                              if (_sliderMax < _sliderMin) {
+                                _sliderMin = _sliderMax;
+                              }
                             });
                           },
-                          min: 10000,
-                          max: 200000,
+                          min: _minBound,
+                          max: _maxBound,
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    '직접 입력',
-                    style: ShadTheme.of(context).textTheme.h4,
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ShadInputFormField(
-                          id: 'min_price',
-                          controller: _minPriceController,
-                          label: Text(
-                            '최소 금액',
-                            style: ShadTheme.of(context).textTheme.small,
-                          ),
-                          placeholder: const Text('10,000'),
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                          prefix: Text(
-                            '₩',
-                            style: ShadTheme.of(context).textTheme.muted,
-                          ),
-                          onChanged: (value) {
-                            final intValue = int.tryParse(value) ?? 0;
-                            if (intValue >= 10000 && intValue <= 200000) {
-                              setState(() {
-                                _sliderMin = intValue.toDouble();
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: ShadInputFormField(
-                          id: 'max_price',
-                          controller: _maxPriceController,
-                          label: Text(
-                            '최대 금액',
-                            style: ShadTheme.of(context).textTheme.small,
-                          ),
-                          placeholder: const Text('100,000'),
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                          prefix: Text(
-                            '₩',
-                            style: ShadTheme.of(context).textTheme.muted,
-                          ),
-                          onChanged: (value) {
-                            final intValue = int.tryParse(value) ?? 0;
-                            if (intValue >= 10000 && intValue <= 200000) {
-                              setState(() {
-                                _sliderMax = intValue.toDouble();
-                              });
-                            }
-                          },
-                        ),
-                      ),
-                    ],
                   ),
                   const SizedBox(height: 24),
                   _buildPriceReference(context),
@@ -332,9 +310,8 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
             ),
             child: ShadButton(
               onPressed: () {
-                final minPrice = int.tryParse(_minPriceController.text) ?? 0;
-                final maxPrice = int.tryParse(_maxPriceController.text) ?? 0;
-                widget.onPriceRangeChanged(minPrice, maxPrice);
+                widget.onPriceRangeChanged(
+                    _sliderMin.round(), _sliderMax.round());
                 Navigator.of(context).pop();
               },
               size: ShadButtonSize.lg,
@@ -368,22 +345,22 @@ class _PriceRangeBottomSheetState extends State<PriceRangeBottomSheet> {
             children: [
               _buildPriceReferenceRow(
                 context,
-                '소형 (< 50,000 cm³)',
-                '₩10,000 ~ ₩30,000',
+                '소형 (< 50L)',
+                '₩5,000 ~ ₩15,000',
                 Icons.backpack,
               ),
               const SizedBox(height: 8),
               _buildPriceReferenceRow(
                 context,
-                '중형 (< 200,000 cm³)',
-                '₩30,000 ~ ₩80,000',
+                '중형 (50L ~ 200L)',
+                '₩15,000 ~ ₩40,000',
                 Icons.luggage,
               ),
               const SizedBox(height: 8),
               _buildPriceReferenceRow(
                 context,
-                '대형 (> 200,000 cm³)',
-                '₩80,000 ~ ₩200,000',
+                '대형 (> 200L)',
+                '₩40,000 ~ ₩100,000',
                 Icons.kitchen,
               ),
             ],

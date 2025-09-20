@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:kpostal/kpostal.dart';
+import 'package:hankan/app/feature/home/screens/home/widgets/home_address_bottomsheet.dart';
+import 'package:hankan/app/service/secure_storage_service.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
-class SharedLocationPanel extends StatefulWidget {
+class LocationPanel extends StatefulWidget {
   final String region;
   final String detailAddress;
   final Function(String, String) onLocationChanged;
@@ -11,7 +12,7 @@ class SharedLocationPanel extends StatefulWidget {
   final Widget? statusIcon;
   final String? statusTitle;
 
-  const SharedLocationPanel({
+  const LocationPanel({
     Key? key,
     required this.region,
     required this.detailAddress,
@@ -23,22 +24,51 @@ class SharedLocationPanel extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<SharedLocationPanel> createState() => _SharedLocationPanelState();
+  State<LocationPanel> createState() => _LocationPanelState();
 }
 
-class _SharedLocationPanelState extends State<SharedLocationPanel> {
+class _LocationPanelState extends State<LocationPanel> {
   late TextEditingController _regionController;
   late TextEditingController _detailController;
+  final SecureStorageService _storageService = SecureStorageService.I;
+  bool _isLoadingSavedAddress = true;
 
   @override
   void initState() {
     super.initState();
     _regionController = TextEditingController(text: widget.region);
     _detailController = TextEditingController(text: widget.detailAddress);
+    _loadSavedAddressIfNeeded();
+  }
+
+  Future<void> _loadSavedAddressIfNeeded() async {
+    if (widget.region.isEmpty) {
+      final savedAddress = await _storageService.read('selected_address');
+      final savedDetailAddress = await _storageService.read('selected_address_detail');
+
+      if (savedAddress != null && mounted) {
+        setState(() {
+          _regionController.text = savedAddress;
+          if (savedDetailAddress != null && widget.detailAddress.isEmpty) {
+            _detailController.text = savedDetailAddress;
+          }
+          _isLoadingSavedAddress = false;
+        });
+        widget.onLocationChanged(savedAddress, _detailController.text);
+      } else {
+        setState(() {
+          _isLoadingSavedAddress = false;
+        });
+      }
+    } else {
+      setState(() {
+        _isLoadingSavedAddress = false;
+      });
+    }
   }
 
   @override
-  void didUpdateWidget(SharedLocationPanel oldWidget) {
+  void didUpdateWidget(LocationPanel oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.region != widget.region) {
       _regionController.text = widget.region;
@@ -55,20 +85,24 @@ class _SharedLocationPanelState extends State<SharedLocationPanel> {
     super.dispose();
   }
 
-  Future<void> _searchAddress() async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => KpostalView(
-          callback: (Kpostal result) {
-            setState(() {
-              _regionController.text = result.address;
-            });
-            widget.onLocationChanged(result.address, _detailController.text);
-          },
+  Future<void> _selectInitialAddress() async {
+    if (_regionController.text.isEmpty && !_isLoadingSavedAddress) {
+      final result = await showModalBottomSheet<String>(
+        context: context,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
-      ),
-    );
+        builder: (context) => const HomeAddressBottomsheet(),
+      );
+
+      if (result != null && mounted) {
+        setState(() {
+          _regionController.text = result;
+        });
+        widget.onLocationChanged(result, _detailController.text);
+      }
+    }
   }
 
   @override
@@ -144,12 +178,14 @@ class _SharedLocationPanelState extends State<SharedLocationPanel> {
             placeholder: const Text('주소를 검색해주세요'),
             readOnly: true,
             prefix: const Icon(Icons.home, size: 18),
-            suffix: ShadButton.ghost(
-              size: ShadButtonSize.sm,
-              onPressed: _searchAddress,
-              child: const Text('주소 검색'),
-            ),
-            onPressed: _searchAddress,
+            suffix: _regionController.text.isEmpty
+                ? ShadButton.ghost(
+                    size: ShadButtonSize.sm,
+                    onPressed: _isLoadingSavedAddress ? null : _selectInitialAddress,
+                    child: const Text('주소 선택'),
+                  )
+                : null,
+            onPressed: _regionController.text.isEmpty ? _selectInitialAddress : null,
           ),
           if (_regionController.text.isNotEmpty) ...[
             const SizedBox(height: 12),
@@ -164,8 +200,11 @@ class _SharedLocationPanelState extends State<SharedLocationPanel> {
               ),
               placeholder: const Text('상세 주소를 입력해주세요 (선택)'),
               prefix: const Icon(Icons.apartment, size: 18),
-              onChanged: (value) {
+              onChanged: (value) async {
                 widget.onLocationChanged(_regionController.text, value);
+                if (_regionController.text.isNotEmpty) {
+                  await _storageService.write('selected_address_detail', value);
+                }
               },
             ),
           ],
@@ -194,7 +233,7 @@ class _SharedLocationPanelState extends State<SharedLocationPanel> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.statusTitle ?? '현재 선택된 지역',
+                          widget.statusTitle ?? '대표 주소',
                           style: ShadTheme.of(context).textTheme.muted.copyWith(
                                 fontSize: 12,
                               ),

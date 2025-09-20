@@ -4,9 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:hankan/app/feature/item_storage/logic/item_storage_provider.dart';
 import 'package:hankan/app/feature/item_storage/logic/item_storage_state.dart';
 import 'package:hankan/app/feature/item_storage/widgets/item_image_dimension_section.dart';
-import 'package:hankan/app/feature/item_storage/widgets/item_location_panel.dart';
 import 'package:hankan/app/feature/item_storage/widgets/price_range_bottom_sheet.dart';
-import 'package:hankan/app/common/widgets/date_range_picker.dart';
+import 'package:hankan/app/widgets/date_range_picker.dart';
+import 'package:hankan/app/widgets/location_panel.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class ItemStoragePage extends ConsumerStatefulWidget {
@@ -52,7 +52,7 @@ class _ItemStoragePageState extends ConsumerState<ItemStoragePage> {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          '물건 맡기기',
+          '물건 보관하기',
           style: ShadTheme.of(context).textTheme.h4,
         ),
         centerTitle: true,
@@ -72,12 +72,20 @@ class _ItemStoragePageState extends ConsumerState<ItemStoragePage> {
                   onImageChanged: notifier.updateImageUrl,
                   onDimensionsChanged: notifier.updateDimensions,
                 ),
-                ItemLocationPanel(
+                LocationPanel(
                   region: state.region,
                   detailAddress: state.detailAddress,
                   onLocationChanged: notifier.updateLocation,
+                  title: '지역 정보',
+                  showStatusBadge: true,
+                  statusIcon: Icon(
+                    Icons.info_outline,
+                    size: 16,
+                    color: ShadTheme.of(context).colorScheme.mutedForeground,
+                  ),
+                  statusTitle: '현재 위치 정보',
                 ),
-                CommonDateRangePicker(
+                DateRangePicker(
                   title: '보관 기간',
                   startDate: state.startDate,
                   endDate: state.endDate,
@@ -123,7 +131,7 @@ class _ItemStoragePageState extends ConsumerState<ItemStoragePage> {
                             ShadToast(
                               title: const Text('등록 완료'),
                               description:
-                                  const Text('물건 맡기기 요청이 성공적으로 등록되었습니다.'),
+                                  const Text('물건 보관하기 요청이 성공적으로 등록되었습니다.'),
                             ),
                           );
                           if (context.mounted) {

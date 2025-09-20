@@ -8,7 +8,8 @@ class ItemImageDimensionSection extends StatefulWidget {
   final double depth;
   final double height;
   final Function(String) onImageChanged;
-  final Function({double? width, double? depth, double? height}) onDimensionsChanged;
+  final Function({double? width, double? depth, double? height})
+      onDimensionsChanged;
 
   const ItemImageDimensionSection({
     Key? key,
@@ -21,7 +22,8 @@ class ItemImageDimensionSection extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<ItemImageDimensionSection> createState() => _ItemImageDimensionSectionState();
+  State<ItemImageDimensionSection> createState() =>
+      _ItemImageDimensionSectionState();
 }
 
 class _ItemImageDimensionSectionState extends State<ItemImageDimensionSection> {
@@ -127,7 +129,10 @@ class _ItemImageDimensionSectionState extends State<ItemImageDimensionSection> {
                     height: 120,
                     decoration: BoxDecoration(
                       color: widget.imageUrl.isEmpty
-                          ? ShadTheme.of(context).colorScheme.muted.withOpacity(0.1)
+                          ? ShadTheme.of(context)
+                              .colorScheme
+                              .muted
+                              .withOpacity(0.1)
                           : null,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
@@ -149,12 +154,17 @@ class _ItemImageDimensionSectionState extends State<ItemImageDimensionSection> {
                                 Icon(
                                   Icons.add_photo_alternate,
                                   size: 32,
-                                  color: ShadTheme.of(context).colorScheme.mutedForeground,
+                                  color: ShadTheme.of(context)
+                                      .colorScheme
+                                      .mutedForeground,
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   '사진 추가',
-                                  style: ShadTheme.of(context).textTheme.muted.copyWith(
+                                  style: ShadTheme.of(context)
+                                      .textTheme
+                                      .muted
+                                      .copyWith(
                                         fontSize: 12,
                                       ),
                                 ),
@@ -216,12 +226,16 @@ class _ItemImageDimensionSectionState extends State<ItemImageDimensionSection> {
                     ),
                   ],
                 ),
-                if (widget.width > 0 && widget.depth > 0 && widget.height > 0) ...[
+                ...[
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: ShadTheme.of(context).colorScheme.primary.withOpacity(0.1),
+                      color: ShadTheme.of(context)
+                          .colorScheme
+                          .primary
+                          .withOpacity(0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Row(
@@ -234,11 +248,12 @@ class _ItemImageDimensionSectionState extends State<ItemImageDimensionSection> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '부피: ${(widget.width * widget.depth * widget.height).toStringAsFixed(0)} cm³',
+                          '부피: ${((widget.width * widget.depth * widget.height) / 1000).toStringAsFixed(1)} L',
                           style: ShadTheme.of(context).textTheme.muted.copyWith(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
-                                color: ShadTheme.of(context).colorScheme.primary,
+                                color:
+                                    ShadTheme.of(context).colorScheme.primary,
                               ),
                         ),
                       ],

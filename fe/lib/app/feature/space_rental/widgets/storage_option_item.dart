@@ -173,33 +173,29 @@ class _StorageOptionItemState extends State<StorageOptionItem> {
             Row(
               children: [
                 Expanded(
-                  child: ShadInputFormField(
-                    id: 'price_${widget.option.name}',
-                    controller: _priceController,
-                    label: Text(
-                      '월 대여료',
-                      style: ShadTheme.of(context).textTheme.muted.copyWith(
-                            fontSize: 12,
-                          ),
+                  child: GestureDetector(
+                    onTap: _showPriceBottomSheet,
+                    child: AbsorbPointer(
+                      child: ShadInputFormField(
+                        id: 'price_${widget.option.name}',
+                        controller: _priceController,
+                        label: Text(
+                          '월 대여료',
+                          style: ShadTheme.of(context).textTheme.muted.copyWith(
+                                fontSize: 12,
+                              ),
+                        ),
+                        placeholder: const Text('가격을 선택하세요'),
+                        prefix: Text(
+                          '₩',
+                          style: ShadTheme.of(context).textTheme.muted,
+                        ),
+                        suffix: Icon(
+                          Icons.arrow_drop_down,
+                          color: ShadTheme.of(context).colorScheme.mutedForeground,
+                        ),
+                      ),
                     ),
-                    placeholder: const Text('가격을 입력하세요'),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                    ],
-                    prefix: Text(
-                      '₩',
-                      style: ShadTheme.of(context).textTheme.muted,
-                    ),
-                    suffix: ShadButton.ghost(
-                      size: ShadButtonSize.sm,
-                      onPressed: _showPriceBottomSheet,
-                      child: const Text('추천 가격'),
-                    ),
-                    onChanged: (value) {
-                      final price = int.tryParse(value) ?? 0;
-                      widget.onPriceChanged(price);
-                    },
                   ),
                 ),
               ],

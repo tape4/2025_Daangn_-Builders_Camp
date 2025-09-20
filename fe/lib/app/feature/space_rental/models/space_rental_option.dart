@@ -72,15 +72,15 @@ enum StorageOption {
   int get recommendedPrice {
     switch (this) {
       case StorageOption.box:
-        return 15000;
+        return 7500;
       case StorageOption.xs:
-        return 20000;
+        return 10000;
       case StorageOption.s:
-        return 30000;
+        return 15000;
       case StorageOption.m:
-        return 45000;
+        return 22500;
       case StorageOption.l:
-        return 70000;
+        return 35000;
     }
   }
 }
