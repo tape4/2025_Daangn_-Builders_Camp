@@ -20,7 +20,9 @@ HistoryState _$HistoryStateFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$HistoryState {
-  List<String> get histories => throw _privateConstructorUsedError;
+  List<RentalHistory> get rentalHistories => throw _privateConstructorUsedError;
+  bool get isLoading => throw _privateConstructorUsedError;
+  String? get errorMessage => throw _privateConstructorUsedError;
 
   /// Serializes this HistoryState to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -38,7 +40,10 @@ abstract class $HistoryStateCopyWith<$Res> {
           HistoryState value, $Res Function(HistoryState) then) =
       _$HistoryStateCopyWithImpl<$Res, HistoryState>;
   @useResult
-  $Res call({List<String> histories});
+  $Res call(
+      {List<RentalHistory> rentalHistories,
+      bool isLoading,
+      String? errorMessage});
 }
 
 /// @nodoc
@@ -56,13 +61,23 @@ class _$HistoryStateCopyWithImpl<$Res, $Val extends HistoryState>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? histories = null,
+    Object? rentalHistories = null,
+    Object? isLoading = null,
+    Object? errorMessage = freezed,
   }) {
     return _then(_value.copyWith(
-      histories: null == histories
-          ? _value.histories
-          : histories // ignore: cast_nullable_to_non_nullable
-              as List<String>,
+      rentalHistories: null == rentalHistories
+          ? _value.rentalHistories
+          : rentalHistories // ignore: cast_nullable_to_non_nullable
+              as List<RentalHistory>,
+      isLoading: null == isLoading
+          ? _value.isLoading
+          : isLoading // ignore: cast_nullable_to_non_nullable
+              as bool,
+      errorMessage: freezed == errorMessage
+          ? _value.errorMessage
+          : errorMessage // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -75,7 +90,10 @@ abstract class _$$HistoryStateImplCopyWith<$Res>
       __$$HistoryStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({List<String> histories});
+  $Res call(
+      {List<RentalHistory> rentalHistories,
+      bool isLoading,
+      String? errorMessage});
 }
 
 /// @nodoc
@@ -91,13 +109,23 @@ class __$$HistoryStateImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? histories = null,
+    Object? rentalHistories = null,
+    Object? isLoading = null,
+    Object? errorMessage = freezed,
   }) {
     return _then(_$HistoryStateImpl(
-      histories: null == histories
-          ? _value._histories
-          : histories // ignore: cast_nullable_to_non_nullable
-              as List<String>,
+      rentalHistories: null == rentalHistories
+          ? _value._rentalHistories
+          : rentalHistories // ignore: cast_nullable_to_non_nullable
+              as List<RentalHistory>,
+      isLoading: null == isLoading
+          ? _value.isLoading
+          : isLoading // ignore: cast_nullable_to_non_nullable
+              as bool,
+      errorMessage: freezed == errorMessage
+          ? _value.errorMessage
+          : errorMessage // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -105,23 +133,33 @@ class __$$HistoryStateImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$HistoryStateImpl implements _HistoryState {
-  _$HistoryStateImpl({required final List<String> histories})
-      : _histories = histories;
+  const _$HistoryStateImpl(
+      {final List<RentalHistory> rentalHistories = const [],
+      this.isLoading = false,
+      this.errorMessage})
+      : _rentalHistories = rentalHistories;
 
   factory _$HistoryStateImpl.fromJson(Map<String, dynamic> json) =>
       _$$HistoryStateImplFromJson(json);
 
-  final List<String> _histories;
+  final List<RentalHistory> _rentalHistories;
   @override
-  List<String> get histories {
-    if (_histories is EqualUnmodifiableListView) return _histories;
+  @JsonKey()
+  List<RentalHistory> get rentalHistories {
+    if (_rentalHistories is EqualUnmodifiableListView) return _rentalHistories;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_histories);
+    return EqualUnmodifiableListView(_rentalHistories);
   }
 
   @override
+  @JsonKey()
+  final bool isLoading;
+  @override
+  final String? errorMessage;
+
+  @override
   String toString() {
-    return 'HistoryState(histories: $histories)';
+    return 'HistoryState(rentalHistories: $rentalHistories, isLoading: $isLoading, errorMessage: $errorMessage)';
   }
 
   @override
@@ -130,13 +168,20 @@ class _$HistoryStateImpl implements _HistoryState {
         (other.runtimeType == runtimeType &&
             other is _$HistoryStateImpl &&
             const DeepCollectionEquality()
-                .equals(other._histories, _histories));
+                .equals(other._rentalHistories, _rentalHistories) &&
+            (identical(other.isLoading, isLoading) ||
+                other.isLoading == isLoading) &&
+            (identical(other.errorMessage, errorMessage) ||
+                other.errorMessage == errorMessage));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(_histories));
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(_rentalHistories),
+      isLoading,
+      errorMessage);
 
   /// Create a copy of HistoryState
   /// with the given fields replaced by the non-null parameter values.
@@ -155,14 +200,20 @@ class _$HistoryStateImpl implements _HistoryState {
 }
 
 abstract class _HistoryState implements HistoryState {
-  factory _HistoryState({required final List<String> histories}) =
-      _$HistoryStateImpl;
+  const factory _HistoryState(
+      {final List<RentalHistory> rentalHistories,
+      final bool isLoading,
+      final String? errorMessage}) = _$HistoryStateImpl;
 
   factory _HistoryState.fromJson(Map<String, dynamic> json) =
       _$HistoryStateImpl.fromJson;
 
   @override
-  List<String> get histories;
+  List<RentalHistory> get rentalHistories;
+  @override
+  bool get isLoading;
+  @override
+  String? get errorMessage;
 
   /// Create a copy of HistoryState
   /// with the given fields replaced by the non-null parameter values.
