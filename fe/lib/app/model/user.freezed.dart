@@ -21,10 +21,14 @@ User _$UserFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$User {
   int get id => throw _privateConstructorUsedError;
-  String get nickname => throw _privateConstructorUsedError;
-  String get phone => throw _privateConstructorUsedError;
+  String get email => throw _privateConstructorUsedError;
+  String get username => throw _privateConstructorUsedError;
+  String? get nickname => throw _privateConstructorUsedError;
+  String? get phone => throw _privateConstructorUsedError;
   String get profile_image => throw _privateConstructorUsedError;
   double get rating => throw _privateConstructorUsedError;
+  DateTime? get created_at => throw _privateConstructorUsedError;
+  DateTime? get updated_at => throw _privateConstructorUsedError;
 
   /// Serializes this User to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -42,10 +46,14 @@ abstract class $UserCopyWith<$Res> {
   @useResult
   $Res call(
       {int id,
-      String nickname,
-      String phone,
+      String email,
+      String username,
+      String? nickname,
+      String? phone,
       String profile_image,
-      double rating});
+      double rating,
+      DateTime? created_at,
+      DateTime? updated_at});
 }
 
 /// @nodoc
@@ -64,24 +72,36 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
   @override
   $Res call({
     Object? id = null,
-    Object? nickname = null,
-    Object? phone = null,
+    Object? email = null,
+    Object? username = null,
+    Object? nickname = freezed,
+    Object? phone = freezed,
     Object? profile_image = null,
     Object? rating = null,
+    Object? created_at = freezed,
+    Object? updated_at = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      nickname: null == nickname
+      email: null == email
+          ? _value.email
+          : email // ignore: cast_nullable_to_non_nullable
+              as String,
+      username: null == username
+          ? _value.username
+          : username // ignore: cast_nullable_to_non_nullable
+              as String,
+      nickname: freezed == nickname
           ? _value.nickname
           : nickname // ignore: cast_nullable_to_non_nullable
-              as String,
-      phone: null == phone
+              as String?,
+      phone: freezed == phone
           ? _value.phone
           : phone // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       profile_image: null == profile_image
           ? _value.profile_image
           : profile_image // ignore: cast_nullable_to_non_nullable
@@ -90,6 +110,14 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
           ? _value.rating
           : rating // ignore: cast_nullable_to_non_nullable
               as double,
+      created_at: freezed == created_at
+          ? _value.created_at
+          : created_at // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      updated_at: freezed == updated_at
+          ? _value.updated_at
+          : updated_at // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ) as $Val);
   }
 }
@@ -103,10 +131,14 @@ abstract class _$$UserImplCopyWith<$Res> implements $UserCopyWith<$Res> {
   @useResult
   $Res call(
       {int id,
-      String nickname,
-      String phone,
+      String email,
+      String username,
+      String? nickname,
+      String? phone,
       String profile_image,
-      double rating});
+      double rating,
+      DateTime? created_at,
+      DateTime? updated_at});
 }
 
 /// @nodoc
@@ -122,24 +154,36 @@ class __$$UserImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? nickname = null,
-    Object? phone = null,
+    Object? email = null,
+    Object? username = null,
+    Object? nickname = freezed,
+    Object? phone = freezed,
     Object? profile_image = null,
     Object? rating = null,
+    Object? created_at = freezed,
+    Object? updated_at = freezed,
   }) {
     return _then(_$UserImpl(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      nickname: null == nickname
+      email: null == email
+          ? _value.email
+          : email // ignore: cast_nullable_to_non_nullable
+              as String,
+      username: null == username
+          ? _value.username
+          : username // ignore: cast_nullable_to_non_nullable
+              as String,
+      nickname: freezed == nickname
           ? _value.nickname
           : nickname // ignore: cast_nullable_to_non_nullable
-              as String,
-      phone: null == phone
+              as String?,
+      phone: freezed == phone
           ? _value.phone
           : phone // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       profile_image: null == profile_image
           ? _value.profile_image
           : profile_image // ignore: cast_nullable_to_non_nullable
@@ -148,6 +192,14 @@ class __$$UserImplCopyWithImpl<$Res>
           ? _value.rating
           : rating // ignore: cast_nullable_to_non_nullable
               as double,
+      created_at: freezed == created_at
+          ? _value.created_at
+          : created_at // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      updated_at: freezed == updated_at
+          ? _value.updated_at
+          : updated_at // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ));
   }
 }
@@ -157,10 +209,14 @@ class __$$UserImplCopyWithImpl<$Res>
 class _$UserImpl implements _User {
   _$UserImpl(
       {required this.id,
-      required this.nickname,
-      required this.phone,
+      required this.email,
+      required this.username,
+      this.nickname,
+      this.phone,
       this.profile_image = "",
-      this.rating = 36.5});
+      this.rating = 36.5,
+      this.created_at,
+      this.updated_at});
 
   factory _$UserImpl.fromJson(Map<String, dynamic> json) =>
       _$$UserImplFromJson(json);
@@ -168,19 +224,27 @@ class _$UserImpl implements _User {
   @override
   final int id;
   @override
-  final String nickname;
+  final String email;
   @override
-  final String phone;
+  final String username;
+  @override
+  final String? nickname;
+  @override
+  final String? phone;
   @override
   @JsonKey()
   final String profile_image;
   @override
   @JsonKey()
   final double rating;
+  @override
+  final DateTime? created_at;
+  @override
+  final DateTime? updated_at;
 
   @override
   String toString() {
-    return 'User(id: $id, nickname: $nickname, phone: $phone, profile_image: $profile_image, rating: $rating)';
+    return 'User(id: $id, email: $email, username: $username, nickname: $nickname, phone: $phone, profile_image: $profile_image, rating: $rating, created_at: $created_at, updated_at: $updated_at)';
   }
 
   @override
@@ -189,18 +253,25 @@ class _$UserImpl implements _User {
         (other.runtimeType == runtimeType &&
             other is _$UserImpl &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.email, email) || other.email == email) &&
+            (identical(other.username, username) ||
+                other.username == username) &&
             (identical(other.nickname, nickname) ||
                 other.nickname == nickname) &&
             (identical(other.phone, phone) || other.phone == phone) &&
             (identical(other.profile_image, profile_image) ||
                 other.profile_image == profile_image) &&
-            (identical(other.rating, rating) || other.rating == rating));
+            (identical(other.rating, rating) || other.rating == rating) &&
+            (identical(other.created_at, created_at) ||
+                other.created_at == created_at) &&
+            (identical(other.updated_at, updated_at) ||
+                other.updated_at == updated_at));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, nickname, phone, profile_image, rating);
+  int get hashCode => Object.hash(runtimeType, id, email, username, nickname,
+      phone, profile_image, rating, created_at, updated_at);
 
   /// Create a copy of User
   /// with the given fields replaced by the non-null parameter values.
@@ -221,23 +292,35 @@ class _$UserImpl implements _User {
 abstract class _User implements User {
   factory _User(
       {required final int id,
-      required final String nickname,
-      required final String phone,
+      required final String email,
+      required final String username,
+      final String? nickname,
+      final String? phone,
       final String profile_image,
-      final double rating}) = _$UserImpl;
+      final double rating,
+      final DateTime? created_at,
+      final DateTime? updated_at}) = _$UserImpl;
 
   factory _User.fromJson(Map<String, dynamic> json) = _$UserImpl.fromJson;
 
   @override
   int get id;
   @override
-  String get nickname;
+  String get email;
   @override
-  String get phone;
+  String get username;
+  @override
+  String? get nickname;
+  @override
+  String? get phone;
   @override
   String get profile_image;
   @override
   double get rating;
+  @override
+  DateTime? get created_at;
+  @override
+  DateTime? get updated_at;
 
   /// Create a copy of User
   /// with the given fields replaced by the non-null parameter values.

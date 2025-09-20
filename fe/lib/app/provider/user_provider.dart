@@ -11,8 +11,10 @@ class UserProvider extends Notifier<User> {
   build() {
     return User(
       id: 0,
-      nickname: 'Tester',
-      phone: '',
+      email: '',
+      username: 'Guest',
+      nickname: 'Guest',
+      phone: null,
     );
   }
 

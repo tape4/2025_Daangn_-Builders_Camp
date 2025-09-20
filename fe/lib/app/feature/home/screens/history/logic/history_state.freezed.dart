@@ -20,8 +20,10 @@ HistoryState _$HistoryStateFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$HistoryState {
-  List<RentalHistory> get rentalHistories => throw _privateConstructorUsedError;
+  List<MySpaceReservation> get mySpaces => throw _privateConstructorUsedError;
+  List<MyRentalReservation> get myRentals => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
+  int get selectedTab => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
 
   /// Serializes this HistoryState to a JSON map.
@@ -41,8 +43,10 @@ abstract class $HistoryStateCopyWith<$Res> {
       _$HistoryStateCopyWithImpl<$Res, HistoryState>;
   @useResult
   $Res call(
-      {List<RentalHistory> rentalHistories,
+      {List<MySpaceReservation> mySpaces,
+      List<MyRentalReservation> myRentals,
       bool isLoading,
+      int selectedTab,
       String? errorMessage});
 }
 
@@ -61,19 +65,29 @@ class _$HistoryStateCopyWithImpl<$Res, $Val extends HistoryState>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? rentalHistories = null,
+    Object? mySpaces = null,
+    Object? myRentals = null,
     Object? isLoading = null,
+    Object? selectedTab = null,
     Object? errorMessage = freezed,
   }) {
     return _then(_value.copyWith(
-      rentalHistories: null == rentalHistories
-          ? _value.rentalHistories
-          : rentalHistories // ignore: cast_nullable_to_non_nullable
-              as List<RentalHistory>,
+      mySpaces: null == mySpaces
+          ? _value.mySpaces
+          : mySpaces // ignore: cast_nullable_to_non_nullable
+              as List<MySpaceReservation>,
+      myRentals: null == myRentals
+          ? _value.myRentals
+          : myRentals // ignore: cast_nullable_to_non_nullable
+              as List<MyRentalReservation>,
       isLoading: null == isLoading
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
               as bool,
+      selectedTab: null == selectedTab
+          ? _value.selectedTab
+          : selectedTab // ignore: cast_nullable_to_non_nullable
+              as int,
       errorMessage: freezed == errorMessage
           ? _value.errorMessage
           : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -91,8 +105,10 @@ abstract class _$$HistoryStateImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {List<RentalHistory> rentalHistories,
+      {List<MySpaceReservation> mySpaces,
+      List<MyRentalReservation> myRentals,
       bool isLoading,
+      int selectedTab,
       String? errorMessage});
 }
 
@@ -109,19 +125,29 @@ class __$$HistoryStateImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? rentalHistories = null,
+    Object? mySpaces = null,
+    Object? myRentals = null,
     Object? isLoading = null,
+    Object? selectedTab = null,
     Object? errorMessage = freezed,
   }) {
     return _then(_$HistoryStateImpl(
-      rentalHistories: null == rentalHistories
-          ? _value._rentalHistories
-          : rentalHistories // ignore: cast_nullable_to_non_nullable
-              as List<RentalHistory>,
+      mySpaces: null == mySpaces
+          ? _value._mySpaces
+          : mySpaces // ignore: cast_nullable_to_non_nullable
+              as List<MySpaceReservation>,
+      myRentals: null == myRentals
+          ? _value._myRentals
+          : myRentals // ignore: cast_nullable_to_non_nullable
+              as List<MyRentalReservation>,
       isLoading: null == isLoading
           ? _value.isLoading
           : isLoading // ignore: cast_nullable_to_non_nullable
               as bool,
+      selectedTab: null == selectedTab
+          ? _value.selectedTab
+          : selectedTab // ignore: cast_nullable_to_non_nullable
+              as int,
       errorMessage: freezed == errorMessage
           ? _value.errorMessage
           : errorMessage // ignore: cast_nullable_to_non_nullable
@@ -134,32 +160,47 @@ class __$$HistoryStateImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$HistoryStateImpl implements _HistoryState {
   const _$HistoryStateImpl(
-      {final List<RentalHistory> rentalHistories = const [],
+      {final List<MySpaceReservation> mySpaces = const [],
+      final List<MyRentalReservation> myRentals = const [],
       this.isLoading = false,
+      this.selectedTab = 0,
       this.errorMessage})
-      : _rentalHistories = rentalHistories;
+      : _mySpaces = mySpaces,
+        _myRentals = myRentals;
 
   factory _$HistoryStateImpl.fromJson(Map<String, dynamic> json) =>
       _$$HistoryStateImplFromJson(json);
 
-  final List<RentalHistory> _rentalHistories;
+  final List<MySpaceReservation> _mySpaces;
   @override
   @JsonKey()
-  List<RentalHistory> get rentalHistories {
-    if (_rentalHistories is EqualUnmodifiableListView) return _rentalHistories;
+  List<MySpaceReservation> get mySpaces {
+    if (_mySpaces is EqualUnmodifiableListView) return _mySpaces;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_rentalHistories);
+    return EqualUnmodifiableListView(_mySpaces);
+  }
+
+  final List<MyRentalReservation> _myRentals;
+  @override
+  @JsonKey()
+  List<MyRentalReservation> get myRentals {
+    if (_myRentals is EqualUnmodifiableListView) return _myRentals;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_myRentals);
   }
 
   @override
   @JsonKey()
   final bool isLoading;
   @override
+  @JsonKey()
+  final int selectedTab;
+  @override
   final String? errorMessage;
 
   @override
   String toString() {
-    return 'HistoryState(rentalHistories: $rentalHistories, isLoading: $isLoading, errorMessage: $errorMessage)';
+    return 'HistoryState(mySpaces: $mySpaces, myRentals: $myRentals, isLoading: $isLoading, selectedTab: $selectedTab, errorMessage: $errorMessage)';
   }
 
   @override
@@ -167,10 +208,13 @@ class _$HistoryStateImpl implements _HistoryState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$HistoryStateImpl &&
+            const DeepCollectionEquality().equals(other._mySpaces, _mySpaces) &&
             const DeepCollectionEquality()
-                .equals(other._rentalHistories, _rentalHistories) &&
+                .equals(other._myRentals, _myRentals) &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading) &&
+            (identical(other.selectedTab, selectedTab) ||
+                other.selectedTab == selectedTab) &&
             (identical(other.errorMessage, errorMessage) ||
                 other.errorMessage == errorMessage));
   }
@@ -179,8 +223,10 @@ class _$HistoryStateImpl implements _HistoryState {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      const DeepCollectionEquality().hash(_rentalHistories),
+      const DeepCollectionEquality().hash(_mySpaces),
+      const DeepCollectionEquality().hash(_myRentals),
       isLoading,
+      selectedTab,
       errorMessage);
 
   /// Create a copy of HistoryState
@@ -201,17 +247,23 @@ class _$HistoryStateImpl implements _HistoryState {
 
 abstract class _HistoryState implements HistoryState {
   const factory _HistoryState(
-      {final List<RentalHistory> rentalHistories,
+      {final List<MySpaceReservation> mySpaces,
+      final List<MyRentalReservation> myRentals,
       final bool isLoading,
+      final int selectedTab,
       final String? errorMessage}) = _$HistoryStateImpl;
 
   factory _HistoryState.fromJson(Map<String, dynamic> json) =
       _$HistoryStateImpl.fromJson;
 
   @override
-  List<RentalHistory> get rentalHistories;
+  List<MySpaceReservation> get mySpaces;
+  @override
+  List<MyRentalReservation> get myRentals;
   @override
   bool get isLoading;
+  @override
+  int get selectedTab;
   @override
   String? get errorMessage;
 

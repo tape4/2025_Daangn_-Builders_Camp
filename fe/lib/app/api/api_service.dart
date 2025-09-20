@@ -1,22 +1,33 @@
 import 'package:dio/dio.dart';
+import 'package:hankan/app/api/api_error.dart';
 import 'package:hankan/app/api/dio_client.dart';
 import 'package:hankan/app/api/result.dart';
 import 'package:hankan/app/auth/auth_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hankan/app/model/auth_request_model.dart';
 import 'package:hankan/app/model/auth_response_model.dart';
+import 'package:hankan/app/model/reservation_model.dart';
 import 'package:hankan/app/model/user.dart';
 
 class ApiService {
   static ApiService get I => GetIt.I<ApiService>();
 
   late final MyDio _dio;
+  late final Dio _kakaoDio;
+  static const String _kakaoApiKey =
+      'YOUR_KAKAO_REST_API_KEY'; // Replace with your actual API key
 
   void setAuthService(AuthService authService) =>
       _dio.setAuthService(authService);
 
   ApiService() {
     _dio = MyDio(dio: Dio());
+    _kakaoDio = Dio(BaseOptions(
+      baseUrl: 'https://dapi.kakao.com',
+      headers: {
+        'Authorization': 'KakaoAK $_kakaoApiKey',
+      },
+    ));
   }
 
   Future<Result<User>> getUser() => _dio.get(
@@ -52,4 +63,61 @@ class ApiService {
         '/auth/me',
         fromJson: UserModel.fromJson,
       );
+
+  Future<Result<List<MySpaceReservation>>> getMySpaceReservations() async {
+    final result = await _dio.get<Map<String, dynamic>>(
+      '/api/reservations/my-spaces',
+      fromJson: (json) => json,
+    );
+
+    return result.map((data) {
+      final list = data['data'] as List<dynamic>? ?? [];
+      return list
+          .map((item) =>
+              MySpaceReservation.fromJson(item as Map<String, dynamic>))
+          .toList();
+    });
+  }
+
+  Future<Result<List<MyRentalReservation>>> getMyReservations() async {
+    final result = await _dio.get<Map<String, dynamic>>(
+      '/api/reservations/my',
+      fromJson: (json) => json,
+    );
+
+    return result.map((data) {
+      final list = data['data'] as List<dynamic>? ?? [];
+      return list
+          .map((item) =>
+              MyRentalReservation.fromJson(item as Map<String, dynamic>))
+          .toList();
+    });
+  }
+
+  Future<Result<(double latitude, double longitude)>> getKakaoGeoCoding({
+    required String address,
+  }) async {
+    try {
+      final response = await _kakaoDio.get(
+        '/v2/local/search/address.JSON',
+        queryParameters: {
+          'query': address,
+        },
+      );
+
+      return Result.success((
+        double.parse(response.data['documents'][0]['y']),
+        double.parse(response.data['documents'][0]['x']),
+      ));
+    } on DioException catch (e) {
+      return Result.failure(
+        e.response?.data?['message'] ??
+            'Failed to get address from coordinates',
+      );
+    } catch (e) {
+      return Result.failure(
+        ApiError(type: ErrorType.unknown, message: e.toString()),
+      );
+    }
+  }
 }

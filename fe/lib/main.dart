@@ -9,9 +9,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hankan/app/api/api_service.dart';
+import 'package:hankan/app/api/space_api_service.dart';
 import 'package:hankan/app/auth/auth_service.dart';
 import 'package:hankan/app/service/secure_storage_service.dart';
 import 'package:hankan/app/service/sendbird_service.dart';
+import 'package:hankan/app/service/gps_service.dart';
 
 part 'service.dart';
 

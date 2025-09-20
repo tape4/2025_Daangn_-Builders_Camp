@@ -14,6 +14,7 @@ import 'package:hankan/app/feature/home/screens/message/chat_screen.dart';
 import 'package:hankan/app/feature/profile_edit/profile_edit_page.dart';
 import 'package:hankan/app/feature/item_storage/item_storage_page.dart';
 import 'package:hankan/app/feature/space_rental/space_rental_page.dart';
+import 'package:hankan/app/feature/space_rental/space_detail_page.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 extension GoRouterX on GoRouter {
@@ -48,6 +49,7 @@ abstract class Routes {
   static const String profileEdit = '/profile_edit';
   static const String chat = '/chat/:channelUrl';
   static const String spaceRental = '/space-rental';
+  static const String spaceDetail = '/space/:id';
   static const String itemStorage = '/item-storage';
 }
 
@@ -355,6 +357,31 @@ class RouterService {
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {
                 const begin = Offset(0.0, 1.0);
+                const end = Offset.zero;
+                const curve = Curves.easeInOutCubic;
+
+                var tween = Tween(begin: begin, end: end).chain(
+                  CurveTween(curve: curve),
+                );
+
+                return SlideTransition(
+                  position: animation.drive(tween),
+                  child: child,
+                );
+              },
+            );
+          },
+        ),
+        GoRoute(
+          path: Routes.spaceDetail,
+          pageBuilder: (context, state) {
+            final id = int.parse(state.pathParameters['id']!);
+            return CustomTransitionPage(
+              key: state.pageKey,
+              child: SpaceDetailPage(spaceId: id),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                const begin = Offset(1.0, 0.0);
                 const end = Offset.zero;
                 const curve = Curves.easeInOutCubic;
 

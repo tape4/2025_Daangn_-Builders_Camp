@@ -6,11 +6,8 @@ import 'package:hankan/app/feature/home/screens/message/message_screen.dart';
 import 'package:hankan/app/feature/home/screens/mypage/mypage_screen.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
-import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hankan/app/feature/home/logic/home_provider.dart';
-import 'package:hankan/app/routing/router_service.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -38,7 +35,7 @@ class HomePage extends ConsumerWidget {
             ),
           ),
           PersistentTabConfig(
-            screen: ListScreen(),
+            screen: HistoryScreen(),
             item: ItemConfig(
               icon: Icon(Symbols.contract),
               activeForegroundColor: context.colorScheme.primary,

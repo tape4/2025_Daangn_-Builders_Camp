@@ -8,17 +8,26 @@ part of 'history_state.dart';
 
 _$HistoryStateImpl _$$HistoryStateImplFromJson(Map<String, dynamic> json) =>
     _$HistoryStateImpl(
-      rentalHistories: (json['rentalHistories'] as List<dynamic>?)
-              ?.map((e) => RentalHistory.fromJson(e as Map<String, dynamic>))
+      mySpaces: (json['mySpaces'] as List<dynamic>?)
+              ?.map(
+                  (e) => MySpaceReservation.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
+      myRentals: (json['myRentals'] as List<dynamic>?)
+              ?.map((e) =>
+                  MyRentalReservation.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
       isLoading: json['isLoading'] as bool? ?? false,
+      selectedTab: (json['selectedTab'] as num?)?.toInt() ?? 0,
       errorMessage: json['errorMessage'] as String?,
     );
 
 Map<String, dynamic> _$$HistoryStateImplToJson(_$HistoryStateImpl instance) =>
     <String, dynamic>{
-      'rentalHistories': instance.rentalHistories,
+      'mySpaces': instance.mySpaces,
+      'myRentals': instance.myRentals,
       'isLoading': instance.isLoading,
+      'selectedTab': instance.selectedTab,
       'errorMessage': instance.errorMessage,
     };
