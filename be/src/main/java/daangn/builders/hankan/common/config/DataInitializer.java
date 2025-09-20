@@ -2,6 +2,7 @@ package daangn.builders.hankan.common.config;
 
 import daangn.builders.hankan.domain.space.Space;
 import daangn.builders.hankan.domain.space.SpaceRepository;
+import daangn.builders.hankan.domain.user.Gender;
 import daangn.builders.hankan.domain.user.User;
 import daangn.builders.hankan.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +34,7 @@ public class DataInitializer {
                         .phoneNumber("010-1234-5678")
                         .nickname("일반사용자 테스트유저")
                         .birthDate(LocalDate.of(1990, 1, 1))
-                        .gender(User.Gender.MALE)
+                        .gender(Gender.MALE)
                         .profileImageUrl("https://example.com/profile1.jpg")
                         .build();
                 userRepository.save(testUser1);
@@ -45,7 +46,7 @@ public class DataInitializer {
                         .phoneNumber("010-9876-5432")
                         .nickname("예약사용자 테스트유저")
                         .birthDate(LocalDate.of(1995, 5, 15))
-                        .gender(User.Gender.FEMALE)
+                        .gender(Gender.FEMALE)
                         .profileImageUrl("https://example.com/profile2.jpg")
                         .build();
                 userRepository.save(testUser2);
@@ -59,7 +60,7 @@ public class DataInitializer {
                         .phoneNumber("010-1111-2222")
                         .nickname("공간소유자 테스트유저")
                         .birthDate(LocalDate.of(1985, 12, 20))
-                        .gender(User.Gender.MALE)
+                        .gender(Gender.MALE)
                         .profileImageUrl("https://example.com/owner.jpg")
                         .build();
                 spaceOwner = userRepository.save(spaceOwner);
