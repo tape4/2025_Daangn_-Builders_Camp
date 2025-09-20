@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hankan/app/auth/auth_service.dart';
 import 'package:hankan/app/feature/auth/register/register_state.dart';
+import 'package:hankan/app/provider/user_provider.dart';
 import 'package:hankan/app/routing/router_service.dart';
 
 final registerProvider = NotifierProvider<RegisterNotifier, RegisterState>(
@@ -93,7 +94,6 @@ class RegisterNotifier extends Notifier<RegisterState> {
     try {
       final result = await _authService.sendOtp(
         phone: phone,
-        purpose: 'register',
       );
 
       return result.fold(
@@ -124,17 +124,16 @@ class RegisterNotifier extends Notifier<RegisterState> {
   }
 
   Future<bool> register() async {
-    // Simplified registration for the new flow
-    // This assumes OTP has already been verified in the OTP screen
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      // Here you would call your actual registration API
-      // For now, we'll simulate success
-      await Future.delayed(const Duration(seconds: 1));
-
+      final result = await _authService.register(
+        phone: state.phone,
+        nickname: state.username.trim(),
+      );
       state = state.copyWith(isLoading: false);
       RouterService.I.router.go(Routes.home);
+      ref.read(userProvider.notifier).getUser();
       return true;
     } catch (e) {
       state = state.copyWith(
@@ -156,10 +155,9 @@ class RegisterNotifier extends Notifier<RegisterState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      final result = await _authService.verifyOtpRegister(
+      final result = await _authService.register(
         phone: state.phone,
-        otp: state.otp.trim(),
-        username: state.username.trim(),
+        nickname: state.username.trim(),
       );
 
       return result.fold(

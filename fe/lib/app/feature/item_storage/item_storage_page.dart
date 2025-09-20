@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hankan/app/auth/auth_helper.dart';
 import 'package:hankan/app/feature/item_storage/logic/item_storage_provider.dart';
 import 'package:hankan/app/feature/item_storage/logic/item_storage_state.dart';
 import 'package:hankan/app/feature/item_storage/widgets/item_image_dimension_section.dart';
@@ -125,6 +126,12 @@ class _ItemStoragePageState extends ConsumerState<ItemStoragePage> {
               child: ShadButton(
                 onPressed: state.isValid && !state.isLoading
                     ? () async {
+                        final isAuthenticated = await AuthHelper.checkAuthAndShowBottomSheet(
+                          context: context,
+                          ref: ref,
+                        );
+                        if (!isAuthenticated) return;
+
                         final success = await notifier.submitItemStorage();
                         if (success && context.mounted) {
                           ShadToaster.of(context).show(

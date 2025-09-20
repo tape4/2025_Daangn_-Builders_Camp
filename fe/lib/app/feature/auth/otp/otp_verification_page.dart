@@ -33,7 +33,9 @@ class _OtpVerificationPageState extends ConsumerState<OtpVerificationPage> {
   @override
   void initState() {
     super.initState();
-    _sendOtp();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _sendOtp();
+    });
   }
 
   @override

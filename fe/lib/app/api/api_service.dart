@@ -4,9 +4,8 @@ import 'package:hankan/app/api/dio_client.dart';
 import 'package:hankan/app/api/result.dart';
 import 'package:hankan/app/auth/auth_service.dart';
 import 'package:get_it/get_it.dart';
-import 'package:hankan/app/model/auth_request_model.dart';
-import 'package:hankan/app/model/auth_response_model.dart';
 import 'package:hankan/app/model/reservation_model.dart';
+import 'package:hankan/app/model/token.dart';
 import 'package:hankan/app/model/user.dart';
 
 class ApiService {
@@ -35,33 +34,36 @@ class ApiService {
         fromJson: User.fromJson,
       );
 
-  Future<Result<Map<String, dynamic>>> sendOtp(SendOtpRequest request) =>
-      _dio.post(
-        '/auth/send-otp',
-        data: request.toJson(),
+  Future<Result<Map<String, dynamic>>> sendOtp(String phoneNumber) => _dio.post(
+        '/api/auth/sms/send',
+        data: {'phoneNumber': phoneNumber},
         fromJson: (json) => json,
       );
 
-  Future<Result<AuthResponse>> verifyOtp(VerifyOtpRequest request) => _dio.post(
-        '/auth/verify-otp',
-        data: request.toJson(),
-        fromJson: AuthResponse.fromJson,
+  Future<Result<Token>> verifyOtp(String phoneNumber, String code) => _dio.post(
+        '/api/auth/login',
+        data: {
+          'phoneNumber': phoneNumber,
+          'verificationCode': code,
+        },
+        fromJson: Token.fromJson,
       );
 
   Future<Result<void>> logout() => _dio.post(
-        '/auth/logout',
+        '/api/auth/token/logout',
         fromJson: (_) {},
       );
 
-  Future<Result<AuthResponse>> refreshToken(String refreshToken) => _dio.post(
-        '/auth/refresh',
-        data: {'refresh_token': refreshToken},
-        fromJson: AuthResponse.fromJson,
-      );
-
-  Future<Result<UserModel>> getCurrentUser() => _dio.get(
-        '/auth/me',
-        fromJson: UserModel.fromJson,
+  Future<Result<Token>> register(String phoneNumber, String nickname) =>
+      _dio.post(
+        '/api/auth/signup',
+        data: {
+          'phoneNumber': phoneNumber,
+          'nickname': nickname,
+          "birthDate": "1990-01-01",
+          "gender": "MALE",
+        },
+        fromJson: Token.fromJson,
       );
 
   Future<Result<List<MySpaceReservation>>> getMySpaceReservations() async {

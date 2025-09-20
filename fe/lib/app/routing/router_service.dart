@@ -5,7 +5,7 @@ import 'package:hankan/app/feature/auth/confirm/confirmation_page.dart';
 import 'package:hankan/app/feature/auth/nickname/nickname_input_page.dart';
 import 'package:hankan/app/feature/auth/otp/otp_verification_page.dart';
 import 'package:hankan/app/feature/auth/phone/phone_input_page.dart';
-import 'package:hankan/app/feature/auth/region/region_select_page.dart';
+
 import 'package:hankan/app/feature/auth/register/register_page.dart';
 import 'package:hankan/app/feature/error/error_page.dart';
 import 'package:hankan/app/feature/faq/faq_page.dart';
@@ -41,7 +41,6 @@ abstract class Routes {
   static const String phoneInput = '/auth/phone';
   static const String otpVerification = '/auth/otp';
   static const String nicknameInput = '/auth/nickname';
-  static const String regionSelect = '/auth/region';
   static const String confirmation = '/auth/confirm';
   static const String error = '/error';
   static const String mypageHistory = '/mypage/history';
@@ -168,34 +167,6 @@ class RouterService {
               key: state.pageKey,
               child: NicknameInputPage(
                 phone: extra?['phone'] ?? '',
-              ),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                const begin = Offset(1.0, 0.0);
-                const end = Offset.zero;
-                const curve = Curves.easeInOutCubic;
-
-                var tween = Tween(begin: begin, end: end).chain(
-                  CurveTween(curve: curve),
-                );
-
-                return SlideTransition(
-                  position: animation.drive(tween),
-                  child: child,
-                );
-              },
-            );
-          },
-        ),
-        GoRoute(
-          path: Routes.regionSelect,
-          pageBuilder: (context, state) {
-            final extra = state.extra as Map<String, dynamic>?;
-            return CustomTransitionPage(
-              key: state.pageKey,
-              child: RegionSelectPage(
-                phone: extra?['phone'] ?? '',
-                nickname: extra?['nickname'] ?? '',
               ),
               transitionsBuilder:
                   (context, animation, secondaryAnimation, child) {

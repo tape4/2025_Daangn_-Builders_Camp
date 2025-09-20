@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hankan/app/feature/auth/widgets/auth_guestmode_dialog.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class AuthBottomSheet extends StatefulWidget {
@@ -148,24 +147,6 @@ class _AuthBottomSheetState extends State<AuthBottomSheet> {
                 child: Text(_isLogin ? '로그인 계속하기' : '회원가입 시작하기'),
               ),
 
-              const SizedBox(height: 12),
-
-              // Guest mode button - Same size as primary button
-              ShadButton.outline(
-                onPressed: () {
-                  _showGuestModeInfo(context);
-                },
-                size: ShadButtonSize.lg,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(Icons.visibility_outlined, size: 16),
-                    SizedBox(width: 8),
-                    Text('먼저 둘러보기'),
-                  ],
-                ),
-              ),
-
               const SizedBox(height: 24),
             ],
           ),
@@ -310,13 +291,6 @@ class _AuthBottomSheetState extends State<AuthBottomSheet> {
           ),
         ],
       ),
-    );
-  }
-
-  void _showGuestModeInfo(BuildContext context) {
-    showShadDialog(
-      context: context,
-      builder: (context) => AuthGuestmodeDialog(),
     );
   }
 }

@@ -101,56 +101,12 @@ class _ConfirmationPageState extends ConsumerState<ConfirmationPage> {
                         label: '닉네임',
                         value: widget.nickname,
                       ),
-                      const SizedBox(height: 16),
-                      Divider(
-                        color: ShadTheme.of(context).colorScheme.border,
-                      ),
-                      const SizedBox(height: 16),
-                      _buildInfoRow(
-                        context,
-                        icon: Icons.location_on_outlined,
-                        label: '지역',
-                        value: widget.region,
-                        subtitle: widget.detailAddress,
-                      ),
                     ],
                   ),
                 ),
               ),
 
               const SizedBox(height: 24),
-
-              // Phone ownership disclaimer
-              Row(
-                children: [
-                  ShadCheckbox(
-                    value: _isMyPhone,
-                    onChanged: (value) {
-                      setState(() {
-                        _isMyPhone = value;
-                      });
-                    },
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      '본인 명의의 휴대폰입니다',
-                      style: ShadTheme.of(context).textTheme.small,
-                    ),
-                  ),
-                ],
-              ),
-
-              if (!_isMyPhone) ...[
-                const SizedBox(height: 12),
-                ShadAlert(
-                  icon: const Icon(Icons.info_outline),
-                  title: const Text('안내'),
-                  description: const Text(
-                    '본인 명의의 휴대폰이 아닌 경우 서비스 이용이 제한될 수 있습니다.',
-                  ),
-                ),
-              ],
 
               if (state.errorMessage != null) ...[
                 const SizedBox(height: 16),
@@ -174,17 +130,11 @@ class _ConfirmationPageState extends ConsumerState<ConfirmationPage> {
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       )
                     : const Text('확인'),
-              ),
-
-              const SizedBox(height: 12),
-
-              ShadButton.link(
-                onPressed: () => context.pop(),
-                child: const Text('내 명의의 휴대폰이 아닙니다'),
               ),
 
               const SizedBox(height: 24),
@@ -234,7 +184,8 @@ class _ConfirmationPageState extends ConsumerState<ConfirmationPage> {
                 Text(
                   subtitle,
                   style: ShadTheme.of(context).textTheme.small.copyWith(
-                        color: ShadTheme.of(context).colorScheme.mutedForeground,
+                        color:
+                            ShadTheme.of(context).colorScheme.mutedForeground,
                       ),
                 ),
               ],

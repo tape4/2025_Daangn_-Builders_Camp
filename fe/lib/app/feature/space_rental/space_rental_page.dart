@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hankan/app/auth/auth_helper.dart';
 import 'package:hankan/app/feature/space_rental/logic/space_rental_provider.dart';
 import 'package:hankan/app/feature/space_rental/logic/space_rental_state.dart';
 import 'package:hankan/app/feature/space_rental/widgets/dimension_input_section.dart';
@@ -109,8 +110,14 @@ class _SpaceRentalPageState extends ConsumerState<SpaceRentalPage> {
               child: ShadButton(
                 onPressed: state.isValid && !state.isLoading
                     ? () async {
+                        final isAuthenticated = await AuthHelper.checkAuthAndShowBottomSheet(
+                          context: context,
+                          ref: ref,
+                        );
+                        if (!isAuthenticated) return;
+
                         final success = await notifier.submitSpaceRental();
-                        if (success && mounted) {
+                        if (success && context.mounted) {
                           ShadToaster.of(context).show(
                             ShadToast(
                               title: const Text('등록 완료'),
@@ -118,7 +125,9 @@ class _SpaceRentalPageState extends ConsumerState<SpaceRentalPage> {
                                   const Text('공간 대여 정보가 성공적으로 등록되었습니다.'),
                             ),
                           );
-                          context.pop();
+                          if (context.mounted) {
+                            context.pop();
+                          }
                         }
                       }
                     : null,

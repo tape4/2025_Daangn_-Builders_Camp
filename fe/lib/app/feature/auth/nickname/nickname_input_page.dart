@@ -117,7 +117,7 @@ class _NicknameInputPageState extends ConsumerState<NicknameInputPage> {
                     ? () {
                         if (_formKey.currentState?.saveAndValidate() ?? false) {
                           context.push(
-                            '/auth/region',
+                            '/auth/confirm',
                             extra: {
                               'phone': widget.phone,
                               'nickname': _nicknameController.text.trim(),

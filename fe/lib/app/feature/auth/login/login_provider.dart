@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hankan/app/auth/auth_service.dart';
 import 'package:hankan/app/feature/auth/login/login_state.dart';
+import 'package:hankan/app/provider/user_provider.dart';
 import 'package:hankan/app/routing/router_service.dart';
 
 final loginProvider = NotifierProvider<LoginNotifier, LoginState>(
@@ -62,7 +64,6 @@ class LoginNotifier extends Notifier<LoginState> {
     try {
       final result = await _authService.sendOtp(
         phone: phone,
-        purpose: 'login',
       );
 
       return result.fold(
@@ -111,10 +112,24 @@ class LoginNotifier extends Notifier<LoginState> {
       return result.fold(
         onSuccess: (user) {
           state = state.copyWith(isLoading: false);
+
           RouterService.I.router.go(Routes.home);
+          ref.read(userProvider.notifier).getUser();
           return true;
         },
         onFailure: (error) {
+          if (error.statusCode == 404) {
+            log('User not found, navigating to registration');
+            RouterService.I.router.go(
+              Routes.register,
+              extra: {'phone': state.phone},
+            );
+            RouterService.I.showNotification(
+              title: '회원가입',
+              message: '해당 번호로 가입할 수 있습니다.',
+            );
+            return true;
+          }
           state = state.copyWith(
             isLoading: false,
             errorMessage: _getOtpErrorMessage(error.statusCode),
