@@ -12,8 +12,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,10 +33,31 @@ public class SpaceController {
 
     private final SpaceService spaceService;
 
-    @PostMapping
+    @PostMapping(consumes = "multipart/form-data")
     @Login
-    @Operation(summary = "공간 등록", description = "새로운 보관 공간을 등록합니다.")
-    public ResponseEntity<Space> registerSpace(@RequestBody SpaceRegistrationRequest request) {
+    @Operation(summary = "공간 등록", description = "새로운 보관 공간을 등록합니다. 이미지 파일을 포함하여 등록합니다.")
+    public ResponseEntity<Space> registerSpace(
+            @Parameter(description = "공간 이름") @RequestParam String name,
+            @Parameter(description = "공간 설명") @RequestParam(required = false) String description,
+            @Parameter(description = "위도") @RequestParam Double latitude,
+            @Parameter(description = "경도") @RequestParam Double longitude,
+            @Parameter(description = "주소") @RequestParam String address,
+            @Parameter(description = "공간 이미지 파일", 
+                      content = @io.swagger.v3.oas.annotations.media.Content(
+                          mediaType = "multipart/form-data"
+                      )) 
+            @RequestParam(value = "image", required = false) MultipartFile imageFile,
+            @Parameter(description = "이용 시작일 (YYYY-MM-DD)", example = "2025-09-24",
+                      schema = @io.swagger.v3.oas.annotations.media.Schema(type = "string", format = "date"))
+            @RequestParam(required = false) LocalDate availableStartDate,
+            @Parameter(description = "이용 종료일 (YYYY-MM-DD)", example = "2025-12-31",
+                      schema = @io.swagger.v3.oas.annotations.media.Schema(type = "string", format = "date"))
+            @RequestParam(required = false) LocalDate availableEndDate,
+            @Parameter(description = "XS 박스 개수") @RequestParam(required = false) Integer boxCapacityXs,
+            @Parameter(description = "S 박스 개수") @RequestParam(required = false) Integer boxCapacityS,
+            @Parameter(description = "M 박스 개수") @RequestParam(required = false) Integer boxCapacityM,
+            @Parameter(description = "L 박스 개수") @RequestParam(required = false) Integer boxCapacityL,
+            @Parameter(description = "XL 박스 개수") @RequestParam(required = false) Integer boxCapacityXl) {
         // 현재 로그인된 사용자를 소유자로 설정 (임시)
         Long currentUserId = LoginContext.getCurrentUserId();
         if (currentUserId == null) {
@@ -41,24 +65,49 @@ public class SpaceController {
             currentUserId = 1L;
         }
         
-        SpaceRegistrationRequest updatedRequest = SpaceRegistrationRequest.builder()
-                .name(request.getName())
-                .description(request.getDescription())
-                .latitude(request.getLatitude())
-                .longitude(request.getLongitude())
-                .address(request.getAddress())
-                .imageUrl(request.getImageUrl())
+        // 이미지 파일 처리 - 나중에 S3 업로드 로직 추가 예정
+        String imageUrl = null;
+        if (imageFile != null && !imageFile.isEmpty()) {
+            // 파일 크기 검증 (10MB 제한)
+            long maxFileSize = 10 * 1024 * 1024; // 10MB in bytes
+            if (imageFile.getSize() > maxFileSize) {
+                throw new IllegalArgumentException("파일 크기는 10MB를 초과할 수 없습니다. 현재 크기: " + 
+                    String.format("%.2f MB", imageFile.getSize() / (1024.0 * 1024.0)));
+            }
+            
+            // 파일 타입 검증
+            String contentType = imageFile.getContentType();
+            if (contentType == null || (!contentType.equals("image/jpeg") && 
+                                         !contentType.equals("image/png") && 
+                                         !contentType.equals("image/webp"))) {
+                throw new IllegalArgumentException("지원되지 않는 파일 형식입니다. JPEG, PNG, WEBP만 허용됩니다.");
+            }
+            
+            // TODO: S3 업로드 로직 구현 예정
+            // 현재는 임시로 파일명을 저장
+            imageUrl = imageFile.getOriginalFilename();
+            log.info("이미지 파일 업로드됨: {} (크기: {} bytes, 타입: {})", 
+                     imageFile.getOriginalFilename(), imageFile.getSize(), contentType);
+        }
+        
+        SpaceRegistrationRequest request = SpaceRegistrationRequest.builder()
+                .name(name)
+                .description(description)
+                .latitude(latitude)
+                .longitude(longitude)
+                .address(address)
+                .imageUrl(imageUrl)
                 .ownerId(currentUserId)
-                .availableStartDate(request.getAvailableStartDate())
-                .availableEndDate(request.getAvailableEndDate())
-                .boxCapacityXs(request.getBoxCapacityXs())
-                .boxCapacityS(request.getBoxCapacityS())
-                .boxCapacityM(request.getBoxCapacityM())
-                .boxCapacityL(request.getBoxCapacityL())
-                .boxCapacityXl(request.getBoxCapacityXl())
+                .availableStartDate(availableStartDate)
+                .availableEndDate(availableEndDate)
+                .boxCapacityXs(boxCapacityXs)
+                .boxCapacityS(boxCapacityS)
+                .boxCapacityM(boxCapacityM)
+                .boxCapacityL(boxCapacityL)
+                .boxCapacityXl(boxCapacityXl)
                 .build();
 
-        Space space = spaceService.registerSpace(updatedRequest);
+        Space space = spaceService.registerSpace(request);
         return ResponseEntity.ok(space);
     }
 
@@ -75,10 +124,7 @@ public class SpaceController {
             @Parameter(description = "위도") @RequestParam Double latitude,
             @Parameter(description = "경도") @RequestParam Double longitude,
             @Parameter(description = "검색 반경 (km)") @RequestParam(defaultValue = "5.0") Double radiusKm,
-            @PageableDefault(size = 20) 
-            @Parameter(description = "페이징 정보 (정렬은 거리순으로 고정)", 
-                      example = "page=0&size=20")
-            Pageable pageable) {
+            @ParameterObject @PageableDefault(size = 20) Pageable pageable) {
         
         // 정렬을 무시하고 페이징만 적용 (거리순 정렬은 쿼리에서 처리)
         Pageable unsortedPageable = org.springframework.data.domain.PageRequest.of(
@@ -110,10 +156,7 @@ public class SpaceController {
                       example = "2025-09-24",
                       schema = @io.swagger.v3.oas.annotations.media.Schema(type = "string", format = "date"))
             @RequestParam LocalDate date,
-            @PageableDefault(size = 20)
-            @Parameter(description = "페이징 정보 (정렬은 거리순으로 고정)", 
-                      example = "page=0&size=20")
-            Pageable pageable) {
+            @ParameterObject @PageableDefault(size = 20) Pageable pageable) {
         
         // 정렬을 무시하고 페이징만 적용 (거리순 정렬은 쿼리에서 처리)
         Pageable unsortedPageable = org.springframework.data.domain.PageRequest.of(
@@ -126,10 +169,7 @@ public class SpaceController {
     @GetMapping("/top-rated")
     @Operation(summary = "평점 높은 공간 조회", description = "평점이 높은 순서로 공간을 조회합니다.")
     public ResponseEntity<Page<Space>> getTopRatedSpaces(
-            @PageableDefault(size = 20, sort = "rating", direction = org.springframework.data.domain.Sort.Direction.DESC) 
-            @Parameter(description = "페이징 정보 (정렬 가능 필드: id, name, rating, createdAt)", 
-                      example = "page=0&size=20&sort=rating,desc")
-            Pageable pageable) {
+            @ParameterObject @PageableDefault(size = 20, sort = "rating", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<Space> spaces = spaceService.findTopRatedSpaces(pageable);
         return ResponseEntity.ok(spaces);
     }
@@ -138,10 +178,7 @@ public class SpaceController {
     @Login
     @Operation(summary = "내 공간 목록 조회", description = "현재 사용자가 소유한 공간 목록을 조회합니다.")
     public ResponseEntity<Page<Space>> getMySpaces(
-            @PageableDefault(size = 20, sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC)
-            @Parameter(description = "페이징 정보 (정렬 가능 필드: id, name, rating, createdAt)", 
-                      example = "page=0&size=20&sort=createdAt,desc")
-            Pageable pageable) {
+            @ParameterObject @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Long currentUserId = LoginContext.getCurrentUserId();
         if (currentUserId == null) {
             // 개발용: 공간 소유자 ID 사용
@@ -162,6 +199,21 @@ public class SpaceController {
                           mediaType = "multipart/form-data"
                       )) 
             @RequestParam("image") MultipartFile imageFile) {
+        
+        // 파일 크기 검증 (10MB 제한)
+        long maxFileSize = 10 * 1024 * 1024; // 10MB in bytes
+        if (imageFile.getSize() > maxFileSize) {
+            throw new IllegalArgumentException("파일 크기는 10MB를 초과할 수 없습니다. 현재 크기: " + 
+                String.format("%.2f MB", imageFile.getSize() / (1024.0 * 1024.0)));
+        }
+        
+        // 파일 타입 검증
+        String contentType = imageFile.getContentType();
+        if (contentType == null || (!contentType.equals("image/jpeg") && 
+                                     !contentType.equals("image/png") && 
+                                     !contentType.equals("image/webp"))) {
+            throw new IllegalArgumentException("지원되지 않는 파일 형식입니다. JPEG, PNG, WEBP만 허용됩니다.");
+        }
         
         // TODO: S3 업로드 로직 구현 예정
         // 현재는 임시로 파일명을 URL로 사용

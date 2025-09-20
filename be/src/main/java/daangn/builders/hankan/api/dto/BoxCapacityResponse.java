@@ -1,27 +1,46 @@
 package daangn.builders.hankan.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 
-@Getter
 @Builder
+@AllArgsConstructor
 public class BoxCapacityResponse {
-    @JsonProperty("xsCount")
     private int xsCount;
+    private int sCount;
+    private int mCount;
+    private int lCount;
+    private int xlCount;
+    private int totalCount;
+    
+    @JsonProperty("xsCount")
+    public int getXsCount() {
+        return xsCount;
+    }
     
     @JsonProperty("sCount")
-    private int sCount;
+    public int getSCount() {
+        return sCount;
+    }
     
     @JsonProperty("mCount")
-    private int mCount;
+    public int getMCount() {
+        return mCount;
+    }
     
     @JsonProperty("lCount")
-    private int lCount;
+    public int getLCount() {
+        return lCount;
+    }
     
     @JsonProperty("xlCount")
-    private int xlCount;
+    public int getXlCount() {
+        return xlCount;
+    }
     
     @JsonProperty("totalCount")
-    private int totalCount;
+    public int getTotalCount() {
+        return totalCount;
+    }
 }
