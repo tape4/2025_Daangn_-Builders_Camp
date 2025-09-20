@@ -80,12 +80,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              chatState.channel?.name ?? 'Chat',
+              chatState.channel?.name ?? '채팅',
               style: ShadTheme.of(context).textTheme.h4,
             ),
             if (chatState.typingUserIds.isNotEmpty)
               Text(
-                'typing...',
+                '입력 중...',
                 style: ShadTheme.of(context).textTheme.small.copyWith(
                       color: context.colorScheme.primary,
                       fontStyle: FontStyle.italic,
@@ -93,7 +93,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               )
             else if (chatState.channel != null)
               Text(
-                '${chatState.channel!.memberCount} members',
+                '${chatState.channel!.memberCount}명',
                 style: ShadTheme.of(context).textTheme.small.copyWith(
                       color: context.colorScheme.mutedForeground,
                     ),
@@ -131,7 +131,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Error loading messages',
+                      '메시지를 불러올 수 없습니다',
                       style: ShadTheme.of(context).textTheme.h4,
                     ),
                     const SizedBox(height: 8),
@@ -210,7 +210,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            'Pull to load more',
+                            '더 보기',
                             style: ShadTheme.of(context)
                                 .textTheme
                                 .small
@@ -231,7 +231,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             onAttachFile: () {
               // TODO: Implement file attachment
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('File attachment coming soon!')),
+                const SnackBar(content: Text('파일 첨부 기능은 곧 제공될 예정입니다!')),
               );
             },
             onTypingStart: chatNotifier.startTyping,
@@ -249,23 +249,23 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     showShadDialog(
       context: context,
       builder: (context) => ShadDialog(
-        title: const Text('Channel Info'),
+        title: const Text('채널 정보'),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             if (chatState.channel != null) ...[
-              _buildInfoRow('Name', chatState.channel!.name ?? 'Unnamed'),
-              _buildInfoRow('Members', '${chatState.channel!.memberCount}'),
+              _buildInfoRow('이름', chatState.channel!.name ?? '이름 없음'),
+              _buildInfoRow('멤버', '${chatState.channel!.memberCount}명'),
               _buildInfoRow(
-                  'Created', _formatDate(chatState.channel!.createdAt)),
-              _buildInfoRow('Channel URL', chatState.channel!.channelUrl),
+                  '생성일', _formatDate(chatState.channel!.createdAt)),
+              _buildInfoRow('채널 URL', chatState.channel!.channelUrl),
             ],
           ],
         ),
         actions: [
           ShadButton.outline(
-            child: const Text('Close'),
+            child: const Text('닫기'),
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],
@@ -297,7 +297,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   String _formatDate(int? timestamp) {
-    if (timestamp == null) return 'Unknown';
+    if (timestamp == null) return '알 수 없음';
     final date = DateTime.fromMillisecondsSinceEpoch(timestamp);
     return '${date.day}/${date.month}/${date.year}';
   }
@@ -317,7 +317,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               leading:
                   Icon(Icons.delete, color: context.colorScheme.destructive),
               title: Text(
-                'Delete Message',
+                '메시지 삭제',
                 style: TextStyle(color: context.colorScheme.destructive),
               ),
               onTap: () {
@@ -330,14 +330,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ListTile(
               leading: Icon(Icons.copy, color: context.colorScheme.foreground),
               title: Text(
-                'Copy Message',
+                '메시지 복사',
                 style: TextStyle(color: context.colorScheme.foreground),
               ),
               onTap: () {
                 Navigator.pop(context);
                 // TODO: Implement copy to clipboard
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Message copied!')),
+                  const SnackBar(content: Text('메시지가 복사되었습니다!')),
                 );
               },
             ),

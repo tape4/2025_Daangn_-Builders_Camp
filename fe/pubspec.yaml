@@ -26,6 +26,7 @@ dependencies:
   sendbird_chat_sdk: ^4.5.2
   kpostal_web: ^0.0.6
   url_launcher: ^6.3.1
+  kpostal: ^1.1.0
 
 dev_dependencies:
   flutter_test:
@@ -39,3 +40,4 @@ flutter:
   uses-material-design: true
   assets:
     - .env
+    - assets/logo.png

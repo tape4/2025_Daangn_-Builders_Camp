@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hankan/app/feature/auth/login/login_provider.dart';
+import 'package:hankan/app/routing/router_service.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
@@ -47,23 +48,27 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  Image.asset(
+                    'assets/logo.png',
+                    height: 80,
+                    width: 80,
+                  ),
+                  const SizedBox(height: 24),
                   Text(
                     '한칸',
                     style: ShadTheme.of(context).textTheme.h1Large,
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 17),
                   Text(
-                    state.otpSent
-                        ? '인증번호를 입력하세요'
-                        : '전화번호로 로그인하세요',
+                    state.otpSent ? '인증번호를 입력하세요' : '전화번호로 로그인하세요',
                     style: ShadTheme.of(context).textTheme.muted,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 40),
                   ShadCard(
                     child: Padding(
-                      padding: const EdgeInsets.all(24.0),
+                      padding: const EdgeInsets.all(15.0),
                       child: ShadForm(
                         key: _formKey,
                         child: Column(
@@ -239,8 +244,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           ShadToaster.of(context).show(
                             ShadToast(
                               title: const Text('재전송 완료'),
-                              description:
-                                  const Text('인증번호를 다시 전송했습니다.'),
+                              description: const Text('인증번호를 다시 전송했습니다.'),
                             ),
                           );
                         }
@@ -297,7 +301,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         const SizedBox(width: 4),
         ShadButton.link(
           child: const Text('회원가입'),
-          onPressed: () => context.push('/register'),
+          onPressed: () {
+            context.push('/register');
+          },
         ),
       ],
     );

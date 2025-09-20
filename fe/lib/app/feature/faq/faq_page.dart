@@ -11,7 +11,7 @@ class FaqPage extends ConsumerWidget {
     return Scaffold(
       backgroundColor: ShadTheme.of(context).colorScheme.background,
       appBar: AppBar(
-        title: Text('자주 묻는 질문', style: ShadTheme.of(context).textTheme.h3),
+        title: Text('자주 묻는 질문(FAQ)', style: ShadTheme.of(context).textTheme.h3),
         backgroundColor: ShadTheme.of(context).colorScheme.background,
         elevation: 0,
         leading: IconButton(
@@ -20,7 +20,7 @@ class FaqPage extends ConsumerWidget {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

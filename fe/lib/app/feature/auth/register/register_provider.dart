@@ -29,6 +29,15 @@ class RegisterNotifier extends Notifier<RegisterState> {
     state = state.copyWith(username: username, errorMessage: null);
   }
 
+  void updateName(String name) {
+    state = state.copyWith(username: name, errorMessage: null);
+  }
+
+  void updateAddress(String address) {
+    // Store address in state if needed
+    state = state.copyWith(errorMessage: null);
+  }
+
   void updateOtp(String otp) {
     state = state.copyWith(otp: otp, errorMessage: null);
   }
@@ -109,6 +118,28 @@ class RegisterNotifier extends Notifier<RegisterState> {
       state = state.copyWith(
         isLoading: false,
         errorMessage: 'SMS 전송 중 오류가 발생했습니다. 다시 시도해주세요.',
+      );
+      return false;
+    }
+  }
+
+  Future<bool> register() async {
+    // Simplified registration for the new flow
+    // This assumes OTP has already been verified in the OTP screen
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      // Here you would call your actual registration API
+      // For now, we'll simulate success
+      await Future.delayed(const Duration(seconds: 1));
+
+      state = state.copyWith(isLoading: false);
+      RouterService.I.router.go(Routes.home);
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: '회원가입 중 오류가 발생했습니다. 다시 시도해주세요.',
       );
       return false;
     }
