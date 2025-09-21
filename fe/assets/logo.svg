@@ -1,0 +1,16 @@
+<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- 메인 로고 -->
+  <g transform="translate(150, 150)">
+    
+    <!-- 두 개의 겹쳐진 사각형 (공간 공유) -->
+    <rect x="-50" y="-40" width="70" height="70" fill="#3B82F6" rx="10"/>
+    <rect x="-20" y="-10" width="70" height="70" fill="#06B6D4" opacity="0.8" rx="10"/>
+    
+    <!-- 연결 심볼 (두 원이 겹친 형태) -->
+    <g fill="#ffffff">
+      <circle cx="-5" cy="10" r="8" opacity="0.9"/>
+      <circle cx="5" cy="10" r="8" opacity="0.9"/>
+    </g>
+    
+  </g>
+</svg>
