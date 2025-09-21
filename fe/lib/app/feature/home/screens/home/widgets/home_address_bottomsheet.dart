@@ -7,7 +7,7 @@ import 'package:hankan/app/service/gps_service.dart';
 import 'package:hankan/app/service/secure_storage_service.dart';
 import 'package:kpostal/kpostal.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
-import 'package:kpostal_web/widget/kakao_address_widget.dart';
+// import 'package:kpostal_web/widget/kakao_address_widget.dart';
 
 class HomeAddressBottomsheet extends ConsumerStatefulWidget {
   const HomeAddressBottomsheet({Key? key}) : super(key: key);
@@ -41,87 +41,87 @@ class _HomeAddressBottomsheetState
   Future<void> _searchAddress() async {
     if (isLoading) return;
 
-    if (kIsWeb) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => KakaoAddressWidget(
-            onComplete: (kakaoAddress) async {
-              setState(() {
-                isLoading = true;
-              });
+    // if (kIsWeb) {
+    //   Navigator.push(
+    //     context,
+    //     MaterialPageRoute(
+    //       builder: (_) => KakaoAddressWidget(
+    //         onComplete: (kakaoAddress) async {
+    //           setState(() {
+    //             isLoading = true;
+    //           });
 
-              try {
-                // 선택한 주소의 좌표를 가져오기
-                final latlng = await ApiService.I
-                    .getKakaoGeoCoding(address: kakaoAddress.address);
-                if (!latlng.isSuccess) {
-                  RouterService.I.showNotification(
-                    title: '주소 확인 실패',
-                    message: '선택한 주소의 위치를 확인할 수 없습니다',
-                    isError: true,
-                  );
-                  return;
-                }
+    //           try {
+    //             // 선택한 주소의 좌표를 가져오기
+    //             final latlng = await ApiService.I
+    //                 .getKakaoGeoCoding(address: kakaoAddress.address);
+    //             if (!latlng.isSuccess) {
+    //               RouterService.I.showNotification(
+    //                 title: '주소 확인 실패',
+    //                 message: '선택한 주소의 위치를 확인할 수 없습니다',
+    //                 isError: true,
+    //               );
+    //               return;
+    //             }
 
-                // 현재 위치 가져오기
-                final currentPosition = await GpsService.I.getCurrentLocation();
-                if (currentPosition == null) {
-                  // 현재 위치를 가져올 수 없는 경우에도 주소 설정 허용
-                  setState(() {
-                    selectedAddress = kakaoAddress.address;
-                  });
-                  await _storageService.write(
-                      'selected_address', kakaoAddress.address);
-                  if (mounted) {
-                    Navigator.pop(context, kakaoAddress.address);
-                  }
-                  return;
-                }
+    //             // 현재 위치 가져오기
+    //             final currentPosition = await GpsService.I.getCurrentLocation();
+    //             if (currentPosition == null) {
+    //               // 현재 위치를 가져올 수 없는 경우에도 주소 설정 허용
+    //               setState(() {
+    //                 selectedAddress = kakaoAddress.address;
+    //               });
+    //               await _storageService.write(
+    //                   'selected_address', kakaoAddress.address);
+    //               if (mounted) {
+    //                 Navigator.pop(context, kakaoAddress.address);
+    //               }
+    //               return;
+    //             }
 
-                // 거리 계산 (미터 단위)
-                final distance = await GpsService.I.calculateDistance(
-                  currentPosition.latitude,
-                  currentPosition.longitude,
-                  latlng.data.$1,
-                  latlng.data.$2,
-                );
+    //             // 거리 계산 (미터 단위)
+    //             final distance = await GpsService.I.calculateDistance(
+    //               currentPosition.latitude,
+    //               currentPosition.longitude,
+    //               latlng.data.$1,
+    //               latlng.data.$2,
+    //             );
 
-                // 10km 이내인지 확인
-                if (distance > 10000) {
-                  RouterService.I.showNotification(
-                    title: '위치 확인 필요',
-                    message: '선택한 주소가 현재 위치에서 너무 멀리 떨어져 있습니다 (10km 이상)',
-                    isError: true,
-                  );
-                  return;
-                }
+    //             // 10km 이내인지 확인
+    //             if (distance > 10000) {
+    //               RouterService.I.showNotification(
+    //                 title: '위치 확인 필요',
+    //                 message: '선택한 주소가 현재 위치에서 너무 멀리 떨어져 있습니다 (10km 이상)',
+    //                 isError: true,
+    //               );
+    //               return;
+    //             }
 
-                // 거리 확인 완료 - 주소 저장
-                setState(() {
-                  selectedAddress = kakaoAddress.address;
-                });
-                await _storageService.write(
-                    'selected_address', kakaoAddress.address);
-                if (mounted) {
-                  Navigator.pop(context, kakaoAddress.address);
-                }
-              } finally {
-                if (mounted) {
-                  setState(() {
-                    isLoading = false;
-                  });
-                }
-              }
-            },
-            onClose: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ),
-      );
-      return;
-    }
+    //             // 거리 확인 완료 - 주소 저장
+    //             setState(() {
+    //               selectedAddress = kakaoAddress.address;
+    //             });
+    //             await _storageService.write(
+    //                 'selected_address', kakaoAddress.address);
+    //             if (mounted) {
+    //               Navigator.pop(context, kakaoAddress.address);
+    //             }
+    //           } finally {
+    //             if (mounted) {
+    //               setState(() {
+    //                 isLoading = false;
+    //               });
+    //             }
+    //           }
+    //         },
+    //         onClose: () {
+    //           Navigator.of(context).pop();
+    //         },
+    //       ),
+    //     ),
+    //   );
+    //   return;
+    // }
 
     await Navigator.push(
       context,
