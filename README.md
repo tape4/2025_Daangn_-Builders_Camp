@@ -1,235 +1,26 @@
-# Hankan - Space Rental & Storage Platform
+# 미션 0 - “뭐하는 곳인가요?”
 
-A modern space rental and item storage platform built with Flutter, enabling users to find and rent storage spaces, manage their items, and connect with space providers.
+처음에는 둘이서만 토론하고 의사결정을 내리다 보니, 문제를 검증하기보다 아이디어에 매몰되는 일이 잦았습니다. 정규 멘토링에서도 “아이디어가 괜찮다”는 반응을 듣자, 오히려 안심했고 정작 근본 문제인 ‘지역사회의 단절을 어떻게 줄일 것인가’라는 질문에서 멀어지고 있었습니다. 아이러니하게도 전환점은 정규 멘토링이 아니라, 잠깐 들른 josh의 한마디였습니다.
+“그래서 그게 지역사회의 단절을 어떻게 해결하는데요?”
+그 질문에 우리는 바로 답하지 못했습니다. 그 순간 작업을 멈추고, ‘보관 편의’와 ‘단절 해소’의 논리적 연결을 처음부터 다시 짚었습니다. 논의의 결론은 분명했습니다. 우리가 하려는 것은 창고 대체가 아니라, 동네에서 요청과 응답이 반복되는 의례를 만드는 것입니다. 즉, 여유 공간을 매개로 약한 연결을 쌓아 단절 자체를 줄이고자 하는 목표를 제품에 심었습니다. 이 관점을 바탕으로 핵심 문구, 첫 화면 구성, 지표 설계를 전면 수정했고, 2차 멘토링 직전과 직후에 메시지와 플로우를 다시 정렬했습니다.
 
-## 🚀 Features
+그 과정에서 한동안 헤매다가, 이 문제를 오래 다뤄 온 당근이 무엇을 가치로 삼는지 다시 찾아보았습니다. 우리는 당근의 “동네의 숨은 가치를 깨운다”는 문장을 가장 단순하게 해석했습니다. 그 숨은 가치는 여유 공간이라고 보았습니다. 여유 공간을 연결하면 시간과 비용을 아끼고 불필요한 구매와 폐기를 줄일 수 있습니다. 무엇보다 감사 인사와 재만남 같은 관계가 조금씩 쌓인다고 보았습니다. 그래서 화면과 기능은 “한 칸이 다른 가치를 깨운다”는 흐름을 중심에 두었습니다. 필요한 사람이 맡김요청을 먼저 올리거나, 가진 사람이 공간 올리기로 응답하게 하고, 그 만남이 감사·리뷰·재만남으로 이어지도록 최소한의 규칙만 남겼습니다.
 
-- **Space Rental**: Browse and rent available storage spaces
-- **Item Storage Management**: Track and manage stored items
-- **Real-time Chat**: Communicate with space providers via Sendbird
-- **Location Services**: Find nearby spaces with integrated maps
-- **Secure Authentication**: JWT-based authentication with secure storage
-- **Profile Management**: Manage user profiles and preferences
-- **FAQ & Support**: Built-in help and support system
+저희가 한 고민은 P2P의 강점을 어떻게 살릴 수 있을까였습니다. 사람이 사람을 만나는 서비스인 만큼, 기업–소비자 방식과는 결이 달라야 한다고 보았습니다. 그래서 공급을 기다리기보다 수요가 먼저 신호를 내는 구조를 택해 맡김요청을 공간 올리기와 동급으로 전면 배치했고, 박스·일 단위로 조건을 맞추는 간단한 협상 흐름을 만들었습니다. P2P의 약점인 불안은 지금 단계에서는 사진 기록, 본인인증, 금지 품목 규칙으로 최소한 낮췄습니다. 나머지는 해커톤 범위상 구현하지 못했으나, 이후 QR 봉인과 책임 한도 고지, 즉시수락/제안형 매칭, 에스크로 정산, 감사 피드·재만남 리워드로 확장해 P2P의 장점을 더 선명하게 살려 나갈 수 있습니다.
 
-## 📱 Screenshots
 
-*(Add screenshots of your app here)*
+# 미션 1 - 폭풍 성장
 
-## 🛠️ Tech Stack
+폭풍 성장 미션에서는 “당장 살리는 것”과 “바로 다음을 준비하는 것”을 동시에 고려했지만, 우선순위는 현재 서비스 안정화에 뒀습니다. 이번 해커톤을 진행하며 AWS EC2 프리티어 한 대에 전부 올려 쓰던 구조에서 배포 도중 인스턴스가 멈추는 일이 반복되었고, 1 vCPU, 1GB 메모리로는 여러 컨테이너를 유지하기에 명백히 부족하다고 판단했습니다. 그래서 약간의 다운타임을 감수하더라도 기존 인스턴스를 더 높은 스펙으로 빠르게 스케일 업 교체하는 접근을 택했습니다. 이 방법을 선택한 이유는 당장 효과가 나고, 구조를 크게 바꾸지 않아도 되며, 문제가 생겨도 쉽게 되돌릴 수 있기 때문이었습니다. “지금 죽지 않게 만드는 것”이 최우선이라고 보았고, 복잡한 리팩터링이나 구조 변경보다 즉시 효과가 나는 선택을 먼저 적용했습니다.
 
-### Frontend
-- **Framework**: Flutter 3.5.4+
-- **State Management**: Riverpod 2.6.1
-- **Navigation**: GoRouter 14.8.1
-- **UI Components**: Shadcn UI 0.15.0
-- **HTTP Client**: Dio 5.8.0
-- **Chat**: Sendbird SDK 4.5.2
-- **Maps**: Flutter Map 7.0.2
+기술적 의사결정의 기준은 단순했습니다. 첫째, 지금 바로 적용 가능할 것. 둘째, 실패하더라도 쉽게 되돌릴 수 있을 것. 셋째, 서비스 전체 중단 시간을 최소화할 것. 이 기준에 따라 인스턴스 스펙을 올려 교체했고, 그 과정에서 불가피한 짧은 다운타임은 감수했습니다. 결과적으로 배포 중 멈춤과 응답 지연이 줄어들어 서비스를 “살리는” 데에는 성공했다고 판단합니다.
 
-### Key Libraries
-- **Code Generation**: Freezed, JSON Serializable, Build Runner
-- **Security**: Flutter Secure Storage
-- **Location**: Geolocator, Geocoding
-- **Firebase**: Firebase Core
-- **Media**: Image Picker, Carousel Slider
-- **Address Search**: Kpostal (Korean address search)
+문제를 겪은 지점과 해결도 명확합니다. 배포 시 여러 컨테이너를 동시에 올릴 때 메모리를 감당하지 못해 인스턴스가 멈추는 증상이 있었고, 이를 스케일 업으로 우선 해소했습니다. 한 번에 모든 것을 바꾸기보다, 지금 병목을 일으키는 단 하나를 먼저 풀자는 원칙 아래 결정을 내렸습니다. 그 이후에는 셸 스크립트와 Nginx를 이용해 다운타임을 최소화하는 롤링 업데이트 방식으로 배포했습니다. 이 방식을 고른 이유는 새로운 인프라를 도입하지 않고도 적용 가능하고, 헬스 체크 통과 여부에 따라 트래픽 전환을 제어할 수 있어 위험이 낮기 때문이었습니다. 추가적으로 Grafana, Loki, Prometheus를 도입해 실시간 서버 메트릭과 로그를 확인하도록 했습니다. 이 선택의 이유는 설치가 빠르고 의존성이 적어 해커톤 시간 내 바로 대시보드를 띄울 수 있으며, 느린 API나 5xx 증가 같은 이상 징후를 즉시 파악할 수 있기 때문이었습니다.
 
-## 🏗️ Architecture
+시간 제약으로 하지 못한 일도 분명히 있습니다. 미션에서 명시되어 있는 것처럼 트래픽이 더 커질 상황을 대비해 AWS Load Balancer와 Auto Scaling 구성을 하려 했지만, 해커톤 기간 안에 충분한 설정과 검증 시간을 확보하지 못해 적용하지 못했습니다. 컨테이너 오케스트레이션 전환 또한 전환 범위가 너무 크고 필요 비용이 높아 이번 해커톤에서는 손대지 못했습니다. CDN을 이용해 정적 파일을 캐싱하는 것도 효과가 큰 것을 알고 있지만, 우선순위에서 밀려 이번 라운드에서는 반영하지 못했습니다.
 
-The project follows a clean three-layer architecture:
 
-```
-├── UI Layer (Widgets & Screens)
-├── Logic Layer (Riverpod Providers)
-└── API Service Layer (Dio & Interceptors)
-```
+# 미션 2 일요일 아침의 악몽
+이번 미션에서 우리가 실제로 적용한 것은 HTTPS 강제뿐이었습니다. 가장 빨리, 위험 없이, 되돌리기 쉽게 넣을 수 있었기 때문입니다. 다만 HTTPS는 스팸을 막는 기능이 아니라는 점을 알고 있었고, 이번 라운드에서는 “최소한의 기본 보안”만 확보하는 수준에 그쳤습니다.
 
-### Project Structure
-
-```
-fe/
-├── lib/
-│   ├── app/
-│   │   ├── api/          # API client, interceptors, error handling
-│   │   ├── auth/         # Authentication logic and state
-│   │   ├── extension/    # Dart extensions
-│   │   ├── feature/      # Feature modules
-│   │   │   ├── auth/     # Authentication screens
-│   │   │   ├── home/     # Home screen and widgets
-│   │   │   ├── space_rental/  # Space rental features
-│   │   │   ├── item_storage/  # Item storage management
-│   │   │   ├── profile_edit/  # Profile management
-│   │   │   ├── history/  # Transaction history
-│   │   │   ├── faq/      # FAQ section
-│   │   │   └── error/    # Error handling screens
-│   │   ├── model/        # Data models with Freezed
-│   │   ├── routing/      # GoRouter configuration
-│   │   └── service/      # Core services
-│   ├── main.dart         # App entry point
-│   └── service.dart      # Service registration
-├── assets/               # Images, fonts, etc.
-├── test/                # Unit and widget tests
-└── pubspec.yaml         # Dependencies
-```
-
-## 🚦 Getting Started
-
-### Prerequisites
-
-- Flutter SDK 3.5.4 or higher
-- Dart SDK
-- FVM (Flutter Version Management) - optional but recommended
-- Android Studio / Xcode for mobile development
-
-### Installation
-
-1. **Clone the repository**
-```bash
-git clone https://github.com/yourusername/builders-camp-team-14.git
-cd builders-camp-team-14/fe
-```
-
-2. **Set Flutter version (if using FVM)**
-```bash
-fvm use
-```
-
-3. **Install dependencies**
-```bash
-flutter pub get
-```
-
-4. **Set up environment variables**
-```bash
-# Copy the .env.example to .env
-cp .env.example .env
-# Edit .env with your configuration
-```
-
-5. **Generate code**
-```bash
-dart run build_runner build --delete-conflicting-outputs
-```
-
-6. **Run the app**
-```bash
-flutter run
-```
-
-## 🔧 Development Commands
-
-### Common Commands
-- `flutter run` - Run the app in debug mode
-- `flutter build apk` - Build Android APK
-- `flutter build ios` - Build iOS app
-- `flutter test` - Run tests
-- `flutter analyze` - Analyze code for issues
-- `dart format .` - Format code
-
-### Code Generation
-- `dart run build_runner build` - Generate code once
-- `dart run build_runner watch` - Watch and generate continuously
-- `dart run build_runner build --delete-conflicting-outputs` - Clean and rebuild
-
-## 🧪 Testing
-
-Run tests with:
-```bash
-flutter test
-```
-
-For coverage report:
-```bash
-flutter test --coverage
-```
-
-## 📝 Code Style
-
-- **File naming**: lowercase_with_underscores.dart
-- **Classes**: PascalCase
-- **Variables/Functions**: camelCase
-- **Constants**: UPPER_CASE_WITH_UNDERSCORES
-- Maximum file length: ~150 lines (extract widgets as needed)
-
-## 🔐 Environment Configuration
-
-Create a `.env` file in the `fe` directory with:
-
-```env
-API_ADDRESS=https://your-api-url.com
-# Add other environment variables as needed
-```
-
-## 📦 State Management
-
-The app uses Riverpod for state management with the following patterns:
-
-- **NotifierProvider**: For complex state logic
-- **FutureProvider**: For async data fetching
-- **StateProvider**: For simple state
-- **Result Pattern**: Consistent error handling without try-catch
-
-Example:
-```dart
-// In widgets
-ref.watch(myProvider);  // For reactive rebuilds
-ref.read(myProvider);   // For one-time reads
-
-// In logic layer
-ref.read(myProvider);   // Never use watch in logic
-```
-
-## 🎨 UI Components
-
-The app uses Shadcn UI for consistent design. Common components:
-
-- `ShadButton` - Buttons with variants
-- `ShadCard` - Card containers
-- `ShadInput` - Form inputs
-- `ShadDialog` - Modal dialogs
-- `ShadToast` - Toast notifications
-
-See [shadcn_guide.md](fe/shadcn_guide.md) for detailed usage.
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Run tests and linting before committing
-4. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-5. Push to the branch (`git push origin feature/AmazingFeature`)
-6. Open a Pull Request
-
-### Pre-commit Checklist
-- [ ] Code is formatted (`dart format .`)
-- [ ] Code passes analysis (`flutter analyze`)
-- [ ] All tests pass (`flutter test`)
-- [ ] Code generation is up to date
-- [ ] No hardcoded secrets or API keys
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👥 Team
-
-Builders Camp Team 14
-
-## 📞 Support
-
-For support, please open an issue in the GitHub repository or contact the team.
-
-## 🔄 Version History
-
-- **0.1.0** - Initial release with core features
-
-## 🙏 Acknowledgments
-
-- Flutter team for the amazing framework
-- Shadcn UI for the design system
-- All contributors and testers
-
----
-
-Built with ❤️ by Builders Camp Team 14
+스팸 억제를 위해 당장 떠오른 건 reCAPTCHA였지만, 붙이려면 프런트와 백엔드 양쪽 수정, 서버측 검증, 모바일·접근성 고려, 우회 대응까지 필요해 작업 범위가 컸습니다. 해커톤 시간 안에 안전하게 적용하고 테스트하기 어렵다고 판단해 적용하지 못했습니다. 그래서 이번 라운드에서는 reCAPTCHA도 적용하지 못했고, 대신 다음 단계로 Nginx에서 가입·로그인·쓰기 같은 POST 엔드포인트에 IP 기준 간단한 레이트 리밋을 거는 것을 가장 쉬운 대안으로 정했습니다. 서버 코드 변경 없이 설정만 추가하면 되고, 잘못 걸어도 바로 되돌릴 수 있어서 리스크가 낮습니다. 예를 들어 한 IP가 분당 몇 번 이상 연속으로 시도하면 429를 반환하는 수준입니다. 다만 이 작업도 해커톤 시간 안에 안전하게 테스트할 여유가 없어 이번 미션에서는 적용하지 못했고, 다음 라운드에서 가장 먼저 반영할 예정입니다.
