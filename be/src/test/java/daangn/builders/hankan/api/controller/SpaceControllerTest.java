@@ -359,14 +359,8 @@ class SpaceControllerTest {
                 .param("startDate", "2025-10-01")
                 .param("endDate", "2025-11-30"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.availableStartDate").isArray())
-                .andExpect(jsonPath("$.availableStartDate[0]").value(2025))
-                .andExpect(jsonPath("$.availableStartDate[1]").value(10))
-                .andExpect(jsonPath("$.availableStartDate[2]").value(1))
-                .andExpect(jsonPath("$.availableEndDate").isArray())
-                .andExpect(jsonPath("$.availableEndDate[0]").value(2025))
-                .andExpect(jsonPath("$.availableEndDate[1]").value(11))
-                .andExpect(jsonPath("$.availableEndDate[2]").value(30));
+                .andExpect(jsonPath("$.availableStartDate").value("2025-10-01"))
+                .andExpect(jsonPath("$.availableEndDate").value("2025-11-30"));
     }
 
     @Test

@@ -1,5 +1,6 @@
 package daangn.builders.hankan.domain.space;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import daangn.builders.hankan.domain.common.BaseEntity;
 import daangn.builders.hankan.domain.user.User;
 import jakarta.persistence.*;
@@ -69,9 +70,11 @@ public class Space extends BaseEntity {
     
     // 이용 가능한 기간
     @Column(name = "available_start_date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate availableStartDate;
     
     @Column(name = "available_end_date")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate availableEndDate;
     
     

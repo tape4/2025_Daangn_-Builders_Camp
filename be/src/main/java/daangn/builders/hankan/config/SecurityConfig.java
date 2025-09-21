@@ -75,6 +75,13 @@ public class SecurityConfig {
                         // Health check
                         .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
                         
+                        // Public space search endpoints
+                        .requestMatchers(HttpMethod.GET, "/api/spaces/search/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/spaces/top-rated").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/spaces/*/availability/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/spaces/*/capacity").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/spaces/*").permitAll()
+                        
                         // All other API endpoints require authentication
                         .anyRequest().authenticated()
                 );
