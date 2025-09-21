@@ -144,7 +144,7 @@ class SpaceRentalNotifier extends Notifier<SpaceRentalState> {
 
     try {
       // First get geocoding data from the address
-      final fullAddress = '${state.region} ${state.detailAddress}'.trim();
+      final fullAddress = state.region.trim();
       final geoResult = await ApiService.I.getKakaoGeoCoding(
         address: fullAddress,
       );

@@ -8,6 +8,7 @@ import 'package:hankan/app/feature/space_rental/logic/space_rental_provider.dart
 import 'package:hankan/app/feature/space_rental/logic/space_rental_state.dart';
 import 'package:hankan/app/feature/space_rental/widgets/dimension_input_section.dart';
 import 'package:hankan/app/feature/space_rental/widgets/storage_option_item.dart';
+import 'package:hankan/app/routing/router_service.dart';
 import 'package:hankan/app/widgets/date_range_picker.dart';
 import 'package:hankan/app/feature/space_rental/models/space_rental_option.dart';
 import 'package:hankan/app/widgets/location_panel.dart';
@@ -122,18 +123,17 @@ class _SpaceRentalPageState extends ConsumerState<SpaceRentalPage> {
                         if (!isAuthenticated) return;
 
                         final success = await notifier.submitSpaceRental();
-                        if (success && context.mounted) {
-                          if (context.mounted) {
-                            context.pop();
-                            ShadToaster.of(context).show(
-                              ShadToast(
-                                title: const Text('등록 완료'),
-                                description:
-                                    const Text('공간 대여 정보가 성공적으로 등록되었습니다.'),
-                              ),
-                            );
-                          }
-                        }
+
+                        Navigator.of(context).pop();
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          ShadToaster.of(context).show(
+                            ShadToast(
+                              title: const Text('등록 완료'),
+                              description:
+                                  const Text('공간 대여 정보가 성공적으로 등록되었습니다.'),
+                            ),
+                          );
+                        });
                       }
                     : () {
                         debugPrint('Form is not valid or loading');

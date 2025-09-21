@@ -93,7 +93,6 @@ class SpaceDetailNotifier extends StateNotifier<SpaceDetailState> {
 공간 요청:
 - 크기: ${state.selectedSize}
 - 수량: ${state.selectedQuantity}
-- 기간: ${state.selectedStartDate?.toString().substring(0, 10)} to ${state.selectedEndDate?.toString().substring(0, 10)}
 - 위치: ${state.spaceDetail?.address}
       ''';
 
