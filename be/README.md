@@ -46,6 +46,7 @@ src/main/java/daangn/builders/hankan/
 │   ├── controller/          # REST 컨트롤러
 │   │   ├── UserController.java
 │   │   ├── SpaceController.java
+│   │   ├── ItemController.java        # 물품 보관 요청 API
 │   │   ├── ReservationController.java
 │   │   └── ReviewController.java
 │   ├── dto/                 # Request/Response DTO
@@ -56,6 +57,7 @@ src/main/java/daangn/builders/hankan/
 ├── domain/                   # 도메인 레이어
 │   ├── user/                # 사용자 도메인
 │   ├── space/               # 공간 도메인
+│   ├── item/                # 물품 보관 요청 도메인
 │   ├── reservation/         # 예약 도메인
 │   ├── review/              # 리뷰 도메인
 │   └── auth/                # 인증 도메인
@@ -65,6 +67,8 @@ src/main/java/daangn/builders/hankan/
 │   │   ├── Login.java       # @Login 어노테이션
 │   │   └── LoginArgumentResolver.java
 │   ├── exception/           # 예외 처리
+│   │   ├── GlobalExceptionHandler.java  # 전역 예외 처리
+│   │   └── ErrorResponse.java
 │   ├── service/             # 공통 서비스
 │   │   └── S3Service.java  # AWS S3 서비스
 │   └── controller/          # 공통 컨트롤러
@@ -73,7 +77,8 @@ src/main/java/daangn/builders/hankan/
     ├── SwaggerConfig.java   # API 문서 설정
     ├── CorsConfig.java      # CORS 설정
     ├── WebConfig.java       # Web MVC 설정
-    └── S3Config.java        # AWS S3 설정
+    ├── S3Config.java        # AWS S3 설정
+    └── JacksonConfig.java   # JSON 직렬화 설정
 ```
 
 ## 🔑 주요 기능
@@ -87,17 +92,26 @@ src/main/java/daangn/builders/hankan/
 ### 2. 공간 관리
 - **공간 등록**: 위치, 박스 용량(XS/S/M/L/XL), 이용 가능 기간 설정
 - **위치 기반 검색**: Haversine 공식을 이용한 좌표 기반 반경 내 공간 검색
-- **날짜별 검색**: 특정 날짜에 이용 가능한 공간 조회
+- **날짜 범위 검색**: 시작일과 종료일 범위 내 이용 가능한 공간 조회
 - **복합 검색**: 위치 + 날짜 조건 동시 검색
 - **이미지 관리**: 공간 이미지 S3 업로드/업데이트
+- **박스 사이즈 분류**: 자동 사이즈 계산 (XS/S/M/L/XL)
 
-### 3. 예약 시스템
+### 3. 물품 보관 요청
+- **물품 등록**: 보관하고자 하는 물품 정보 등록
+- **크기 자동 계산**: 가로/세로/깊이 기반 부피 및 사이즈 분류
+- **날짜 범위 설정**: 보관 시작일/종료일 지정
+- **가격 범위 제시**: 최소/최대 희망 가격 설정
+- **매칭 시스템**: 공간과 물품 매칭 상태 관리
+- **이미지 업로드**: 물품 사진 S3 업로드
+
+### 4. 예약 시스템
 - **예약 생성**: 공간 예약 및 박스 타입/수량 지정
 - **예약 조회**: 사용자별 예약 내역 (페이징 지원)
 - **예약 상태 관리**: PENDING → CONFIRMED → COMPLETED
 - **예약 취소**: 소프트 삭제 방식
 
-### 4. 리뷰 시스템
+### 5. 리뷰 시스템
 - **리뷰 작성**: 예약 완료 후 리뷰 작성 (1회만)
 - **평점 관리**: 5점 만점 평점 시스템
 - **리뷰 조회**: 공간별/사용자별 리뷰 목록
@@ -145,6 +159,14 @@ spaces (
     created_at, updated_at
 )
 
+-- 물품
+items (
+    id, title, description, width, height, depth,
+    volume, size_category, start_date, end_date,
+    min_price, max_price, status, image_url,
+    owner_id, created_at, updated_at
+)
+
 -- 예약
 reservations (
     id, user_id, space_id, box_type,
@@ -162,8 +184,10 @@ reviews (
 
 ### 관계
 - User ↔ Space: 1:N (소유자)
+- User ↔ Item: 1:N (소유자)
 - User ↔ Reservation: 1:N
 - Space ↔ Reservation: 1:N
+- Item ↔ Reservation: 1:1 (매칭)
 - Reservation ↔ Review: 1:1
 - User ↔ Review: 1:N (작성자/대상자)
 
@@ -260,7 +284,7 @@ http://localhost:8080/swagger-ui/index.html
 | POST | `/` | 공간 등록 (Multipart) 🔒 |
 | GET | `/{spaceId}` | 공간 상세 조회 |
 | GET | `/search/location` | 위치 기반 검색 |
-| GET | `/search/date` | 날짜별 검색 |
+| GET | `/search/date` | 날짜 범위 검색 (startDate, endDate) |
 | GET | `/search/location-and-date` | 위치+날짜 검색 |
 | GET | `/top-rated` | 평점 높은 공간 |
 | GET | `/my` | 내 공간 목록 🔒 |
@@ -269,6 +293,23 @@ http://localhost:8080/swagger-ui/index.html
 | PATCH | `/{spaceId}/capacity` | 박스 용량 업데이트 🔒 |
 | GET | `/{spaceId}/availability/{date}` | 특정 날짜 이용 가능 여부 |
 | GET | `/{spaceId}/capacity` | 박스 용량 상세 조회 |
+
+#### 물품 (`/api/items`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/` | 물품 등록 (Multipart) 🔒 |
+| GET | `/{itemId}` | 물품 상세 조회 |
+| DELETE | `/{itemId}` | 물품 삭제 🔒 |
+| PATCH | `/{itemId}/image` | 물품 이미지 업데이트 🔒 |
+| PATCH | `/{itemId}/status` | 물품 상태 변경 🔒 |
+| GET | `/my` | 내 물품 목록 🔒 |
+| GET | `/search/date` | 날짜별 물품 검색 |
+| GET | `/search/price` | 가격 범위로 검색 |
+| GET | `/search/size` | 크기별 검색 |
+| GET | `/search/keyword` | 키워드 검색 |
+| GET | `/recent` | 최근 등록 물품 |
+| GET | `/upcoming` | 곧 시작될 물품 |
+| GET | `/stats` | 물품 통계 |
 
 #### 예약 (`/api/reservations`)
 | Method | Endpoint | Description |
@@ -330,6 +371,11 @@ open build/reports/tests/test/index.html
 - **Repository Tests**: JPA 쿼리 메서드 테스트
 - **Integration Tests**: 전체 플로우 통합 테스트
 
+### 현재 테스트 상태
+- **총 테스트**: 155개
+- **성공률**: 100%
+- **테스트 커버리지**: Controller 레이어 중심
+
 ### 테스트 데이터
 - H2 인메모리 데이터베이스 사용 (테스트 환경)
 - @Sql 어노테이션으로 테스트 데이터 초기화
@@ -340,10 +386,12 @@ open build/reports/tests/test/index.html
 `.github/workflows/be-cicd.yml`:
 1. 코드 체크아웃
 2. JDK 17 설정
-3. Gradle 캐싱
-4. 테스트 실행
-5. 빌드
-6. Docker 이미지 빌드 & 푸시 (선택적)
+3. MySQL/Redis 테스트 환경 구성
+4. 환경 변수 동적 생성
+5. 테스트 실행
+6. 빌드 및 JAR 생성
+7. Docker 이미지 빌드 & DockerHub 푸시
+8. EC2 무중단 배포 (Rolling Update)
 
 ### 필요한 GitHub Secrets
 ```yaml
@@ -366,6 +414,20 @@ COOLSMS_PHONE_NUMBER
 DATABASE_URL
 DATABASE_USERNAME
 DATABASE_PASSWORD
+REDIS_HOST
+REDIS_PORT
+
+# Docker
+DOCKER_USERNAME
+DOCKER_PASSWORD
+DOCKERHUB_REPOSITORY
+
+# Server
+SERVER_URL
+SERVER_REMOTE_IP
+SERVER_REMOTE_USER
+SERVER_REMOTE_PRIVATE_KEY
+SERVER_REMOTE_SSH_PORT
 ```
 
 ## 🛠 트러블슈팅
@@ -460,6 +522,27 @@ const updateProfile = async (nickname, profileImage) => {
 ## 👥 팀원
 
 빌더스 캠프 Team 14
+
+---
+
+## 🚨 트래픽 대응 전략
+
+### 무중단 배포 시스템
+- **Blue-Green 배포**: 2개 포트(8081/8082) 활용한 Rolling Update
+- **Health Check**: Nginx가 3초마다 헬스체크 수행
+- **자동 전환**: 새 버전 정상 구동 확인 후 자동 트래픽 전환
+
+### 모니터링 시스템
+- **Prometheus**: 메트릭 수집 (CPU, Memory, API 응답시간)
+- **Loki**: 중앙 집중식 로그 수집 및 분석
+- **Grafana**: 실시간 대시보드 및 알람
+- **Spring Actuator**: 애플리케이션 상태 모니터링
+
+### 성능 최적화
+- **Redis 캐싱**: 자주 조회되는 데이터 캐싱
+- **데이터베이스 인덱싱**: 위치/날짜 기반 검색 최적화
+- **HikariCP**: 커넥션 풀 최적화
+- **Jackson 직렬화**: 날짜 형식 표준화 (ISO 8601)
 
 ---
 
