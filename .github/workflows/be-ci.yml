@@ -34,8 +34,8 @@ jobs:
               with:
                   host port: 3306
                   mysql database: "TESTDB"
-                  mysql user: "aaa"
-                  mysql password: "aaa"
+                  mysql user: "hankan"
+                  mysql password: "hankan"
 
             - name: Setup Redis for test
               uses: supercharge/redis-github-action@1.7.0
