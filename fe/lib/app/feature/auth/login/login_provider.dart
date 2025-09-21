@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hankan/app/auth/auth_service.dart';
 import 'package:hankan/app/feature/auth/login/login_state.dart';
@@ -115,13 +116,17 @@ class LoginNotifier extends Notifier<LoginState> {
 
           RouterService.I.router.go(Routes.home);
           ref.read(userProvider.notifier).getUser();
+          RouterService.I.showNotification(
+            title: '환영합니다!',
+            message: '로그인에 성공했습니다.',
+          );
           return true;
         },
         onFailure: (error) {
           if (error.statusCode == 404) {
             log('User not found, navigating to registration');
-            RouterService.I.router.go(
-              Routes.register,
+            RouterService.I.router.push(
+              Routes.nicknameInput,
               extra: {'phone': state.phone},
             );
             RouterService.I.showNotification(

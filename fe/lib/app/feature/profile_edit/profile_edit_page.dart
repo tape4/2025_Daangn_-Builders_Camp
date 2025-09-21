@@ -177,13 +177,18 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
             // Fallback to placeholder if image loading fails
-            return ShadAvatar(
-              'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTF_IdW_JHgWJh_GBrudxZXPOFfdf5598pnew&s',
-              placeholder: Text(
-                state.nickname.isNotEmpty ? state.nickname[0].toUpperCase() : 'U',
+            return Container(
+              width: size.width,
+              height: size.height,
+              decoration: BoxDecoration(
+                color: ShadTheme.of(context).colorScheme.muted,
+                shape: BoxShape.circle,
               ),
-              size: size,
-              fit: BoxFit.cover,
+              child: Icon(
+                Icons.person,
+                color: ShadTheme.of(context).colorScheme.mutedForeground,
+                size: 40,
+              ),
             );
           },
         ),
@@ -191,15 +196,18 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
     }
 
     // Use ShadAvatar for URLs or default image
-    return ShadAvatar(
-      state.profileUrl.isEmpty
-          ? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTF_IdW_JHgWJh_GBrudxZXPOFfdf5598pnew&s'
-          : state.profileUrl,
-      placeholder: Text(
-        state.nickname.isNotEmpty ? state.nickname[0].toUpperCase() : 'U',
+    return Container(
+      width: size.width,
+      height: size.height,
+      decoration: BoxDecoration(
+        color: ShadTheme.of(context).colorScheme.muted,
+        shape: BoxShape.circle,
       ),
-      size: size,
-      fit: BoxFit.cover,
+      child: Icon(
+        Icons.person,
+        color: ShadTheme.of(context).colorScheme.mutedForeground,
+        size: 40,
+      ),
     );
   }
 
@@ -295,7 +303,8 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
     );
   }
 
-  Future<void> _pickImage(ImageSource source, ProfileEditNotifier notifier) async {
+  Future<void> _pickImage(
+      ImageSource source, ProfileEditNotifier notifier) async {
     final ImagePicker picker = ImagePicker();
 
     try {

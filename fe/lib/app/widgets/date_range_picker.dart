@@ -122,7 +122,10 @@ class DateRangePicker extends StatelessWidget {
               child: ShadDatePicker.range(
                 selected: startDate != null && endDate != null
                     ? ShadDateTimeRange(start: startDate!, end: endDate!)
-                    : null,
+                    : ShadDateTimeRange(
+                        start: DateTime.now(),
+                        end: DateTime.now().add(const Duration(days: 90)),
+                      ),
                 onRangeChanged: (ShadDateTimeRange? range) {
                   if (range != null) {
                     onDateRangeChanged(range.start, range.end);

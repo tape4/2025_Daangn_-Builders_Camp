@@ -14,6 +14,8 @@ class HomeState with _$HomeState {
     @Default(false) bool isLoading,
     @Default(false) bool hasError,
     String? errorMessage,
+    required DateTime startDate,
+    required DateTime endDate,
   }) = _HomeState;
 
   factory HomeState.fromJson(Map<String, dynamic> json) =>

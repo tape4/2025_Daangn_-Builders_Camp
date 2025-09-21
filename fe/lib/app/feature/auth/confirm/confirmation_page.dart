@@ -29,6 +29,7 @@ class _ConfirmationPageState extends ConsumerState<ConfirmationPage> {
     final notifier = ref.read(registerProvider.notifier);
 
     // Set registration data
+    notifier.updatePhone(widget.phone);
     notifier.updateName(widget.nickname);
     notifier.updateAddress(widget.region);
 

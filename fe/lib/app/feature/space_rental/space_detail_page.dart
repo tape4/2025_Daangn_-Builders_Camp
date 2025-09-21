@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hankan/app/api/api_service.dart';
 import 'package:hankan/app/feature/space_rental/logic/space_detail_provider.dart';
 import 'package:hankan/app/feature/space_rental/widgets/space_location_map.dart';
+import 'package:hankan/app/model/space_detail_model.dart';
+import 'package:hankan/app/provider/user_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
@@ -62,7 +65,10 @@ class SpaceDetailPage extends ConsumerWidget {
             leading: Container(
               margin: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: ShadTheme.of(context).colorScheme.background.withOpacity(0.9),
+                color: ShadTheme.of(context)
+                    .colorScheme
+                    .background
+                    .withOpacity(0.9),
                 shape: BoxShape.circle,
               ),
               child: ShadButton.ghost(
@@ -94,25 +100,16 @@ class SpaceDetailPage extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    space.name,
-                    style: ShadTheme.of(context).textTheme.h2,
+                    space.address,
+                    style: ShadTheme.of(context).textTheme.h4,
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    space.description,
-                    style: ShadTheme.of(context).textTheme.p,
-                  ),
-                  const SizedBox(height: 24),
-
                   _buildOwnerSection(context, space),
                   const SizedBox(height: 24),
-
                   _buildAvailablePeriod(context, space, dateFormat),
                   const SizedBox(height: 24),
-
                   _buildStorageOptions(context, space, state, notifier),
                   const SizedBox(height: 24),
-
                   Text(
                     '위치',
                     style: ShadTheme.of(context).textTheme.h4,
@@ -137,8 +134,9 @@ class SpaceDetailPage extends ConsumerWidget {
         child: ShadButton(
           onPressed: state.selectedSize != null
               ? () async {
-                  final success = await notifier.submitRentalRequest();
-                  if (success && context.mounted) {
+                  final success = await notifier
+                      .startChatting(ref.read(userProvider).nickname);
+                  if (success != null && context.mounted) {
                     ShadToaster.of(context).show(
                       ShadToast(
                         title: const Text('신청 완료'),
@@ -157,71 +155,85 @@ class SpaceDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildOwnerSection(BuildContext context, space) {
-    return ShadCard(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            ShadAvatar(
-              space.owner.profileImageUrl,
-              placeholder: Text(space.owner.nickname.substring(0, 1)),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '공간 제공자',
-                    style: ShadTheme.of(context).textTheme.small.copyWith(
-                      color: ShadTheme.of(context).colorScheme.mutedForeground,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    space.owner.nickname,
-                    style: ShadTheme.of(context).textTheme.p.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
+  Widget _buildOwnerSection(BuildContext context, SpaceDetail space) {
+    return FutureBuilder(
+        future: ApiService.I.getUserDetail(space.owner.id),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError || !snapshot.hasData) {
+            return const SizedBox.shrink();
+          }
+          final owner = snapshot.data!.data;
+
+          return ShadCard(
+            child: Row(
               children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.star,
-                      color: Colors.amber,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      space.owner.rating.toStringAsFixed(1),
-                      style: ShadTheme.of(context).textTheme.p.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-                Text(
-                  '리뷰 ${space.owner.reviewCount}개',
-                  style: ShadTheme.of(context).textTheme.small.copyWith(
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.person,
+                    size: 40,
                     color: ShadTheme.of(context).colorScheme.mutedForeground,
                   ),
                 ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '공간 제공자',
+                        style: ShadTheme.of(context).textTheme.small.copyWith(
+                              color: ShadTheme.of(context)
+                                  .colorScheme
+                                  .mutedForeground,
+                            ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        owner.nickname.toString(),
+                        style: ShadTheme.of(context).textTheme.p.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                    ],
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.star,
+                          color: Colors.amber,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          owner.rating.toStringAsFixed(1),
+                          style: ShadTheme.of(context).textTheme.p.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ],
             ),
-          ],
-        ),
-      ),
-    );
+          );
+        });
   }
 
-  Widget _buildAvailablePeriod(BuildContext context, space, DateFormat dateFormat) {
+  Widget _buildAvailablePeriod(
+      BuildContext context, space, DateFormat dateFormat) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -246,21 +258,21 @@ class SpaceDetailPage extends ConsumerWidget {
           Text(
             '${dateFormat.format(space.availableStartDate)} ~ ${dateFormat.format(space.availableEndDate)}',
             style: ShadTheme.of(context).textTheme.small.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+                  fontWeight: FontWeight.w600,
+                ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStorageOptions(BuildContext context, space, state, notifier) {
+  Widget _buildStorageOptions(
+      BuildContext context, SpaceDetail space, state, notifier) {
     final sizes = [
       {'label': 'XS', 'capacity': space.boxCapacityXs, 'size': 'xs'},
       {'label': 'S', 'capacity': space.boxCapacityS, 'size': 's'},
       {'label': 'M', 'capacity': space.boxCapacityM, 'size': 'm'},
       {'label': 'L', 'capacity': space.boxCapacityL, 'size': 'l'},
-      {'label': 'XL', 'capacity': space.boxCapacityXl, 'size': 'xl'},
     ];
 
     return Column(
@@ -298,10 +310,16 @@ class SpaceDetailPage extends ConsumerWidget {
                     width: isSelected ? 2 : 1,
                   ),
                   color: isSelected
-                      ? ShadTheme.of(context).colorScheme.primary.withOpacity(0.05)
+                      ? ShadTheme.of(context)
+                          .colorScheme
+                          .primary
+                          .withOpacity(0.05)
                       : isAvailable
                           ? Colors.transparent
-                          : ShadTheme.of(context).colorScheme.muted.withOpacity(0.1),
+                          : ShadTheme.of(context)
+                              .colorScheme
+                              .muted
+                              .withOpacity(0.1),
                 ),
                 child: Row(
                   children: [
@@ -318,7 +336,9 @@ class SpaceDetailPage extends ConsumerWidget {
                         child: Text(
                           size['label'] as String,
                           style: TextStyle(
-                            color: ShadTheme.of(context).colorScheme.primaryForeground,
+                            color: ShadTheme.of(context)
+                                .colorScheme
+                                .primaryForeground,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -332,18 +352,23 @@ class SpaceDetailPage extends ConsumerWidget {
                           Text(
                             '사이즈 ${size['label']}',
                             style: ShadTheme.of(context).textTheme.p.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
+                                  fontWeight: FontWeight.w600,
+                                ),
                           ),
                           Text(
                             isAvailable
                                 ? '${size['capacity']}개 보관 가능'
                                 : '보관 불가',
-                            style: ShadTheme.of(context).textTheme.small.copyWith(
-                              color: isAvailable
-                                  ? ShadTheme.of(context).colorScheme.mutedForeground
-                                  : ShadTheme.of(context).colorScheme.destructive,
-                            ),
+                            style:
+                                ShadTheme.of(context).textTheme.small.copyWith(
+                                      color: isAvailable
+                                          ? ShadTheme.of(context)
+                                              .colorScheme
+                                              .mutedForeground
+                                          : ShadTheme.of(context)
+                                              .colorScheme
+                                              .destructive,
+                                    ),
                           ),
                         ],
                       ),

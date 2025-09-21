@@ -33,7 +33,6 @@ mixin _$SpaceDetail {
   int get boxCapacityS => throw _privateConstructorUsedError;
   int get boxCapacityM => throw _privateConstructorUsedError;
   int get boxCapacityL => throw _privateConstructorUsedError;
-  int get boxCapacityXl => throw _privateConstructorUsedError;
   double get rating => throw _privateConstructorUsedError;
   int get reviewCount => throw _privateConstructorUsedError;
   SpaceOwner get owner => throw _privateConstructorUsedError;
@@ -71,7 +70,6 @@ abstract class $SpaceDetailCopyWith<$Res> {
       int boxCapacityS,
       int boxCapacityM,
       int boxCapacityL,
-      int boxCapacityXl,
       double rating,
       int reviewCount,
       SpaceOwner owner,
@@ -110,7 +108,6 @@ class _$SpaceDetailCopyWithImpl<$Res, $Val extends SpaceDetail>
     Object? boxCapacityS = null,
     Object? boxCapacityM = null,
     Object? boxCapacityL = null,
-    Object? boxCapacityXl = null,
     Object? rating = null,
     Object? reviewCount = null,
     Object? owner = null,
@@ -170,10 +167,6 @@ class _$SpaceDetailCopyWithImpl<$Res, $Val extends SpaceDetail>
       boxCapacityL: null == boxCapacityL
           ? _value.boxCapacityL
           : boxCapacityL // ignore: cast_nullable_to_non_nullable
-              as int,
-      boxCapacityXl: null == boxCapacityXl
-          ? _value.boxCapacityXl
-          : boxCapacityXl // ignore: cast_nullable_to_non_nullable
               as int,
       rating: null == rating
           ? _value.rating
@@ -235,7 +228,6 @@ abstract class _$$SpaceDetailImplCopyWith<$Res>
       int boxCapacityS,
       int boxCapacityM,
       int boxCapacityL,
-      int boxCapacityXl,
       double rating,
       int reviewCount,
       SpaceOwner owner,
@@ -273,7 +265,6 @@ class __$$SpaceDetailImplCopyWithImpl<$Res>
     Object? boxCapacityS = null,
     Object? boxCapacityM = null,
     Object? boxCapacityL = null,
-    Object? boxCapacityXl = null,
     Object? rating = null,
     Object? reviewCount = null,
     Object? owner = null,
@@ -334,10 +325,6 @@ class __$$SpaceDetailImplCopyWithImpl<$Res>
           ? _value.boxCapacityL
           : boxCapacityL // ignore: cast_nullable_to_non_nullable
               as int,
-      boxCapacityXl: null == boxCapacityXl
-          ? _value.boxCapacityXl
-          : boxCapacityXl // ignore: cast_nullable_to_non_nullable
-              as int,
       rating: null == rating
           ? _value.rating
           : rating // ignore: cast_nullable_to_non_nullable
@@ -374,16 +361,15 @@ class _$SpaceDetailImpl implements _SpaceDetail {
       required this.updatedAt,
       required this.id,
       required this.name,
-      required this.description,
+      this.description = "",
       required this.latitude,
       required this.longitude,
       required this.address,
-      required this.imageUrl,
+      this.imageUrl = "",
       required this.boxCapacityXs,
       required this.boxCapacityS,
       required this.boxCapacityM,
       required this.boxCapacityL,
-      required this.boxCapacityXl,
       required this.rating,
       required this.reviewCount,
       required this.owner,
@@ -403,6 +389,7 @@ class _$SpaceDetailImpl implements _SpaceDetail {
   @override
   final String name;
   @override
+  @JsonKey()
   final String description;
   @override
   final double latitude;
@@ -411,6 +398,7 @@ class _$SpaceDetailImpl implements _SpaceDetail {
   @override
   final String address;
   @override
+  @JsonKey()
   final String imageUrl;
   @override
   final int boxCapacityXs;
@@ -420,8 +408,6 @@ class _$SpaceDetailImpl implements _SpaceDetail {
   final int boxCapacityM;
   @override
   final int boxCapacityL;
-  @override
-  final int boxCapacityXl;
   @override
   final double rating;
   @override
@@ -437,7 +423,7 @@ class _$SpaceDetailImpl implements _SpaceDetail {
 
   @override
   String toString() {
-    return 'SpaceDetail(createdAt: $createdAt, updatedAt: $updatedAt, id: $id, name: $name, description: $description, latitude: $latitude, longitude: $longitude, address: $address, imageUrl: $imageUrl, boxCapacityXs: $boxCapacityXs, boxCapacityS: $boxCapacityS, boxCapacityM: $boxCapacityM, boxCapacityL: $boxCapacityL, boxCapacityXl: $boxCapacityXl, rating: $rating, reviewCount: $reviewCount, owner: $owner, availableStartDate: $availableStartDate, availableEndDate: $availableEndDate, totalBoxCount: $totalBoxCount)';
+    return 'SpaceDetail(createdAt: $createdAt, updatedAt: $updatedAt, id: $id, name: $name, description: $description, latitude: $latitude, longitude: $longitude, address: $address, imageUrl: $imageUrl, boxCapacityXs: $boxCapacityXs, boxCapacityS: $boxCapacityS, boxCapacityM: $boxCapacityM, boxCapacityL: $boxCapacityL, rating: $rating, reviewCount: $reviewCount, owner: $owner, availableStartDate: $availableStartDate, availableEndDate: $availableEndDate, totalBoxCount: $totalBoxCount)';
   }
 
   @override
@@ -468,8 +454,6 @@ class _$SpaceDetailImpl implements _SpaceDetail {
                 other.boxCapacityM == boxCapacityM) &&
             (identical(other.boxCapacityL, boxCapacityL) ||
                 other.boxCapacityL == boxCapacityL) &&
-            (identical(other.boxCapacityXl, boxCapacityXl) ||
-                other.boxCapacityXl == boxCapacityXl) &&
             (identical(other.rating, rating) || other.rating == rating) &&
             (identical(other.reviewCount, reviewCount) ||
                 other.reviewCount == reviewCount) &&
@@ -499,7 +483,6 @@ class _$SpaceDetailImpl implements _SpaceDetail {
         boxCapacityS,
         boxCapacityM,
         boxCapacityL,
-        boxCapacityXl,
         rating,
         reviewCount,
         owner,
@@ -530,16 +513,15 @@ abstract class _SpaceDetail implements SpaceDetail {
       required final DateTime updatedAt,
       required final int id,
       required final String name,
-      required final String description,
+      final String description,
       required final double latitude,
       required final double longitude,
       required final String address,
-      required final String imageUrl,
+      final String imageUrl,
       required final int boxCapacityXs,
       required final int boxCapacityS,
       required final int boxCapacityM,
       required final int boxCapacityL,
-      required final int boxCapacityXl,
       required final double rating,
       required final int reviewCount,
       required final SpaceOwner owner,
@@ -577,8 +559,6 @@ abstract class _SpaceDetail implements SpaceDetail {
   @override
   int get boxCapacityL;
   @override
-  int get boxCapacityXl;
-  @override
   double get rating;
   @override
   int get reviewCount;
@@ -605,16 +585,14 @@ SpaceOwner _$SpaceOwnerFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$SpaceOwner {
-  DateTime get createdAt => throw _privateConstructorUsedError;
-  DateTime get updatedAt => throw _privateConstructorUsedError;
   int get id => throw _privateConstructorUsedError;
-  String get phoneNumber => throw _privateConstructorUsedError;
-  String get nickname => throw _privateConstructorUsedError;
-  DateTime get birthDate => throw _privateConstructorUsedError;
-  String get gender => throw _privateConstructorUsedError;
-  String get profileImageUrl => throw _privateConstructorUsedError;
-  double get rating => throw _privateConstructorUsedError;
-  int get reviewCount => throw _privateConstructorUsedError;
+  String? get phoneNumber => throw _privateConstructorUsedError;
+  String? get nickname => throw _privateConstructorUsedError;
+  DateTime? get birthDate => throw _privateConstructorUsedError;
+  String? get gender => throw _privateConstructorUsedError;
+  String? get profileImageUrl => throw _privateConstructorUsedError;
+  double? get rating => throw _privateConstructorUsedError;
+  int? get reviewCount => throw _privateConstructorUsedError;
 
   /// Serializes this SpaceOwner to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -633,16 +611,14 @@ abstract class $SpaceOwnerCopyWith<$Res> {
       _$SpaceOwnerCopyWithImpl<$Res, SpaceOwner>;
   @useResult
   $Res call(
-      {DateTime createdAt,
-      DateTime updatedAt,
-      int id,
-      String phoneNumber,
-      String nickname,
-      DateTime birthDate,
-      String gender,
-      String profileImageUrl,
-      double rating,
-      int reviewCount});
+      {int id,
+      String? phoneNumber,
+      String? nickname,
+      DateTime? birthDate,
+      String? gender,
+      String? profileImageUrl,
+      double? rating,
+      int? reviewCount});
 }
 
 /// @nodoc
@@ -660,58 +636,48 @@ class _$SpaceOwnerCopyWithImpl<$Res, $Val extends SpaceOwner>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? createdAt = null,
-    Object? updatedAt = null,
     Object? id = null,
-    Object? phoneNumber = null,
-    Object? nickname = null,
-    Object? birthDate = null,
-    Object? gender = null,
-    Object? profileImageUrl = null,
-    Object? rating = null,
-    Object? reviewCount = null,
+    Object? phoneNumber = freezed,
+    Object? nickname = freezed,
+    Object? birthDate = freezed,
+    Object? gender = freezed,
+    Object? profileImageUrl = freezed,
+    Object? rating = freezed,
+    Object? reviewCount = freezed,
   }) {
     return _then(_value.copyWith(
-      createdAt: null == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: null == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      phoneNumber: null == phoneNumber
+      phoneNumber: freezed == phoneNumber
           ? _value.phoneNumber
           : phoneNumber // ignore: cast_nullable_to_non_nullable
-              as String,
-      nickname: null == nickname
+              as String?,
+      nickname: freezed == nickname
           ? _value.nickname
           : nickname // ignore: cast_nullable_to_non_nullable
-              as String,
-      birthDate: null == birthDate
+              as String?,
+      birthDate: freezed == birthDate
           ? _value.birthDate
           : birthDate // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      gender: null == gender
+              as DateTime?,
+      gender: freezed == gender
           ? _value.gender
           : gender // ignore: cast_nullable_to_non_nullable
-              as String,
-      profileImageUrl: null == profileImageUrl
+              as String?,
+      profileImageUrl: freezed == profileImageUrl
           ? _value.profileImageUrl
           : profileImageUrl // ignore: cast_nullable_to_non_nullable
-              as String,
-      rating: null == rating
+              as String?,
+      rating: freezed == rating
           ? _value.rating
           : rating // ignore: cast_nullable_to_non_nullable
-              as double,
-      reviewCount: null == reviewCount
+              as double?,
+      reviewCount: freezed == reviewCount
           ? _value.reviewCount
           : reviewCount // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
     ) as $Val);
   }
 }
@@ -725,16 +691,14 @@ abstract class _$$SpaceOwnerImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {DateTime createdAt,
-      DateTime updatedAt,
-      int id,
-      String phoneNumber,
-      String nickname,
-      DateTime birthDate,
-      String gender,
-      String profileImageUrl,
-      double rating,
-      int reviewCount});
+      {int id,
+      String? phoneNumber,
+      String? nickname,
+      DateTime? birthDate,
+      String? gender,
+      String? profileImageUrl,
+      double? rating,
+      int? reviewCount});
 }
 
 /// @nodoc
@@ -750,58 +714,48 @@ class __$$SpaceOwnerImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? createdAt = null,
-    Object? updatedAt = null,
     Object? id = null,
-    Object? phoneNumber = null,
-    Object? nickname = null,
-    Object? birthDate = null,
-    Object? gender = null,
-    Object? profileImageUrl = null,
-    Object? rating = null,
-    Object? reviewCount = null,
+    Object? phoneNumber = freezed,
+    Object? nickname = freezed,
+    Object? birthDate = freezed,
+    Object? gender = freezed,
+    Object? profileImageUrl = freezed,
+    Object? rating = freezed,
+    Object? reviewCount = freezed,
   }) {
     return _then(_$SpaceOwnerImpl(
-      createdAt: null == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      updatedAt: null == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime,
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
-      phoneNumber: null == phoneNumber
+      phoneNumber: freezed == phoneNumber
           ? _value.phoneNumber
           : phoneNumber // ignore: cast_nullable_to_non_nullable
-              as String,
-      nickname: null == nickname
+              as String?,
+      nickname: freezed == nickname
           ? _value.nickname
           : nickname // ignore: cast_nullable_to_non_nullable
-              as String,
-      birthDate: null == birthDate
+              as String?,
+      birthDate: freezed == birthDate
           ? _value.birthDate
           : birthDate // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      gender: null == gender
+              as DateTime?,
+      gender: freezed == gender
           ? _value.gender
           : gender // ignore: cast_nullable_to_non_nullable
-              as String,
-      profileImageUrl: null == profileImageUrl
+              as String?,
+      profileImageUrl: freezed == profileImageUrl
           ? _value.profileImageUrl
           : profileImageUrl // ignore: cast_nullable_to_non_nullable
-              as String,
-      rating: null == rating
+              as String?,
+      rating: freezed == rating
           ? _value.rating
           : rating // ignore: cast_nullable_to_non_nullable
-              as double,
-      reviewCount: null == reviewCount
+              as double?,
+      reviewCount: freezed == reviewCount
           ? _value.reviewCount
           : reviewCount // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
     ));
   }
 }
@@ -810,44 +764,38 @@ class __$$SpaceOwnerImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$SpaceOwnerImpl implements _SpaceOwner {
   const _$SpaceOwnerImpl(
-      {required this.createdAt,
-      required this.updatedAt,
-      required this.id,
-      required this.phoneNumber,
-      required this.nickname,
-      required this.birthDate,
-      required this.gender,
-      required this.profileImageUrl,
-      required this.rating,
-      required this.reviewCount});
+      {required this.id,
+      this.phoneNumber,
+      this.nickname,
+      this.birthDate,
+      this.gender,
+      this.profileImageUrl,
+      this.rating,
+      this.reviewCount});
 
   factory _$SpaceOwnerImpl.fromJson(Map<String, dynamic> json) =>
       _$$SpaceOwnerImplFromJson(json);
 
   @override
-  final DateTime createdAt;
-  @override
-  final DateTime updatedAt;
-  @override
   final int id;
   @override
-  final String phoneNumber;
+  final String? phoneNumber;
   @override
-  final String nickname;
+  final String? nickname;
   @override
-  final DateTime birthDate;
+  final DateTime? birthDate;
   @override
-  final String gender;
+  final String? gender;
   @override
-  final String profileImageUrl;
+  final String? profileImageUrl;
   @override
-  final double rating;
+  final double? rating;
   @override
-  final int reviewCount;
+  final int? reviewCount;
 
   @override
   String toString() {
-    return 'SpaceOwner(createdAt: $createdAt, updatedAt: $updatedAt, id: $id, phoneNumber: $phoneNumber, nickname: $nickname, birthDate: $birthDate, gender: $gender, profileImageUrl: $profileImageUrl, rating: $rating, reviewCount: $reviewCount)';
+    return 'SpaceOwner(id: $id, phoneNumber: $phoneNumber, nickname: $nickname, birthDate: $birthDate, gender: $gender, profileImageUrl: $profileImageUrl, rating: $rating, reviewCount: $reviewCount)';
   }
 
   @override
@@ -855,10 +803,6 @@ class _$SpaceOwnerImpl implements _SpaceOwner {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$SpaceOwnerImpl &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt) &&
-            (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt) &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.phoneNumber, phoneNumber) ||
                 other.phoneNumber == phoneNumber) &&
@@ -876,18 +820,8 @@ class _$SpaceOwnerImpl implements _SpaceOwner {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      createdAt,
-      updatedAt,
-      id,
-      phoneNumber,
-      nickname,
-      birthDate,
-      gender,
-      profileImageUrl,
-      rating,
-      reviewCount);
+  int get hashCode => Object.hash(runtimeType, id, phoneNumber, nickname,
+      birthDate, gender, profileImageUrl, rating, reviewCount);
 
   /// Create a copy of SpaceOwner
   /// with the given fields replaced by the non-null parameter values.
@@ -907,40 +841,34 @@ class _$SpaceOwnerImpl implements _SpaceOwner {
 
 abstract class _SpaceOwner implements SpaceOwner {
   const factory _SpaceOwner(
-      {required final DateTime createdAt,
-      required final DateTime updatedAt,
-      required final int id,
-      required final String phoneNumber,
-      required final String nickname,
-      required final DateTime birthDate,
-      required final String gender,
-      required final String profileImageUrl,
-      required final double rating,
-      required final int reviewCount}) = _$SpaceOwnerImpl;
+      {required final int id,
+      final String? phoneNumber,
+      final String? nickname,
+      final DateTime? birthDate,
+      final String? gender,
+      final String? profileImageUrl,
+      final double? rating,
+      final int? reviewCount}) = _$SpaceOwnerImpl;
 
   factory _SpaceOwner.fromJson(Map<String, dynamic> json) =
       _$SpaceOwnerImpl.fromJson;
 
   @override
-  DateTime get createdAt;
-  @override
-  DateTime get updatedAt;
-  @override
   int get id;
   @override
-  String get phoneNumber;
+  String? get phoneNumber;
   @override
-  String get nickname;
+  String? get nickname;
   @override
-  DateTime get birthDate;
+  DateTime? get birthDate;
   @override
-  String get gender;
+  String? get gender;
   @override
-  String get profileImageUrl;
+  String? get profileImageUrl;
   @override
-  double get rating;
+  double? get rating;
   @override
-  int get reviewCount;
+  int? get reviewCount;
 
   /// Create a copy of SpaceOwner
   /// with the given fields replaced by the non-null parameter values.

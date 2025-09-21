@@ -27,6 +27,8 @@ mixin _$HomeState {
   bool get isLoading => throw _privateConstructorUsedError;
   bool get hasError => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
+  DateTime get startDate => throw _privateConstructorUsedError;
+  DateTime get endDate => throw _privateConstructorUsedError;
 
   /// Serializes this HomeState to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -50,7 +52,9 @@ abstract class $HomeStateCopyWith<$Res> {
       int currentCarouselIndex,
       bool isLoading,
       bool hasError,
-      String? errorMessage});
+      String? errorMessage,
+      DateTime startDate,
+      DateTime endDate});
 }
 
 /// @nodoc
@@ -75,6 +79,8 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
     Object? isLoading = null,
     Object? hasError = null,
     Object? errorMessage = freezed,
+    Object? startDate = null,
+    Object? endDate = null,
   }) {
     return _then(_value.copyWith(
       filters: null == filters
@@ -105,6 +111,14 @@ class _$HomeStateCopyWithImpl<$Res, $Val extends HomeState>
           ? _value.errorMessage
           : errorMessage // ignore: cast_nullable_to_non_nullable
               as String?,
+      startDate: null == startDate
+          ? _value.startDate
+          : startDate // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      endDate: null == endDate
+          ? _value.endDate
+          : endDate // ignore: cast_nullable_to_non_nullable
+              as DateTime,
     ) as $Val);
   }
 }
@@ -124,7 +138,9 @@ abstract class _$$HomeStateImplCopyWith<$Res>
       int currentCarouselIndex,
       bool isLoading,
       bool hasError,
-      String? errorMessage});
+      String? errorMessage,
+      DateTime startDate,
+      DateTime endDate});
 }
 
 /// @nodoc
@@ -147,6 +163,8 @@ class __$$HomeStateImplCopyWithImpl<$Res>
     Object? isLoading = null,
     Object? hasError = null,
     Object? errorMessage = freezed,
+    Object? startDate = null,
+    Object? endDate = null,
   }) {
     return _then(_$HomeStateImpl(
       filters: null == filters
@@ -177,6 +195,14 @@ class __$$HomeStateImplCopyWithImpl<$Res>
           ? _value.errorMessage
           : errorMessage // ignore: cast_nullable_to_non_nullable
               as String?,
+      startDate: null == startDate
+          ? _value.startDate
+          : startDate // ignore: cast_nullable_to_non_nullable
+              as DateTime,
+      endDate: null == endDate
+          ? _value.endDate
+          : endDate // ignore: cast_nullable_to_non_nullable
+              as DateTime,
     ));
   }
 }
@@ -191,7 +217,9 @@ class _$HomeStateImpl implements _HomeState {
       this.currentCarouselIndex = 0,
       this.isLoading = false,
       this.hasError = false,
-      this.errorMessage})
+      this.errorMessage,
+      required this.startDate,
+      required this.endDate})
       : _filters = filters,
         _availableSpaces = availableSpaces;
 
@@ -229,10 +257,14 @@ class _$HomeStateImpl implements _HomeState {
   final bool hasError;
   @override
   final String? errorMessage;
+  @override
+  final DateTime startDate;
+  @override
+  final DateTime endDate;
 
   @override
   String toString() {
-    return 'HomeState(filters: $filters, isBorrowMode: $isBorrowMode, availableSpaces: $availableSpaces, currentCarouselIndex: $currentCarouselIndex, isLoading: $isLoading, hasError: $hasError, errorMessage: $errorMessage)';
+    return 'HomeState(filters: $filters, isBorrowMode: $isBorrowMode, availableSpaces: $availableSpaces, currentCarouselIndex: $currentCarouselIndex, isLoading: $isLoading, hasError: $hasError, errorMessage: $errorMessage, startDate: $startDate, endDate: $endDate)';
   }
 
   @override
@@ -252,7 +284,10 @@ class _$HomeStateImpl implements _HomeState {
             (identical(other.hasError, hasError) ||
                 other.hasError == hasError) &&
             (identical(other.errorMessage, errorMessage) ||
-                other.errorMessage == errorMessage));
+                other.errorMessage == errorMessage) &&
+            (identical(other.startDate, startDate) ||
+                other.startDate == startDate) &&
+            (identical(other.endDate, endDate) || other.endDate == endDate));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -265,7 +300,9 @@ class _$HomeStateImpl implements _HomeState {
       currentCarouselIndex,
       isLoading,
       hasError,
-      errorMessage);
+      errorMessage,
+      startDate,
+      endDate);
 
   /// Create a copy of HomeState
   /// with the given fields replaced by the non-null parameter values.
@@ -291,7 +328,9 @@ abstract class _HomeState implements HomeState {
       final int currentCarouselIndex,
       final bool isLoading,
       final bool hasError,
-      final String? errorMessage}) = _$HomeStateImpl;
+      final String? errorMessage,
+      required final DateTime startDate,
+      required final DateTime endDate}) = _$HomeStateImpl;
 
   factory _HomeState.fromJson(Map<String, dynamic> json) =
       _$HomeStateImpl.fromJson;
@@ -310,6 +349,10 @@ abstract class _HomeState implements HomeState {
   bool get hasError;
   @override
   String? get errorMessage;
+  @override
+  DateTime get startDate;
+  @override
+  DateTime get endDate;
 
   /// Create a copy of HomeState
   /// with the given fields replaced by the non-null parameter values.

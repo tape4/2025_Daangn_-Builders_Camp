@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hankan/app/api/api_service.dart';
+import 'package:hankan/app/auth/auth_service.dart';
 import 'package:hankan/app/feature/home/screens/history/logic/history_state.dart';
 import 'package:hankan/app/model/reservation_model.dart';
 
@@ -14,6 +15,8 @@ class HistoryProvider extends Notifier<HistoryState> {
   }
 
   Future<void> loadData() async {
+    if (!AuthService.I.state.isLoggedIn) return;
+
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {

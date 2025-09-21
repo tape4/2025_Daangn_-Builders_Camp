@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -126,7 +128,9 @@ class _ItemStoragePageState extends ConsumerState<ItemStoragePage> {
               child: ShadButton(
                 onPressed: state.isValid && !state.isLoading
                     ? () async {
-                        final isAuthenticated = await AuthHelper.checkAuthAndShowBottomSheet(
+                        log("g");
+                        final isAuthenticated =
+                            await AuthHelper.checkAuthAndShowBottomSheet(
                           context: context,
                           ref: ref,
                         );

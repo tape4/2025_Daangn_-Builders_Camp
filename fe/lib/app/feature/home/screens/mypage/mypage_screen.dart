@@ -146,14 +146,16 @@ class MypageScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 16),
         Divider(),
-        const SizedBox(height: 16),
-        _buildMenuItem(
-          context: context,
-          icon: Symbols.logout,
-          title: '로그아웃',
-          isDestructive: true,
-          onTap: () => _showLogoutDialog(context),
-        ),
+        if (AuthService.I.state.isLoggedIn) ...[
+          const SizedBox(height: 16),
+          _buildMenuItem(
+            context: context,
+            icon: Symbols.logout,
+            title: '로그아웃',
+            isDestructive: true,
+            onTap: () => _showLogoutDialog(context),
+          ),
+        ]
       ],
     );
   }
@@ -215,7 +217,10 @@ class MypageScreen extends ConsumerWidget {
             child: const Text('로그아웃'),
             onPressed: () {
               Navigator.of(context).pop();
-
+              RouterService.I.showNotification(
+                title: '로그아웃',
+                message: '로그아웃 되었습니다.',
+              );
               AuthService.I.logout();
             },
           ),

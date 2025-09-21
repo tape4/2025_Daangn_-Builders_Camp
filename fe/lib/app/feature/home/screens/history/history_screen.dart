@@ -87,8 +87,8 @@ class _MySpacesTab extends StatelessWidget {
     if (state.mySpaces.isEmpty) {
       return const HistoryEmptyState(
         icon: Icons.home_work,
-        title: '아직 등록된 공간이 없습니다',
-        subtitle: '첫 번째 공간을 등록해보세요',
+        title: '아직 대여중인 공간이 없습니다',
+        subtitle: '나의 공간을 등록하고 수익을 올려보세요',
       );
     }
 
@@ -127,7 +127,8 @@ class _MySpacesTab extends StatelessWidget {
               ),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: ShadTheme.of(context).colorScheme.border.withOpacity(0.5),
+                color:
+                    ShadTheme.of(context).colorScheme.border.withOpacity(0.5),
               ),
             ),
             child: Row(
@@ -138,7 +139,10 @@ class _MySpacesTab extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: ShadTheme.of(context).colorScheme.primary.withOpacity(0.1),
+                        color: ShadTheme.of(context)
+                            .colorScheme
+                            .primary
+                            .withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
@@ -151,30 +155,34 @@ class _MySpacesTab extends StatelessWidget {
                     Text(
                       '월간 예상 수익',
                       style: ShadTheme.of(context).textTheme.muted.copyWith(
-                        fontSize: 12,
-                      ),
+                            fontSize: 12,
+                          ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '₩${totalMonthlyRevenue.toStringAsFixed(0)}',
                       style: ShadTheme.of(context).textTheme.h4.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: ShadTheme.of(context).colorScheme.primary,
-                      ),
+                            fontWeight: FontWeight.bold,
+                            color: ShadTheme.of(context).colorScheme.primary,
+                          ),
                     ),
                   ],
                 ),
                 Container(
                   width: 1,
                   height: 80,
-                  color: ShadTheme.of(context).colorScheme.border.withOpacity(0.3),
+                  color:
+                      ShadTheme.of(context).colorScheme.border.withOpacity(0.3),
                 ),
                 Column(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: ShadTheme.of(context).colorScheme.primary.withOpacity(0.1),
+                        color: ShadTheme.of(context)
+                            .colorScheme
+                            .primary
+                            .withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
@@ -187,16 +195,16 @@ class _MySpacesTab extends StatelessWidget {
                     Text(
                       '도움 제공',
                       style: ShadTheme.of(context).textTheme.muted.copyWith(
-                        fontSize: 12,
-                      ),
+                            fontSize: 12,
+                          ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '$totalPeopleHelped명',
                       style: ShadTheme.of(context).textTheme.h4.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: ShadTheme.of(context).colorScheme.primary,
-                      ),
+                            fontWeight: FontWeight.bold,
+                            color: ShadTheme.of(context).colorScheme.primary,
+                          ),
                     ),
                   ],
                 ),

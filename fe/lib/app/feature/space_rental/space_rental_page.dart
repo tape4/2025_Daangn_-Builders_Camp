@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -108,9 +110,12 @@ class _SpaceRentalPageState extends ConsumerState<SpaceRentalPage> {
               ),
               padding: const EdgeInsets.all(16),
               child: ShadButton(
+                enabled: state.isValid && !state.isLoading,
                 onPressed: state.isValid && !state.isLoading
                     ? () async {
-                        final isAuthenticated = await AuthHelper.checkAuthAndShowBottomSheet(
+                        debugPrint('Submit space rental');
+                        final isAuthenticated =
+                            await AuthHelper.checkAuthAndShowBottomSheet(
                           context: context,
                           ref: ref,
                         );
@@ -118,19 +123,21 @@ class _SpaceRentalPageState extends ConsumerState<SpaceRentalPage> {
 
                         final success = await notifier.submitSpaceRental();
                         if (success && context.mounted) {
-                          ShadToaster.of(context).show(
-                            ShadToast(
-                              title: const Text('등록 완료'),
-                              description:
-                                  const Text('공간 대여 정보가 성공적으로 등록되었습니다.'),
-                            ),
-                          );
                           if (context.mounted) {
                             context.pop();
+                            ShadToaster.of(context).show(
+                              ShadToast(
+                                title: const Text('등록 완료'),
+                                description:
+                                    const Text('공간 대여 정보가 성공적으로 등록되었습니다.'),
+                              ),
+                            );
                           }
                         }
                       }
-                    : null,
+                    : () {
+                        debugPrint('Form is not valid or loading');
+                      },
                 size: ShadButtonSize.lg,
                 child: state.isLoading
                     ? const CircularProgressIndicator()
@@ -195,7 +202,9 @@ class _SpaceRentalPageState extends ConsumerState<SpaceRentalPage> {
               ),
             ),
           ] else ...[
-            ...StorageOption.values.where((option) => option != StorageOption.box).map((option) {
+            ...StorageOption.values
+                .where((option) => option != StorageOption.box)
+                .map((option) {
               final quantity = state.optionQuantities[option] ?? 0;
               final price = state.optionPrices[option] ?? 0;
               final maxQuantity = state.getMaxQuantityForOption(option);
@@ -217,7 +226,8 @@ class _SpaceRentalPageState extends ConsumerState<SpaceRentalPage> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: ShadTheme.of(context).colorScheme.muted.withOpacity(0.05),
+                color:
+                    ShadTheme.of(context).colorScheme.muted.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -232,8 +242,8 @@ class _SpaceRentalPageState extends ConsumerState<SpaceRentalPage> {
                     child: Text(
                       '부피로만 계산되어 실제 배치 가능 여부와 다를 수 있습니다',
                       style: ShadTheme.of(context).textTheme.muted.copyWith(
-                        fontSize: 12,
-                      ),
+                            fontSize: 12,
+                          ),
                     ),
                   ),
                 ],

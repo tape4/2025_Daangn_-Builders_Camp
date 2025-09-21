@@ -76,21 +76,21 @@ class _ExpandableFABState extends State<ExpandableFAB>
                     },
                     backgroundColor: Colors.blue,
                     icon: Icons.book,
-                    offset: 45,
+                    offset: 25,
                     animation: _animation,
                   ),
-                  FABItem(
-                    label: '물건 보관하기',
-                    heroTag: 'store',
-                    onPressed: () {
-                      _toggleFAB();
-                      context.push(Routes.itemStorage);
-                    },
-                    backgroundColor: Colors.green,
-                    icon: Icons.add_location_alt,
-                    offset: 30,
-                    animation: _animation,
-                  ),
+                  // FABItem(
+                  //   label: '물건 보관하기',
+                  //   heroTag: 'store',
+                  //   onPressed: () {
+                  //     _toggleFAB();
+                  //     context.push(Routes.itemStorage);
+                  //   },
+                  //   backgroundColor: Colors.green,
+                  //   icon: Icons.add_location_alt,
+                  //   offset: 30,
+                  //   animation: _animation,
+                  // ),
                   FABItem(
                     label: '공간 빌려주기',
                     heroTag: 'rent',

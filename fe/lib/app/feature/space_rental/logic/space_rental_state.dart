@@ -48,8 +48,7 @@ extension SpaceRentalStateExtension on SpaceRentalState {
   }
 
   bool get isValid {
-    return imagePath != null &&
-        width > 0 &&
+    return width > 0 &&
         depth > 0 &&
         height > 0 &&
         region.isNotEmpty &&

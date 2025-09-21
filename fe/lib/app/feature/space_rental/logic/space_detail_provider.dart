@@ -1,15 +1,22 @@
+import 'dart:developer';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hankan/app/api/api_service.dart';
 import 'package:hankan/app/feature/space_rental/logic/space_detail_state.dart';
-import 'package:hankan/app/api/space_api_service.dart';
+import 'package:hankan/app/routing/router_service.dart';
+import 'package:hankan/app/service/sendbird_service.dart';
+import 'package:sendbird_chat_sdk/sendbird_chat_sdk.dart';
+
 import 'package:get_it/get_it.dart';
 
-final spaceDetailProvider = StateNotifierProvider.family<SpaceDetailNotifier, SpaceDetailState, int>((ref, spaceId) {
+final spaceDetailProvider =
+    StateNotifierProvider.family<SpaceDetailNotifier, SpaceDetailState, int>(
+        (ref, spaceId) {
   return SpaceDetailNotifier(spaceId);
 });
 
 class SpaceDetailNotifier extends StateNotifier<SpaceDetailState> {
   final int spaceId;
-  final _apiService = GetIt.I<SpaceApiService>();
 
   SpaceDetailNotifier(this.spaceId) : super(const SpaceDetailState()) {
     loadSpaceDetail();
@@ -18,7 +25,7 @@ class SpaceDetailNotifier extends StateNotifier<SpaceDetailState> {
   Future<void> loadSpaceDetail() async {
     state = state.copyWith(isLoading: true, hasError: false);
 
-    final result = await _apiService.getSpaceDetail(spaceId);
+    final result = await ApiService.I.getSpaceDetail(spaceId);
 
     result.fold(
       onFailure: (error) {
@@ -53,34 +60,56 @@ class SpaceDetailNotifier extends StateNotifier<SpaceDetailState> {
     );
   }
 
-  Future<bool> submitRentalRequest() async {
-    if (state.spaceDetail == null || state.selectedSize == null) {
-      return false;
+  Future<GroupChannel?> startChatting(String nickname) async {
+    final sendbirdService = SendbirdService.I;
+
+    if (!sendbirdService.isConnected) {
+      state = state.copyWith(
+        errorMessage: 'Chat service not connected',
+      );
+      return null;
     }
 
-    state = state.copyWith(isLoading: true);
-
-    final result = await _apiService.createRentalRequest(
-      spaceId: spaceId,
-      size: state.selectedSize!,
-      quantity: state.selectedQuantity,
-      startDate: state.selectedStartDate,
-      endDate: state.selectedEndDate,
-    );
-
-    return result.fold(
-      onFailure: (error) {
+    try {
+      final currentUserId = sendbirdService.currentUser?.userId;
+      if (currentUserId == null) {
         state = state.copyWith(
-          isLoading: false,
-          hasError: true,
-          errorMessage: error.message,
+          errorMessage: 'User not authenticated',
         );
-        return false;
-      },
-      onSuccess: (_) {
-        state = state.copyWith(isLoading: false);
-        return true;
-      },
-    );
+        return null;
+      }
+
+      final ownerId = "user_${state.spaceDetail?.owner.id}";
+
+      final channelName = '$nickname - ${state.selectedSize}';
+
+      final channel = await sendbirdService.createChannel(
+        userIds: [currentUserId, ownerId],
+        name: channelName,
+        isDistinct: false,
+      );
+
+      final initialMessage = '''
+공간 요청:
+- 크기: ${state.selectedSize}
+- 수량: ${state.selectedQuantity}
+- 기간: ${state.selectedStartDate?.toString().substring(0, 10)} to ${state.selectedEndDate?.toString().substring(0, 10)}
+- 위치: ${state.spaceDetail?.address}
+      ''';
+
+      await sendbirdService.sendTextMessage(
+        channel: channel,
+        text: initialMessage,
+      );
+      RouterService.I.router.pushReplacement('/chat/${channel.channelUrl}');
+
+      return channel;
+    } catch (e) {
+      log(e.toString());
+      state = state.copyWith(
+        errorMessage: 'Failed to start chat: ${e.toString()}',
+      );
+      return null;
+    }
   }
 }

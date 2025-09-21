@@ -1,10 +1,16 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hankan/app/api/api_error.dart';
 import 'package:hankan/app/api/dio_client.dart';
 import 'package:hankan/app/api/result.dart';
 import 'package:hankan/app/auth/auth_service.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hankan/app/extension/string_x.dart';
 import 'package:hankan/app/model/reservation_model.dart';
+import 'package:hankan/app/model/space_detail_model.dart';
 import 'package:hankan/app/model/token.dart';
 import 'package:hankan/app/model/user.dart';
 
@@ -13,25 +19,24 @@ class ApiService {
 
   late final MyDio _dio;
   late final Dio _kakaoDio;
-  static const String _kakaoApiKey =
-      'YOUR_KAKAO_REST_API_KEY'; // Replace with your actual API key
 
   void setAuthService(AuthService authService) =>
       _dio.setAuthService(authService);
 
   ApiService() {
     _dio = MyDio(dio: Dio());
+    final kakaoApiKey = dotenv.env['KAKAO_REST_API_KEY'] ?? '';
     _kakaoDio = Dio(BaseOptions(
       baseUrl: 'https://dapi.kakao.com',
       headers: {
-        'Authorization': 'KakaoAK $_kakaoApiKey',
+        'Authorization': 'KakaoAK $kakaoApiKey',
       },
     ));
   }
 
   Future<Result<User>> getUser() => _dio.get(
         '/api/users/me',
-        fromJson: User.fromJson,
+        fromJson: (json) => User.fromJson(json),
       );
 
   Future<Result<Map<String, dynamic>>> sendOtp(String phoneNumber) => _dio.post(
@@ -46,7 +51,7 @@ class ApiService {
           'phoneNumber': phoneNumber,
           'verificationCode': code,
         },
-        fromJson: Token.fromJson,
+        fromJson: (json) => Token.fromJson(json),
       );
 
   Future<Result<void>> logout() => _dio.post(
@@ -63,7 +68,8 @@ class ApiService {
           "birthDate": "1999-01-01",
           "gender": "MALE",
         },
-        fromJson: Token.fromJson,
+        data: FormData.fromMap({}),
+        fromJson: (json) => Token.fromJson(json),
       );
 
   Future<Result<List<MySpaceReservation>>> getMySpaceReservations() async {
@@ -95,6 +101,59 @@ class ApiService {
           .toList();
     });
   }
+
+  Future<Result<List<SpaceDetail>>> getAvailableSpaces({
+    required DateTime startDate,
+    required DateTime endDate,
+  }) async {
+    final queryParameters = <String, dynamic>{};
+
+    queryParameters['startDate'] = startDate.toString().formatDate2();
+    queryParameters['endDate'] = endDate.toString().formatDate2();
+
+    return _dio.get(
+      '/api/spaces/search/date',
+      queryParameters: queryParameters.isNotEmpty ? queryParameters : null,
+      fromJson: (json) => json
+          .map<SpaceDetail>(
+              (item) => SpaceDetail.fromJson(item as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Future<Result<SpaceDetail>> getSpaceDetail(int spaceId) => _dio.get(
+        '/api/spaces/$spaceId',
+        fromJson: (json) => SpaceDetail.fromJson(json),
+      );
+
+  Future<Result<SpaceDetail>> postSpace({
+    required String address,
+    required double latitude,
+    required double longitude,
+    required String availableStartDate,
+    required String availableEndDate,
+    required int boxCapacityXs,
+    required int boxCapacityS,
+    required int boxCapacityM,
+    required int boxCapacityL,
+  }) =>
+      _dio.post(
+        '/api/spaces',
+        queryParameters: {
+          'name': "한칸",
+          'address': address,
+          'latitude': latitude,
+          'longitude': longitude,
+          'availableStartDate': availableStartDate,
+          'availableEndDate': availableEndDate,
+          'boxCapacityXs': boxCapacityXs,
+          'boxCapacityS': boxCapacityS,
+          'boxCapacityM': boxCapacityM,
+          'boxCapacityL': boxCapacityL,
+        },
+        data: FormData.fromMap({}),
+        fromJson: (json) => SpaceDetail.fromJson(json),
+      );
 
   Future<Result<(double latitude, double longitude)>> getKakaoGeoCoding({
     required String address,
@@ -143,7 +202,12 @@ class ApiService {
       '/api/users/me',
       data: formData,
       queryParameters: nickname != null ? {'nickname': nickname} : null,
-      fromJson: User.fromJson,
+      fromJson: (json) => User.fromJson(json),
     );
   }
+
+  Future<Result<User>> getUserDetail(int userId) => _dio.get(
+        '/api/users/$userId',
+        fromJson: (json) => User.fromJson(json),
+      );
 }

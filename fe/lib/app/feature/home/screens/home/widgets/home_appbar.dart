@@ -32,11 +32,6 @@ class _HomeAppbarState extends ConsumerState<HomeAppbar> {
       setState(() {
         selectedAddress = address;
       });
-      if (address == null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _showAddressPrompt();
-        });
-      }
     }
   }
 

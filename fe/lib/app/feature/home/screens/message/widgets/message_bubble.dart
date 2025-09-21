@@ -34,15 +34,6 @@ class MessageBubble extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMyMessage && showAvatar) ...[
-            ShadAvatar(
-              message.sender.profile_url,
-              placeholder: Text(
-                message.sender.nickname.isNotEmpty
-                    ? message.sender.nickname[0].toUpperCase()
-                    : 'U',
-              ),
-              size: const Size(32, 32),
-            ),
             const SizedBox(width: 8),
           ] else if (!isMyMessage) ...[
             const SizedBox(width: 40),

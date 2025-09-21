@@ -1,4 +1,8 @@
+import 'dart:developer';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hankan/app/api/api_service.dart';
+import 'package:hankan/app/feature/home/logic/home_provider.dart';
 import 'package:hankan/app/feature/space_rental/logic/space_rental_state.dart';
 import 'package:hankan/app/feature/space_rental/models/space_rental_option.dart';
 
@@ -56,7 +60,9 @@ class SpaceRentalNotifier extends Notifier<SpaceRentalState> {
           .where((e) => e.key != option)
           .fold<double>(0, (sum, e) => sum + (e.key.volume * e.value));
 
-      final maxQuantity = ((state.totalVolume - currentQuantityWithoutThis) / option.volume).floor();
+      final maxQuantity =
+          ((state.totalVolume - currentQuantityWithoutThis) / option.volume)
+              .floor();
 
       if (quantity > maxQuantity) {
         state = state.copyWith(
@@ -137,11 +143,58 @@ class SpaceRentalNotifier extends Notifier<SpaceRentalState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
 
     try {
-      await Future.delayed(const Duration(seconds: 2));
+      // First get geocoding data from the address
+      final fullAddress = '${state.region} ${state.detailAddress}'.trim();
+      final geoResult = await ApiService.I.getKakaoGeoCoding(
+        address: fullAddress,
+      );
 
-      state = state.copyWith(isLoading: false);
-      return true;
+      if (!geoResult.isSuccess) {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: '주소 검색에 실패했습니다. 올바른 주소를 입력해주세요.',
+        );
+        return false;
+      }
+
+      final (latitude, longitude) = geoResult.data;
+
+      // Format dates to ISO 8601 format (YYYY-MM-DD)
+      final startDateStr = state.startDate!.toIso8601String().split('T')[0];
+      final endDateStr = state.endDate!.toIso8601String().split('T')[0];
+
+      // Calculate box capacities from optionQuantities
+      final boxCapacityXs = state.optionQuantities[StorageOption.xs] ?? 0;
+      final boxCapacityS = state.optionQuantities[StorageOption.s] ?? 0;
+      final boxCapacityM = state.optionQuantities[StorageOption.m] ?? 0;
+      final boxCapacityL = state.optionQuantities[StorageOption.l] ?? 0;
+
+      // Call the API
+      final result = await ApiService.I.postSpace(
+        address: fullAddress,
+        latitude: latitude,
+        longitude: longitude,
+        availableStartDate: startDateStr,
+        availableEndDate: endDateStr,
+        boxCapacityXs: boxCapacityXs,
+        boxCapacityS: boxCapacityS,
+        boxCapacityM: boxCapacityM,
+        boxCapacityL: boxCapacityL,
+      );
+
+      if (result.isSuccess) {
+        state = state.copyWith(isLoading: false);
+        ref.read(homeProvider.notifier).addSpaceDetail(result.data);
+        return true;
+      } else {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: '공간 등록에 실패했습니다.',
+        );
+        return false;
+      }
     } catch (e) {
+      log('Error submitting space rental: $e');
       state = state.copyWith(
         isLoading: false,
         errorMessage: '등록 중 오류가 발생했습니다. 다시 시도해주세요.',

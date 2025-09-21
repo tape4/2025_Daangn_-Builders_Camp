@@ -33,7 +33,7 @@ class MyDio {
     required String method,
     dynamic data,
     Map<String, dynamic>? queryParameters,
-    T Function(Map<String, dynamic>)? fromJson,
+    T Function(dynamic)? fromJson,
     void Function(int, int)? onSendProgress,
     void Function(int, int)? onReceiveProgress,
   }) async {
@@ -62,7 +62,7 @@ class MyDio {
   Future<Result<T>> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
-    T Function(Map<String, dynamic>)? fromJson,
+    T Function(dynamic)? fromJson,
     void Function(int, int)? onReceiveProgress,
   }) async {
     return _request<T>(
@@ -78,7 +78,7 @@ class MyDio {
     String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
-    T Function(Map<String, dynamic>)? fromJson,
+    T Function(dynamic)? fromJson,
     void Function(int, int)? onSendProgress,
     void Function(int, int)? onReceiveProgress,
   }) async {
@@ -97,7 +97,7 @@ class MyDio {
     String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
-    T Function(Map<String, dynamic>)? fromJson,
+    T Function(dynamic)? fromJson,
     void Function(int, int)? onSendProgress,
     void Function(int, int)? onReceiveProgress,
   }) async {
@@ -116,7 +116,7 @@ class MyDio {
     String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
-    T Function(Map<String, dynamic>)? fromJson,
+    T Function(dynamic)? fromJson,
   }) async {
     return _request<T>(
       path: path,
@@ -131,7 +131,7 @@ class MyDio {
     String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
-    T Function(Map<String, dynamic>)? fromJson,
+    T Function(dynamic)? fromJson,
     void Function(int, int)? onSendProgress,
     void Function(int, int)? onReceiveProgress,
   }) async {

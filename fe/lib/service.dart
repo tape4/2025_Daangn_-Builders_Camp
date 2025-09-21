@@ -24,7 +24,7 @@ class Service {
     GetIt.I.registerSingleton(SendbirdService()..init());
     GetIt.I.registerSingleton(RouterService()..init());
     GetIt.I.registerSingleton(GpsService());
-    GetIt.I.registerSingleton(SpaceApiService());
+
     return container;
   }
 }

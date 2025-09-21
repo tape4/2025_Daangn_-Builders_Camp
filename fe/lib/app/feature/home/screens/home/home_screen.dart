@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hankan/app/extension/context_x.dart';
 import 'package:hankan/app/feature/home/logic/home_provider.dart';
 import 'package:hankan/app/feature/home/screens/home/widgets/expandable_fab.dart';
@@ -9,6 +12,7 @@ import 'package:hankan/app/feature/home/screens/home/widgets/home_appbar.dart';
 import 'package:hankan/app/feature/home/screens/home/widgets/space_carousel_card.dart';
 import 'package:hankan/app/provider/location_provider.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -95,7 +99,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         child: Container(
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? Theme.of(context).primaryColor
+                                ? context.colorScheme.primary
                                 : Colors.grey.shade600,
                             shape: BoxShape.circle,
                             border: Border.all(
@@ -118,7 +122,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                       ),
                     );
-                  }).toList(),
+                  }),
                   // Current location marker (blue dot)
                   if (currentLocation.hasValue && currentLocation.value != null)
                     Marker(
@@ -155,112 +159,131 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
 
           Positioned(
-            top: 16,
+            top: 5,
             right: 0,
             child: Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: context.colorScheme.border,
+              padding: const EdgeInsets.only(right: 5.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ShadDatePicker.range(
+                    backgroundColor: Colors.white,
+                    selected: ShadDateTimeRange(
+                      start: DateTime.now(),
+                      end: DateTime.now().add(const Duration(days: 90)),
+                    ),
+                    onRangeChanged: (value) {
+                      if (value == null) return;
+                      ref
+                          .read(homeProvider.notifier)
+                          .setStartDate(value.start!);
+                      ref.read(homeProvider.notifier).setEndDate(value.end!);
+                    },
                   ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    InkWell(
-                      onTap: homeState.isBorrowMode
-                          ? null
-                          : () => ref
-                              .read(homeProvider.notifier)
-                              .toggleBorrowMode(),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(7),
-                        bottomLeft: Radius.circular(7),
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: context.colorScheme.border,
                       ),
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: homeState.isBorrowMode
-                              ? context.colorScheme.primary
-                              : Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        InkWell(
+                          onTap: homeState.isBorrowMode
+                              ? null
+                              : () => ref
+                                  .read(homeProvider.notifier)
+                                  .toggleBorrowMode(),
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(7),
                             bottomLeft: Radius.circular(7),
                           ),
-                        ),
-                        child: Text(
-                          '빌릴레요',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: homeState.isBorrowMode
-                                ? context.colorScheme.primaryForeground
-                                : context.colorScheme.foreground,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: homeState.isBorrowMode
+                                  ? context.colorScheme.primary
+                                  : Colors.white,
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(7),
+                                bottomLeft: Radius.circular(7),
+                              ),
+                            ),
+                            child: Text(
+                              '빌릴래요',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: homeState.isBorrowMode
+                                    ? context.colorScheme.primaryForeground
+                                    : context.colorScheme.foreground,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                    Container(
-                      width: 1,
-                      height: 24,
-                      color: context.colorScheme.border,
-                    ),
-                    InkWell(
-                      onTap: !homeState.isBorrowMode
-                          ? null
-                          : () => ref
-                              .read(homeProvider.notifier)
-                              .toggleBorrowMode(),
-                      borderRadius: BorderRadius.only(
-                        topRight: Radius.circular(7),
-                        bottomRight: Radius.circular(7),
-                      ),
-                      child: Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: !homeState.isBorrowMode
-                              ? context.colorScheme.primary
-                              : Colors.white,
+                        Container(
+                          width: 1,
+                          height: 24,
+                          color: context.colorScheme.border,
+                        ),
+                        InkWell(
+                          onTap: !homeState.isBorrowMode
+                              ? null
+                              : () => ref
+                                  .read(homeProvider.notifier)
+                                  .toggleBorrowMode(),
                           borderRadius: BorderRadius.only(
                             topRight: Radius.circular(7),
                             bottomRight: Radius.circular(7),
                           ),
-                        ),
-                        child: Text(
-                          '빌려줄레요',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: !homeState.isBorrowMode
-                                ? context.colorScheme.primaryForeground
-                                : context.colorScheme.foreground,
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: !homeState.isBorrowMode
+                                  ? context.colorScheme.primary
+                                  : Colors.white,
+                              borderRadius: BorderRadius.only(
+                                topRight: Radius.circular(7),
+                                bottomRight: Radius.circular(7),
+                              ),
+                            ),
+                            child: Text(
+                              '빌려줄래요',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: !homeState.isBorrowMode
+                                    ? context.colorScheme.primaryForeground
+                                    : context.colorScheme.foreground,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 5),
+                ],
               ),
             ),
           ),
-
-          // Carousel at bottom
           if (spaces.isNotEmpty)
             Positioned(
-              bottom: 20,
+              bottom: 80,
               left: 0,
               right: 0,
               child: SizedBox(
-                height: 200,
+                height: 230,
                 child: CarouselSlider.builder(
                   carouselController: _carouselController,
                   itemCount: spaces.length,
                   options: CarouselOptions(
-                    height: 200,
+                    height: 230,
                     viewportFraction: 0.85,
                     enableInfiniteScroll: false,
                     onPageChanged: (index, reason) {
@@ -271,8 +294,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     return SpaceCarouselCard(
                       space: spaces[index],
                       onTap: () {
-                        // Navigate to space detail page
-                        // You can implement navigation here
+                        context.push('/space/${spaces[index].id}');
                       },
                     );
                   },
